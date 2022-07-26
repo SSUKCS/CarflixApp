@@ -23,6 +23,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".carList"/>
+        <activity android:name=".logIn"/>
     </application>
 
 </manifest>

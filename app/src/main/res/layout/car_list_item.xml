@@ -7,7 +7,8 @@
         android:id="@+id/carImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/carImg_default">
+        android:src="@drawable/carimage_default"
+        >
     </ImageView>
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +19,7 @@
             android:id="@+id/carName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="차량명"
+            android:text="@string/carName_default"
             android:textSize="35sp"
             android:textStyle="bold" />
 
@@ -26,7 +27,7 @@
             android:id="@+id/isAvailable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="운전 가능"
+            android:text="@string/isAvailable_default"
             android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#4488FF" />
@@ -43,8 +44,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="이용정보 조회"
-                android:layout_marginLeft="5dp"/>>
+                android:text="@string/lookupInfo_default"
+                android:layout_marginLeft="5dp"/>
 
             <Button
                 android:id="@+id/startTheCar"
@@ -54,7 +55,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:backgroundTint="#4488FF"
-                android:text="시동걸기"/>>
+                android:text="@string/startTheCar_default"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

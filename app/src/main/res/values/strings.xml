@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Carflix</string>
+    <string name="carName_default">차량명</string>
+    <string name="isAvailable_default">운전 가능</string>
+    <string name="lookupInfo_default">운전 가능</string>
+    <string name="startTheCar_default">시동걸기</string>
 </resources>
