@@ -2,6 +2,9 @@
     <string name="app_name">Carflix</string>
     <string name="carName_default">차량명</string>
     <string name="isAvailable_default">운전 가능</string>
-    <string name="lookupInfo_default">운전 가능</string>
+    <string name="lookupInfo_default">이용 정보 조회</string>
     <string name="startTheCar_default">시동걸기</string>
+    <string name="groupName_default">그룹명</string>
+    <string name="groupName_family_default">우리 가족</string>
+    <string name="groupName_company_default">회사</string>
 </resources>

@@ -12,9 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+
 public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHolder>{
 
-    private String TAG = "Adapter";
+    private String TAG = "carListAdapter";
     private Context context;
     private ArrayList<carData> dataList;//데이터를 담을 리스트
 
@@ -24,9 +25,9 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
     }
     //클릭 리스너 인터페이스
     public interface itemClickListener{
-        void onItemClicked(View v, int position);
-        void onLookupInfoClicked(View v, int position);
-        void onStartTheCarClicked(View v, int position);
+        void onItemClick(View v, int position);
+        void onLookupInfoClick(View v, int position);
+        void onStartTheCarClick(View v, int position);
     }
     //리스너 객체 참조 변수
     private itemClickListener listener = null;
@@ -74,7 +75,7 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         if (listener != null) {
-                            listener.onItemClicked(view, position);
+                            listener.onItemClick(view, position);
                         }
                     }
                 }
@@ -86,7 +87,7 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
                    int position = getAdapterPosition();
                    if(position != RecyclerView.NO_POSITION){
                        if(listener!=null){
-                           listener.onLookupInfoClicked(view, position);
+                           listener.onLookupInfoClick(view, position);
                        }
                    }
                }
@@ -97,7 +98,7 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
                     int position = getAdapterPosition();
                     if(position != RecyclerView.NO_POSITION){
                         if(listener!=null){
-                            listener.onStartTheCarClicked(view, position);
+                            listener.onStartTheCarClick(view, position);
                         }
                     }
                 }
