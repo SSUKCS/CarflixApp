@@ -4,7 +4,11 @@
     <string name="isAvailable_default">운전 가능</string>
     <string name="lookupInfo_default">이용 정보 조회</string>
     <string name="startTheCar_default">시동걸기</string>
-    <string name="groupName_default">그룹명</string>
-    <string name="groupName_family_default">우리 가족</string>
-    <string name="groupName_company_default">회사</string>
+    <string name="groupTitle_default">그룹명</string>
+    <string name="groupDescription_default">그룹 설명</string>
+    <string name="groupType_default">종류</string>
+    <string name="groupType_smallGroup_default">소규모</string>
+    <string name="groupType_ceoGroup_default">대규모</string>
+    <string name="groupType_rentGroup_default">렌트</string>
+    <string name="groupDescription_company_default">회사</string>
 </resources>

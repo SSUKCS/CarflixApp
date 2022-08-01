@@ -48,6 +48,13 @@
                 android:ems="10"
                 android:inputType="textPassword"/>
         </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/isAutoLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="자동 로그인" />>
     </LinearLayout>
     <Button
         android:id="@+id/sendInfotoServer"
@@ -55,5 +62,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="로그인">
-    </Button>>
+    </Button>
 </LinearLayout>

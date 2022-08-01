@@ -25,7 +25,7 @@ public class carList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_list);
         context = getApplicationContext();
-        carList = findViewById(R.id.recyclerView);
+        carList = findViewById(R.id.carListView);
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         carList.setLayoutManager(layoutManager);
