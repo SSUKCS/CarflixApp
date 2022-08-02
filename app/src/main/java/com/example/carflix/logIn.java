@@ -34,6 +34,9 @@ public class logIn extends AppCompatActivity{
         String mb_userid_correct="userIDexample";
         String mb_password_correct="passwordExample";
 
+        inputID.setText("");
+        inputPW.setText("");
+
         logInButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {

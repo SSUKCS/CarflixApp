@@ -63,9 +63,9 @@ public class groupListAdapter extends RecyclerView.Adapter<groupListAdapter.View
 
         public ViewHolder(@NonNull View itemView){
             super(itemView);
-            groupName = itemView.findViewById(R.id.carImg);
-            groupDescription = itemView.findViewById(R.id.carName);
-            groupType = itemView.findViewById(R.id.lookupInfo);
+            groupName = itemView.findViewById(R.id.groupName);
+            groupDescription = itemView.findViewById(R.id.groupDescription);
+            groupType = itemView.findViewById(R.id.groupType);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
