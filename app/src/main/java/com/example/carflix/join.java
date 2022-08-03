@@ -123,6 +123,7 @@ public class join extends AppCompatActivity{
                     Log.e("json", "생성한 json : " + userInfo.toString());
                     String addr = "54.67.65.58";
                     ConnectThread thread = new ConnectThread(addr);
+                    Log.e("thread", "thread 시작");
                     thread.start();
                 }
             }

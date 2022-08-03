@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/upperMargin"
+        android:layout_width = "match_parent"
+        android:layout_height = "0dp"
+        android:orientation="vertical"
+        android:layout_weight = "1">
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width = "match_parent"
+        android:layout_height = "0dp"
+        android:orientation="horizontal"
+        android:layout_weight = "30">
+        <LinearLayout
+            android:id="@+id/leftMargin"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight = "1">
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/contents"
+            android:layout_width = "0dp"
+            android:layout_height = "match_parent"
+            android:orientation="vertical"
+            android:layout_weight = "30">
+            <LinearLayout
+            android:id="@+id/car_status"
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content">
+            <ImageView
+                android:id="@+id/carImg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/carimage_default">
+            </ImageView>
+        <LinearLayout
+            android:layout_width = "match_parent"
+            android:layout_height = "match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id ="@+id/carName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize = "48sp"
+                android:text="@string/carName_default">
+            </TextView>
+            <TextView
+                android:id="@+id/isAvailable"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/isAvailable_default"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#4488FF">
+            </TextView>
+        </LinearLayout>
+        </LinearLayout>
+
+            <Button
+                android:id="@+id/door"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:backgroundTint="#446688"
+                android:drawableLeft="@drawable/image_unlock_resize"
+                android:text="문 열기"
+                android:textSize="40sp"></Button>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight = "0.2">
+            </LinearLayout>
+            <Button
+                android:id="@+id/trunk"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:backgroundTint="#446688"
+                android:drawableLeft="@drawable/image_trunk_resize"
+                android:text="트렁크"
+                android:textSize="40sp"></Button>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight = "0.2">
+            </LinearLayout>
+            <Button
+                android:id="@+id/startCar"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:backgroundTint="#446688"
+                android:drawableLeft="@drawable/image_connect_resize"
+                android:text="시동 걸기"
+                android:textSize="40sp"></Button>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight = "0.2">
+            </LinearLayout>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/rightMargin"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight = "1">
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/lowerMargin"
+        android:layout_width = "match_parent"
+        android:layout_height = "0dp"
+        android:orientation="vertical"
+        android:layout_weight = "1">
+    </LinearLayout>
+</LinearLayout>

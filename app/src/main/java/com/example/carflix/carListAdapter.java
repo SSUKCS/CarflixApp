@@ -27,7 +27,6 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
     public interface itemClickListener{
         void onItemClick(View v, int position);
         void onLookupInfoClick(View v, int position);
-        void onStartTheCarClick(View v, int position);
     }
     //리스너 객체 참조 변수
     private itemClickListener listener = null;
@@ -60,14 +59,12 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
         ImageView carImg;
         TextView carName;
         Button btn_LookupInfo;
-        Button btn_startTheCar;
 
         public ViewHolder(@NonNull View itemView){
             super(itemView);
             carImg = itemView.findViewById(R.id.carImg);
             carName = itemView.findViewById(R.id.carName);
             btn_LookupInfo = itemView.findViewById(R.id.lookupInfo);
-            btn_startTheCar = itemView.findViewById(R.id.startTheCar);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -91,17 +88,6 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
                        }
                    }
                }
-            });
-            btn_startTheCar.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View view){
-                    int position = getAdapterPosition();
-                    if(position != RecyclerView.NO_POSITION){
-                        if(listener!=null){
-                            listener.onStartTheCarClick(view, position);
-                        }
-                    }
-                }
             });
         }
     }

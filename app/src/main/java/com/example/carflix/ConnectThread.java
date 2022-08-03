@@ -15,19 +15,19 @@ public class ConnectThread extends Thread{
     public void run()
     {
         try{
+
             int port = 11001;
             Socket socket = new Socket(hostName, port);
-
             DataOutputStream outstream = new DataOutputStream(socket.getOutputStream());
             outstream.writeChars("Hello, there!");
             outstream.flush();
 
             DataInputStream instream = new DataInputStream(socket.getInputStream());
-            int msg = instream.read();
 
-            Log.d("MainActivity", "서버에서 받은 메시지 : "+msg);
+            Log.d("MainActivity", "서버에서 받은 메시지 : "+instream.read());
 
             socket.close();
+            Log.e("thread", "thread 끝");
         }
         catch(Exception ex) {
             ex.printStackTrace();

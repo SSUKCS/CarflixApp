@@ -1,6 +1,7 @@
 package com.example.carflix;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -43,18 +44,15 @@ public class carList extends AppCompatActivity {
         adapter.setItemClickListener(new carListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                String carName = carDataList.get(position).getCarName();
-                Toast.makeText(getApplicationContext(), carName,Toast.LENGTH_LONG).show();
+                //carKey
+                Intent intent = new Intent(getApplicationContext(), carInterface.class);
+                startActivity(intent);
             }
 
             @Override
             public void onLookupInfoClick(View v, int position) {
+                //lookupInfo
                 Toast.makeText(getApplicationContext(), "이용정보조회",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onStartTheCarClick(View v, int position) {
-                Toast.makeText(getApplicationContext(), "시동걸기",Toast.LENGTH_LONG).show();
             }
         });
         
