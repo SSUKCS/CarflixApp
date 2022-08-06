@@ -1,6 +1,7 @@
 package com.example.carflix;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +49,14 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
         carData carData = dataList.get(position);
         holder.carImg.setImageResource(carData.getcarImg());
         holder.carName.setText(carData.getCarName());
+        if(carData.isAvailable()) {
+            holder.isAvailable.setText("운전 가능");
+            holder.isAvailable.setTextColor(Color.parseColor("#4488FF"));
+        }
+        else {
+            holder.isAvailable.setText("운전 불가능");
+            holder.isAvailable.setTextColor(Color.parseColor("#FF5544"));
+        }
     }
     //화면에 보여줄 데이터의 갯수를 반환
     @Override
@@ -58,12 +67,14 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder{
         ImageView carImg;
         TextView carName;
+        TextView isAvailable;
         Button btn_LookupInfo;
 
         public ViewHolder(@NonNull View itemView){
             super(itemView);
             carImg = itemView.findViewById(R.id.carImg);
             carName = itemView.findViewById(R.id.carName);
+            isAvailable = itemView.findViewById(R.id.isAvailable);
             btn_LookupInfo = itemView.findViewById(R.id.lookupInfo);
 
             itemView.setOnClickListener(new View.OnClickListener() {

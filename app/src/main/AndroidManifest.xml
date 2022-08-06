@@ -13,6 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Carflix"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDtWbz0VWRQDaBYu0bj8MfFAijuGhRr-8Y"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,7 +33,17 @@
         <activity android:name=".logIn"/>
         <activity android:name=".join"/>
         <activity android:name=".carInterface"/>
+        <activity android:name =".carLookupInfo"/>
     </application>
+
+    <!--블루투스 권한-->
+    <!-- If your app targets Android 9 or lower, you can declare
+       ACCESS_COARSE_LOCATION instead. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

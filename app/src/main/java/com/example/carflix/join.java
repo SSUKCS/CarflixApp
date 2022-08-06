@@ -121,8 +121,8 @@ public class join extends AppCompatActivity{
                         e.printStackTrace();
                     }
                     Log.e("json", "생성한 json : " + userInfo.toString());
-                    String addr = "54.67.65.58";
-                    ConnectThread thread = new ConnectThread(addr);
+
+                    ConnectThread thread = new ConnectThread();
                     Log.e("thread", "thread 시작");
                     thread.start();
                 }

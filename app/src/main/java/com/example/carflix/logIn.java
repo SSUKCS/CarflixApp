@@ -22,15 +22,20 @@ public class logIn extends AppCompatActivity{
     CheckBox isAutoLogin;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+
         logInButton = (Button)findViewById(R.id.sendInfotoServer);
         inputID = (EditText)findViewById(R.id.inputID);
         inputPW = (EditText)findViewById(R.id.inputPW);
         isAutoLogin = (CheckBox)findViewById(R.id.isAutoLogin);
+
+        //저장되어있는 userid와 password
         String mb_userid_saved="userIDexample";
         String mb_password_saved="passwordExample";
 
+        //서버단과 통신할 경우, 서버단에 저장되어있는 내용
         String mb_userid_correct="userIDexample";
         String mb_password_correct="passwordExample";
 
@@ -38,6 +43,12 @@ public class logIn extends AppCompatActivity{
         inputPW.setText("");
 
         logInButton.setOnClickListener(new View.OnClickListener(){
+            /*
+            1. inputID와 inputPW에 적혀있는 내용을 각각 mb_userid와 mb_password에 저장
+            2. mb_userid와 mb_password를 userInfo json객체에 저장
+            3. json객체를 서버로 보내 인증 시도
+            4. 인증이 성공할경우 groupList 로 이동
+             */
             @Override
             public void onClick(View view) {
                 if(isAutoLogin.isChecked()) {
@@ -48,6 +59,7 @@ public class logIn extends AppCompatActivity{
                 String mb_password =inputPW.getText().toString();
 
                 JSONObject userInfo = new JSONObject();
+
                 try{
                     userInfo.put("mb_userid", mb_userid);
                     userInfo.put("mb_password", mb_password);

@@ -3,6 +3,8 @@ package com.example.carflix;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -30,31 +32,44 @@ public class carList extends AppCompatActivity {
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         carList.setLayoutManager(layoutManager);
-        carDataList = new ArrayList<>();
+        carDataList = (ArrayList<carData>) getIntent().getSerializableExtra("carDataList");
         adapter = new carListAdapter(context, carDataList);
         carList.setAdapter(adapter);
-       
-        
-        //챠량 데이터 입력단(임의로 생성)
-        for(int i=1;i<11;i++){
-            carDataList.add(new carData(carImg_default, "차량"+i));
-            adapter.notifyItemInserted(carDataList.size()-1);
-        }
        
         adapter.setItemClickListener(new carListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                //carKey
+                //carInterface로 이동
                 Intent intent = new Intent(getApplicationContext(), carInterface.class);
+                carData carData = carDataList.get(position);
+                intent.putExtra("carData", carData);
                 startActivity(intent);
             }
 
             @Override
             public void onLookupInfoClick(View v, int position) {
                 //lookupInfo
-                Toast.makeText(getApplicationContext(), "이용정보조회",Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), carLookupInfo.class);
+                startActivity(intent);
             }
         });
         
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_car_list, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int curId = item.getItemId();
+
+        switch(curId){
+            case R.id.addCar:
+                Toast.makeText(this, "차량 추가", Toast.LENGTH_LONG).show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

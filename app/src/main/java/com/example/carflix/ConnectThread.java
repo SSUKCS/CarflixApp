@@ -7,8 +7,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 
+//서버와 연결 시 사용
 public class ConnectThread extends Thread{
     String hostName;
+    public ConnectThread(){hostName = "54.67.65.58";}
     public ConnectThread(String addr){
         hostName = addr;
     }
