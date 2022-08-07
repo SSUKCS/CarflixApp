@@ -1,38 +1,15 @@
 package com.example.carflix;
 
-import android.util.Log;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.net.Socket;
+import org.json.JSONObject;
 
-//서버와 연결 시 사용
-public class ConnectThread extends Thread{
-    String hostName;
-    public ConnectThread(){hostName = "54.67.65.58";}
-    public ConnectThread(String addr){
-        hostName = addr;
-    }
-    public void run()
-    {
-        try{
+public class ConnectThread {
+    public static void getJson() {
 
-            int port = 11001;
-            Socket socket = new Socket(hostName, port);
-            DataOutputStream outstream = new DataOutputStream(socket.getOutputStream());
-            outstream.writeChars("Hello, there!");
-            outstream.flush();
-
-            DataInputStream instream = new DataInputStream(socket.getInputStream());
-
-            Log.d("MainActivity", "서버에서 받은 메시지 : "+instream.read());
-
-            socket.close();
-            Log.e("thread", "thread 끝");
-        }
-        catch(Exception ex) {
-            ex.printStackTrace();
-        }
     }
 }
+
