@@ -9,11 +9,18 @@ public class carData implements Serializable {
     int carImg;
     String carName;
     boolean Available;
+    String status;
 
     public carData(int carImg, String carName){
         this.carImg = carImg;
         this.carName = carName;
         this.Available = true;
+        status = "운전 가능";
+    }
+    public carData(int carImg, String carName, String status){
+        this.carImg = carImg;
+        this.carName = carName;
+        this.status = status;
     }
     public carData(int carImg, String carName, boolean isAvailable){
         this.carImg = carImg;
@@ -33,4 +40,7 @@ public class carData implements Serializable {
         this.carImg = carImg;
     }
     public boolean isAvailable(){return Available;}
+    public void setAvailable(boolean isAvailable){this.Available = isAvailable;}
+    public String getStatus(){return status;}
+    public void setStatus(String status){this.status = status;}
 }

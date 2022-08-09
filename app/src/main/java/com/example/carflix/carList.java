@@ -1,13 +1,19 @@
 package com.example.carflix;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,7 +49,8 @@ public class carList extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), carInterface.class);
                 carData carData = carDataList.get(position);
                 intent.putExtra("carData", carData);
-                startActivity(intent);
+                intent.putExtra("position", position);
+                launcher.launch(intent);
             }
 
             @Override
@@ -72,4 +79,25 @@ public class carList extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            data -> {
+                Log.d("carList", "data : " + data);
+                if (data.getResultCode() == RESULT_OK)
+                {
+
+                    Intent intent = data.getData();
+
+                    boolean isAvailableChanged = intent.getBooleanExtra("carData_isAvailableChanged", true);
+                    int position = Integer.parseInt(intent.getStringExtra("position"));
+                    String carStatus = intent.getStringExtra("carStatusChanged");
+
+                    Log.d("carList", "isAvailableChanged : " + isAvailableChanged);
+                    Log.d("carList", "position : " + position);
+                    Log.d("carList", "carStatusChanged : " + carStatus);
+
+                    carDataList.get(position).setAvailable(isAvailableChanged);
+                    carDataList.get(position).setStatus(carStatus);
+                    adapter.notifyItemChanged(position);
+                }
+            });
 }
