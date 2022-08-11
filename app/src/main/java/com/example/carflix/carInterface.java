@@ -103,9 +103,6 @@ public class carInterface extends AppCompatActivity {
                     carData.setAvailable(false);
                     isAvailable.setText("운전중");
                     isAvailable.setTextColor(Color.parseColor("#9911BB"));
-                    Drawable img = getDrawable(R.drawable.image_disconnect_resize);
-                    startCar.setCompoundDrawablesWithIntrinsicBounds(img,null, null, null);
-                    startCar.setText("시동 끄기");
 
                     Intent intent = new Intent(getApplicationContext(), locationService.class);
                     intent.putExtra("carData", carData);
@@ -119,11 +116,9 @@ public class carInterface extends AppCompatActivity {
                     carData.setAvailable(true);
                     isAvailable.setText("운전 가능");
                     isAvailable.setTextColor(Color.parseColor("#4488FF"));
-                    Drawable img = getDrawable(R.drawable.image_connect_resize);
-                    startCar.setCompoundDrawablesWithIntrinsicBounds(img,null, null, null);
-                    startCar.setText("시동 걸기");
 
                     Intent intent = new Intent(getApplicationContext(), locationService.class);
+                    Log.e("carInterface", "STOP CONTEXT "+getApplicationContext());
                     stopService(intent);
                 }
             }

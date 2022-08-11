@@ -41,7 +41,27 @@ public class carList extends AppCompatActivity {
         carDataList = (ArrayList<carData>) getIntent().getSerializableExtra("carDataList");
         adapter = new carListAdapter(context, carDataList);
         carList.setAdapter(adapter);
-       
+        ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                data -> {
+                    Log.d("carList", "data : " + data);
+                    if (data.getResultCode() == RESULT_OK)
+                    {
+
+                        Intent intent = data.getData();
+
+                        boolean isAvailableChanged = intent.getBooleanExtra("carData_isAvailableChanged", true);
+                        int position = Integer.parseInt(intent.getStringExtra("position"));
+                        String carStatus = intent.getStringExtra("carStatusChanged");
+
+                        Log.d("carList", "isAvailableChanged : " + isAvailableChanged);
+                        Log.d("carList", "position : " + position);
+                        Log.d("carList", "carStatusChanged : " + carStatus);
+
+                        carDataList.get(position).setAvailable(isAvailableChanged);
+                        carDataList.get(position).setStatus(carStatus);
+                        adapter.notifyItemChanged(position);
+                    }
+                });
         adapter.setItemClickListener(new carListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
@@ -76,28 +96,14 @@ public class carList extends AppCompatActivity {
             case R.id.addCar:
                 Toast.makeText(this, "차량 추가", Toast.LENGTH_LONG).show();
                 break;
+            case R.id.generateCode:
+                Toast.makeText(this, "코드 생성", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), generateCode.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
-    ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            data -> {
-                Log.d("carList", "data : " + data);
-                if (data.getResultCode() == RESULT_OK)
-                {
-
-                    Intent intent = data.getData();
-
-                    boolean isAvailableChanged = intent.getBooleanExtra("carData_isAvailableChanged", true);
-                    int position = Integer.parseInt(intent.getStringExtra("position"));
-                    String carStatus = intent.getStringExtra("carStatusChanged");
-
-                    Log.d("carList", "isAvailableChanged : " + isAvailableChanged);
-                    Log.d("carList", "position : " + position);
-                    Log.d("carList", "carStatusChanged : " + carStatus);
-
-                    carDataList.get(position).setAvailable(isAvailableChanged);
-                    carDataList.get(position).setStatus(carStatus);
-                    adapter.notifyItemChanged(position);
-                }
-            });
 }

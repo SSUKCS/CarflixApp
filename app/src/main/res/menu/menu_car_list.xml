@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id = "@+id/addCar"
-        android:icon = "@android:drawable/ic_input_add"
-        android:title="add"
-        app:showAsAction="always"/>
+        android:title="차량 추가"/>
+    <item
+        android:id = "@+id/generateCode"
+        android:title="코드 생성"/>
 </menu>
