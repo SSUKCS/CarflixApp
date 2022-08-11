@@ -1,7 +1,10 @@
 package com.example.carflix;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +21,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.Normalizer;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import androidx.annotation.Nullable;
@@ -39,6 +45,8 @@ public class join extends AppCompatActivity{
 
     EditText nickNameEdit;
 
+    EditText emailEdit;
+
     EditText phoneEdit;
 
     RadioButton gender_male;
@@ -48,7 +56,10 @@ public class join extends AppCompatActivity{
 
     private boolean allEditTextisNotnull=false;
     private boolean checkPasswordisOK;
+    private String emailRegex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+    private boolean checkEmailisOK;
 
+    Handler handler = new Handler();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -59,7 +70,17 @@ public class join extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 //서버에 아이디 전송, 비교하여 이미 존재하는 id일 경우 false 반환
-
+                String command = "member/read";
+                ConnectionThread thread = new ConnectionThread("GET", "member/read", null);
+                try{
+                    thread.join();
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+                String result = thread.getResult();
+                Log.d("join", "RESULT :: "+result);
+                thread.start();
                 Log.d("onClick","아이디 확인 버튼이 클릭되었습니다.");            }
         });
         isEnablePassWord.setOnClickListener(new View.OnClickListener(){
@@ -78,7 +99,7 @@ public class join extends AppCompatActivity{
                 * 4. 내용이 전부 작성되어있는 경우에 회원 가입 요청을 서버로 전달*/
                 Log.d("onClick","회원 가입 버튼이 클릭되었습니다.");
                 if(useridEdit.length()!=0 && passwordEdit.length()!=0 &&
-                        checkPasswordEdit.length()!=0 && nickNameEdit.length()!=0 && phoneEdit.length()!=0) {
+                        checkPasswordEdit.length()!=0 && nickNameEdit.length()!=0 && emailEdit.length()!=0 && phoneEdit.length()!=0) {
                     allEditTextisNotnull = true;
                 }
                 else
@@ -91,19 +112,23 @@ public class join extends AppCompatActivity{
                 {
                     Log.d("생성 불가","비밀번호를 동일하게 입력해야 합니다.");
                 }
-                if(allEditTextisNotnull&&checkPasswordisOK)
+                if(!checkEmailisOK)
+                {
+                    Log.d("생성 불가","이메일을 형식에 맞게 입력해야 합니다.");
+                }
+                if(allEditTextisNotnull&&checkPasswordisOK&&checkEmailisOK)
                 {
                     String userid = useridEdit.getText().toString();
                     String password = passwordEdit.getText().toString();
                     String nickName = nickNameEdit.getText().toString();
                     String phone = phoneEdit.getText().toString();
-                    Date regdate = new Date(System.currentTimeMillis());
+                    String regdate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     int userImg = R.drawable.userimage_default;
                     Log.d("userid:",userid);
                     Log.d("password", password);
                     Log.d("phone", phone);
                     Log.d("nickName", nickName);
-                    Log.d("regdate", regdate.toString());
+                    Log.d("regdate", regdate);
                     if(gender_male.isChecked()){
                         userImg = R.drawable.userimage1_default;
                     }
@@ -125,29 +150,10 @@ public class join extends AppCompatActivity{
                         e.printStackTrace();
                     }
                     Log.e("json", "생성한 json : " + userInfo.toString());
-
-                    Log.e("url", "http connection 시작");
-                    try {
-                        URL url = new URL("13.56.94.107/admin/api/member/read.php");
-                        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-                        conn.setRequestMethod("GET"); // http 메서드
-                        conn.setRequestProperty("Content-Type", "application/json"); // header Content-Type 정보
-                        // conn.setRequestProperty("auth", "myAuth"); // header의 auth 정보
-                        // conn.setDoOutput(true); // 서버로부터 받는 값이 있다면 true
-
-                        // 서버로부터 데이터 읽어오기
-                        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                        StringBuilder sb = new StringBuilder();
-                        String line = null;
-                        while((line = br.readLine()) != null) { // 읽을 수 있을 때 까지 반복
-                            // sb.append(line);
-                        }
-                        JSONObject obj = new JSONObject(sb.toString()); // json으로 변경 (역직렬화)
-                        System.out.println("code= " + obj.getInt("code") + " / message= " + obj.getString("message"));
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    //서버와 연결
+                    String command = "member/read";
+                    ConnectionThread thread = new ConnectionThread("POST", "member/create", userInfo);
+                    thread.start();
                 }
             }
         });
@@ -167,6 +173,27 @@ public class join extends AppCompatActivity{
         checkPasswordEdit = (EditText) findViewById(R.id.checkPasswordEdit);
 
         nickNameEdit = (EditText) findViewById(R.id.nickNameEdit);
+
+        emailEdit = (EditText) findViewById(R.id.emailEdit);
+        phoneEdit.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String email = emailEdit.getText().toString().trim();
+                if(email.matches(emailRegex))checkEmailisOK=true;
+                else checkEmailisOK = false;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         phoneEdit = (EditText) findViewById(R.id.phoneEdit);
         phoneEdit.addTextChangedListener(new PhoneNumberFormattingTextWatcher("KR"));
