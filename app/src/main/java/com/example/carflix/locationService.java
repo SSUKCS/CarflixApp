@@ -43,7 +43,7 @@ public class locationService extends Service {
     private Runnable runnable;
     private boolean stopService = false;
     private FusedLocationProviderClient fusedLocationClient;
-    private final Location[] location = {new Location(LocationManager.GPS_PROVIDER)};;
+    private final Location[] location = {new Location(LocationManager.GPS_PROVIDER)};
     private LocationCallback locationCallback;
 
     IBinder LBinder = new locationBinder();
@@ -204,7 +204,7 @@ public class locationService extends Service {
     public void onRebind(Intent intent) {
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
-        Log.d(TAG, "onRnbind :: "+intent.toString());
+        Log.d(TAG, "onRebind :: "+intent.toString());
         super.onRebind(intent);
     }
 }

@@ -23,7 +23,7 @@ public class generateCode extends AppCompatActivity {
             public void onClick(View view) {
                 //서버로부터 코드를 받아온다.
                 String command = "member/read";
-                ConnectionThread thread = new ConnectionThread("GET", command, null);
+                serverConnectionThread thread = new serverConnectionThread("GET", command, null);
                 thread.setMonitor(handler, inviteCode);
                 thread.start();
             }

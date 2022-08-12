@@ -11,11 +11,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 import androidx.annotation.NonNull;
 
-public class ConnectionThread extends Thread{
+public class serverConnectionThread extends Thread{
     private static final String TAG = "ConnectionThread";
     String HTTPMethod;
     private String urlStr;
@@ -32,20 +31,19 @@ public class ConnectionThread extends Thread{
         this.monitor = monitor;
         if(handler != null && monitor != null)monitorExist=true;
     }
-    public ConnectionThread(String HTTPMethod, String inputStr){
+    public serverConnectionThread(String HTTPMethod, String command){
         this.HTTPMethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
-        this.urlStr = "http://13.56.94.107/admin/api/"+inputStr+".php";
+        this.urlStr = "http://13.56.94.107/admin/api/"+command+".php";
         this.requestBody = requestBody;
     }
-    public ConnectionThread(String HTTPMethod, String inputStr, JSONObject requestBody){
+    public serverConnectionThread(String HTTPMethod, String command, JSONObject requestBody){
         this.HTTPMethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
-        this.urlStr = "http://13.56.94.107/admin/api/"+inputStr+".php";
+        this.urlStr = "http://13.56.94.107/admin/api/"+command+".php";
         this.requestBody = requestBody;
     }
     public void run(){
         try{
-            outputString = request(urlStr);
-            Log.d(TAG, "OUTPUT :: "+ outputString);
+            outputString = request(urlStr).replaceFirst("Connected successfully","");
             if(monitorExist){
                 handler.post(new Runnable() {
                     @Override
@@ -70,15 +68,16 @@ public class ConnectionThread extends Thread{
                 connection.setReadTimeout(10000);
                 connection.setRequestMethod(HTTPMethod);
 
-                //request body 전달시 json 형식으로 전달
-                connection.setRequestProperty("Content-Type", "applicaiont/json; utf-8");
-
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
 
                 //outstream을 통해 requestBody(jsonObject) 전달
                 if(requestBody!=null){
+                    //request body 전달시 json 형식으로 전달
+                    connection.setRequestProperty("Content-Type", "applicaiont/json");
+
                     OutputStream outputStream = connection.getOutputStream();
+                    Log.d(TAG, "REQUESTBODY :: "+ requestBody.toString());
                     outputStream.write(requestBody.toString().getBytes("euc-kr"));
                     outputStream.flush();
                 }

@@ -15,7 +15,6 @@
         android:id="@+id/contents"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="5sp"
         android:layout_weight="30"
         android:orientation="vertical">
 
@@ -25,7 +24,6 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical">
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -35,12 +33,6 @@
                 android:autoSizeTextType="uniform"
                 android:text="아이디"
                 android:textStyle="bold"></TextView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
-
             <EditText
                 android:id="@+id/useridEdit"
                 android:layout_width="match_parent"
@@ -54,7 +46,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6"
+            android:layout_weight="0.7"
             android:orientation="horizontal">
 
             <TextView
@@ -69,7 +61,7 @@
             <Button
                 android:id="@+id/isEnableID"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:autoSizeMaxTextSize="100dp"
                 android:autoSizeMinTextSize="10dp"
@@ -94,12 +86,6 @@
                 android:autoSizeTextType="uniform"
                 android:text="비밀번호"
                 android:textStyle="bold"></TextView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
-
             <EditText
                 android:id="@+id/passwordEdit"
                 android:layout_width="match_parent"
@@ -113,29 +99,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/isEnablePassWord_result"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:autoSizeMaxTextSize="100dp"
-                android:autoSizeMinTextSize="10dp"
-                android:autoSizeTextType="uniform"></TextView>
-
-            <Button
-                android:id="@+id/isEnablePassWord"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:autoSizeMaxTextSize="100dp"
-                android:autoSizeMinTextSize="10dp"
-                android:autoSizeTextType="uniform"
-                android:text="비밀번호 확인"></Button>
-
-        </LinearLayout>
+            android:layout_weight="0.4"></LinearLayout>
 
         <LinearLayout
             android:id="@+id/checkPassword"
@@ -153,12 +117,6 @@
                 android:autoSizeTextType="uniform"
                 android:text="비밀번호 재확인"
                 android:textStyle="bold"></TextView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
-
             <EditText
                 android:id="@+id/checkPasswordEdit"
                 android:layout_width="match_parent"
@@ -172,7 +130,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6"></LinearLayout>
+            android:layout_weight="0.4"></LinearLayout>
 
         <LinearLayout
             android:id="@+id/nickName"
@@ -190,12 +148,6 @@
                 android:autoSizeTextType="uniform"
                 android:text="별명"
                 android:textStyle="bold"></TextView>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
             <EditText
                 android:id="@+id/nickNameEdit"
                 android:layout_width="match_parent"
@@ -208,7 +160,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6"></LinearLayout>
+            android:layout_weight="0.4"></LinearLayout>
 
         <LinearLayout
             android:id="@+id/email"
@@ -227,27 +179,20 @@
                 android:text="이메일"
                 android:textStyle="bold"></TextView>
 
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
-
             <EditText
                 android:id="@+id/emailEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="4"
-                android:inputType="textEmailAddress"
-                android:maxLength="13"
                 android:autoSizeMaxTextSize="100dp"
                 android:autoSizeMinTextSize="10dp"
-                android:autoSizeTextType="uniform"></EditText>
+                android:autoSizeTextType="uniform"
+                android:inputType="textEmailAddress"></EditText>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6"></LinearLayout>
+            android:layout_weight="0.4"></LinearLayout>
 
         <LinearLayout
             android:id="@+id/phone"
@@ -255,7 +200,6 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical">
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -265,13 +209,6 @@
                 android:autoSizeTextType="uniform"
                 android:text="전화번호"
                 android:textStyle="bold"></TextView>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
-
             <EditText
                 android:id="@+id/phoneEdit"
                 android:layout_width="match_parent"
@@ -286,7 +223,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6"></LinearLayout>
+            android:layout_weight="0.4"></LinearLayout>
 
         <LinearLayout
             android:id="@+id/gender"
@@ -304,11 +241,6 @@
                 android:autoSizeTextType="uniform"
                 android:text="성별"
                 android:textStyle="bold"></TextView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
 
             <RadioGroup
                 android:layout_width="match_parent"
@@ -341,7 +273,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6"></LinearLayout>
+            android:layout_weight="0.4"></LinearLayout>
 
         <LinearLayout
             android:id="@+id/joinMember"
@@ -349,26 +281,20 @@
             android:layout_height="0dp"
             android:layout_weight="1.2"
             android:orientation="vertical">
-
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"></LinearLayout>
             <Button
                 android:id="@+id/joinButton"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="6"
+                android:layout_weight="3"
                 android:autoSizeMaxTextSize="100dp"
                 android:autoSizeMinTextSize="10dp"
                 android:autoSizeTextType="uniform"
                 android:text="회원 가입"></Button>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
