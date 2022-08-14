@@ -18,7 +18,7 @@ public class serverConnectionThread extends Thread{
     private static final String TAG = "ConnectionThread";
     String HTTPMethod;
     private String urlStr;
-    private JSONObject requestBody;
+    private JSONObject requestBody=null;
 
     private String outputString;
 
@@ -31,19 +31,21 @@ public class serverConnectionThread extends Thread{
         this.monitor = monitor;
         if(handler != null && monitor != null)monitorExist=true;
     }
-    public serverConnectionThread(String HTTPMethod, String command){
-        this.HTTPMethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
-        this.urlStr = "http://13.56.94.107/admin/api/"+command+".php";
-        this.requestBody = requestBody;
-    }
     public serverConnectionThread(String HTTPMethod, String command, JSONObject requestBody){
         this.HTTPMethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
         this.urlStr = "http://13.56.94.107/admin/api/"+command+".php";
         this.requestBody = requestBody;
     }
+    public serverConnectionThread(String HTTPMethod, String command, String param, JSONObject requestBody){
+        this.HTTPMethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
+        this.urlStr = "http://13.56.94.107/admin/api/"+command+".php?"+param;
+        this.requestBody = requestBody;
+    }
     public void run(){
         try{
-            outputString = request(urlStr).replaceFirst("Connected successfully","");
+            String result = request(urlStr);
+            outputString = result.substring(result.indexOf("{"));
+            Log.d(TAG, "OUTPUT :: "+ outputString);
             if(monitorExist){
                 handler.post(new Runnable() {
                     @Override
@@ -83,6 +85,7 @@ public class serverConnectionThread extends Thread{
                 }
 
                 int responseCode = connection.getResponseCode();
+                Log.d(TAG, "URLSTR :: "+urlStr);
                 Log.d(TAG, "HTTP RESPONSECODE :: "+ responseCode);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String line = null;

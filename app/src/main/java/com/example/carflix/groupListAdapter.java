@@ -1,6 +1,7 @@
 package com.example.carflix;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,10 +46,14 @@ public class groupListAdapter extends RecyclerView.Adapter<groupListAdapter.View
     //리스트의 각 항목에 들어갈 데이터를 지정
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position){
+        Log.d("groupListAdpater_onBindViewHolder", "POSITION :: "+ position);
         groupData groupData = dataList.get(position);
         holder.groupName.setText(groupData.getGroupName());
         holder.groupDescription.setText(groupData.getGroupDescription());
         holder.groupType.setText(groupData.getStatus());
+        Log.d("groupListAdpater_onBindViewHolder", "GROUPNAME :: "+ holder.groupName.getText());
+        Log.d("groupListAdpater_onBindViewHolder", "DESCRIPTION :: "+ holder.groupDescription.getText());
+        Log.d("groupListAdpater_onBindViewHolder", "GROUPTYPE :: "+ holder.groupType.getText());
     }
     //화면에 보여줄 데이터의 갯수를 반환
     @Override

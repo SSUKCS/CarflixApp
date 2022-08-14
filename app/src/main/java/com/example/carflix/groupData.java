@@ -1,16 +1,24 @@
 package com.example.carflix;
 
+import android.content.Intent;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
-//차량 데이터 클래스
-//carImg = 차량의 이미지
-//carName = 차량의 이름
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
+//small_group data class
 public class groupData implements Serializable {
-    private String groupName;
-    private String groupDescription;
-    private String status;
-    private ArrayList<carData> carDataList;
+    protected String groupID;
+    protected String groupName;
+    protected String groupDescription;
+    protected String status;
+    protected ArrayList<carData> carDataList;
     public groupData(String groupName, String groupDescription, String status){
         this.groupName = groupName;
         this.groupDescription = groupDescription;
@@ -28,6 +36,26 @@ public class groupData implements Serializable {
         this.groupDescription = groupDescription;
         this.status = status;
         this.carDataList = carDataList;
+    }
+    public groupData(JSONObject groupData){
+        String groupStatus=null;
+        try{
+            switch(groupData.getString("status")){
+                case "small_group":groupStatus = "sg";break;
+                case "ceo_group":groupStatus =  "cg";break;
+                case "rent_group":groupStatus = "rg";break;
+            }
+            Log.d("groupData", groupStatus);
+            groupID = groupData.getString(groupStatus+"_id");
+            groupName = groupData.getString(groupStatus+"_title");
+            groupDescription = groupData.getString(groupStatus+"_description");
+            status = groupData.getString("status");
+        }
+        catch(JSONException e){
+            Log.e("groupData", e.toString());
+        }
+    }
+    protected groupData(){
     }
     public String getGroupName(){
         return groupName;

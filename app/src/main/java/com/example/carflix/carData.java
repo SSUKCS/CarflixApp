@@ -8,8 +8,9 @@ import java.io.Serializable;
 public class carData implements Serializable {
     int carImg;
     String carName;
-    boolean Available;
-    String status;
+    int carID;
+    boolean Available;//vs_authentication_value - ok/
+    String status;//vs_startup_infomation
 
     public carData(int carImg, String carName){
         this.carImg = carImg;
@@ -17,15 +18,12 @@ public class carData implements Serializable {
         this.Available = true;
         status = "운전 가능";
     }
-    public carData(int carImg, String carName, String status){
+    public carData(int carImg, int carID, String carName){
         this.carImg = carImg;
+        this.carID = carID;
         this.carName = carName;
-        this.status = status;
-    }
-    public carData(int carImg, String carName, boolean isAvailable){
-        this.carImg = carImg;
-        this.carName = carName;
-        this.Available = isAvailable;
+        this.Available = true;
+        status = "운전 가능";
     }
     public String getCarName(){
         return carName;

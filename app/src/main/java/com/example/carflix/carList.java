@@ -27,6 +27,8 @@ public class carList extends AppCompatActivity {
     private carListAdapter adapter;
     private RecyclerView carList;
 
+    private final static int DEFAULT = -1;
+    private int nowDriving = -1;
 
     int carImg_default = R.drawable.carimage_default;
     @Override
@@ -44,13 +46,16 @@ public class carList extends AppCompatActivity {
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 data -> {
                     Log.d("carList", "data : " + data);
-                    if (data.getResultCode() == RESULT_OK)
+                    switch (data.getResultCode())
                     {
-
+                        //carInterface->carList
+                        case 9001:
                         Intent intent = data.getData();
 
                         boolean isAvailableChanged = intent.getBooleanExtra("carData_isAvailableChanged", true);
                         int position = Integer.parseInt(intent.getStringExtra("position"));
+                        if(isAvailableChanged)nowDriving = DEFAULT;
+                        else nowDriving = position;
                         String carStatus = intent.getStringExtra("carStatusChanged");
 
                         Log.d("carList", "isAvailableChanged : " + isAvailableChanged);
@@ -59,18 +64,30 @@ public class carList extends AppCompatActivity {
 
                         carDataList.get(position).setAvailable(isAvailableChanged);
                         carDataList.get(position).setStatus(carStatus);
-                        adapter.notifyItemChanged(position);
+                        adapter.notifyItemChanged(position);break;
+
+                        //carLookupInfo->carList
+                        case 9002: break;
+
+                        //addCar -> break;
+                        case 9003: break;
+                        default:break;
                     }
                 });
         adapter.setItemClickListener(new carListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 //carInterface로 이동
-                Intent intent = new Intent(getApplicationContext(), carInterface.class);
-                carData carData = carDataList.get(position);
-                intent.putExtra("carData", carData);
-                intent.putExtra("position", position);
-                launcher.launch(intent);
+                if(nowDriving == DEFAULT || nowDriving==position){
+                    Intent intent = new Intent(getApplicationContext(), carInterface.class);
+                    carData carData = carDataList.get(position);
+                    intent.putExtra("carData", carData);
+                    intent.putExtra("position", position);
+                    launcher.launch(intent);
+                }
+                else{
+                    Toast.makeText(context, "차량 운전중입니다.", Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
@@ -105,5 +122,19 @@ public class carList extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onBackPressed(){
+        /*
+        if(carData_isAvailable_initialState != carData.isAvailable())
+        {
+            Intent intent = new Intent();
+            intent.putExtra("position", Integer.toString(position));
+            intent.putExtra("carData_isAvailableChanged", carData.isAvailable());
+            intent.putExtra("carStatusChanged", isAvailable.getText());
+            setResult(RESULT_OK, intent);
+        }
+        finish();
+        */
     }
 }

@@ -2,6 +2,7 @@ package com.example.carflix;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -47,6 +48,7 @@ public class locationService extends Service {
     private LocationCallback locationCallback;
 
     IBinder LBinder = new locationBinder();
+
     class locationBinder extends Binder {
         // 외부로 데이터를 전달하려면 바인더 사용
         // Binder 객체는 IBinder 인터페이스 상속구현 객체
@@ -129,7 +131,7 @@ public class locationService extends Service {
         Intent returnIntent = new Intent(this, carInterface.class);
         //pendingIntent 설정
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
-                returnIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                returnIntent, PendingIntent.FLAG_IMMUTABLE);
         String CHANNEL_ID = "carflix-locationService";
         String CHANNEL_NAME = "carflix-locationService";
 
@@ -175,7 +177,6 @@ public class locationService extends Service {
         }
         stopSelf();
     }
-
     private void requestLocationUpdates() {
         Log.e(TAG, "locationUpdateStart :: ");
         LocationRequest request = LocationRequest.create();
@@ -186,14 +187,11 @@ public class locationService extends Service {
 
         final int[] permission = {ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)};
         if (permission[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "permission granted :: ");
-
-
+            Log.e(TAG, "permission granted, requestLocationUpdates :: ");
             fusedLocationClient.requestLocationUpdates(request, locationCallback, null);
         }
         if(stopService)fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-
     @Override
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
@@ -206,5 +204,8 @@ public class locationService extends Service {
         // after onUnbind() has already been called
         Log.d(TAG, "onRebind :: "+intent.toString());
         super.onRebind(intent);
+    }
+    public boolean isRunning(){
+        return !stopService;
     }
 }

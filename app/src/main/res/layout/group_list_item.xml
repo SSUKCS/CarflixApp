@@ -2,34 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="150sp"
-    android:orientation="horizontal">
+    android:orientation="vertical">
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <TextView
             android:id="@+id/groupName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/groupTitle_default"
-            android:textSize="60sp"
+            android:textSize="20sp"
             android:textStyle="bold"/>
-        <TextView
-            android:id="@+id/groupDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/groupDescription_default"
-            android:textSize="20sp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="end"
+            android:paddingTop="2sp"
+            android:paddingEnd="5sp">
+            <Button
+                android:id="@+id/groupType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/groupType_default"
+                android:textSize="20sp" />
+        </LinearLayout>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <Button
-            android:id="@+id/groupType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="@string/groupType_default" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/groupDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/groupDescription_default"
+        android:textSize="10sp"/>
 </LinearLayout>

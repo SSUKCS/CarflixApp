@@ -11,4 +11,10 @@
     <string name="groupType_ceoGroup_default">대규모</string>
     <string name="groupType_rentGroup_default">렌트</string>
     <string name="groupDescription_company_default">회사</string>
+    <string name = "preference_file_key">com.example.carflix.PREFERENCE_FILE_KEY</string>
+    <string name = "savedIDKey">com.example.carflix.savedIDKey</string>
+    <string name = "savedPWKey">com.example.carflix.savedPWKey</string>
+    <string name = "savedIDKey_noValue">com.example.carflix.savedIDKey.noValue</string>
+    <string name = "savedPWKey_noValue">com.example.carflix.savedPWKey.noValue</string>
+
 </resources>

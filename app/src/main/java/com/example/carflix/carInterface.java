@@ -1,5 +1,7 @@
 package com.example.carflix;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -105,7 +107,6 @@ public class carInterface extends AppCompatActivity {
                     isAvailable.setTextColor(Color.parseColor("#9911BB"));
 
                     Intent intent = new Intent(getApplicationContext(), locationService.class);
-                    intent.putExtra("carData", carData);
                     startService(intent);
                 }
                 else if(isAvailable.getText().equals("운전 불가능")){
@@ -128,26 +129,28 @@ public class carInterface extends AppCompatActivity {
     public void onBackPressed(){
         if(carData_isAvailable_initialState != carData.isAvailable())
         {
-            Log.d("carInterface", "carData.isAvailable(): "+carData.isAvailable());
-            Log.d("carInterface", "carData_isAvailable_initialState: "+carData_isAvailable_initialState);
             Intent intent = new Intent();
             intent.putExtra("position", Integer.toString(position));
             intent.putExtra("carData_isAvailableChanged", carData.isAvailable());
             intent.putExtra("carStatusChanged", isAvailable.getText());
-            setResult(RESULT_OK, intent);
+            setResult(9001, intent);
         }
         finish();
     }
     public void getPermission(){
         if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED){
         }
         // 권한이 없을 경우 권한을 요구함
         else {
             final String requiredPermission[] = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
                     android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION};
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    android.Manifest.permission.BLUETOOTH_CONNECT,
+                    android.Manifest.permission.BLUETOOTH_SCAN};
             ActivityCompat.requestPermissions(this, requiredPermission, 1
             );
         }

@@ -65,15 +65,16 @@ public class join extends AppCompatActivity{
         isEnableID.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                //서버에 아이디 전송, 비교하여 이미 존재하는 id일 경우 false 반환
-                serverData data = new serverData("GET", "member/read", null);
+                String params =  "mb_userid="+useridEdit.getText().toString();
+                serverData data = new serverData("GET", "member/show_single_name", params, null);
+                //아이디가 입력되지 않았을 경우 false 반환
                 if(useridEdit.length()==0){
                     isEnableID_result.setText("아이디가 입력되지 않았습니다.");
                     isEnableID_result.setTextColor(Color.RED);
                     checkIDisOK = false;
                 }
-                //thread.getResult().contains("\"mb_userid\":\""+useridEdit.getText()+"\"")
-                else if(data.contains("mb_userid", useridEdit.getText().toString()))
+                //서버에 아이디 전송, 비교하여 이미 존재하는 id일 경우 false 반환
+                else if(data.get().equals(useridEdit.getText().toString()))
                 {
                     isEnableID_result.setText("이미 존재하는 아이디 입니다.");
                     isEnableID_result.setTextColor(Color.RED);
@@ -156,7 +157,6 @@ public class join extends AppCompatActivity{
                     }
                     Log.e("json", "생성한 json : " + userInfo);
                     //서버와 연결
-                    String command = "member/read";
                     serverConnectionThread thread = new serverConnectionThread("POST", "member/create", userInfo);
                     thread.start();
                     Intent intent = new Intent(getApplicationContext(), groupList.class);
