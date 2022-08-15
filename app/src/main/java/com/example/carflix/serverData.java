@@ -38,20 +38,20 @@ public class serverData {
                 case "show_single_name":
                     Log.d("serverData_get()", data.getString("message"));
                     result = data.getString(category+"_userid");break;
+                case "group_show":
                 case "group_info":
                     String JSONString = data.toString();
-                    //{"message":" .... "}
+                    //{"message":" .... "} : 실패
                     if(Pattern.matches("^\\{\\\"message\\\"\\:\\\".*\\\"\\}$", JSONString)){
                         Log.d("serverData_get()", data.getString("message"));
                         Log.d("serverData_get()", "get Message......");
                         result = data.getString("message");
                     }
-                    //{"data":[{" .... "}]}
+                    //{"data":[{" .... "}]} : 성공
                     else if(Pattern.matches("^\\{\\\"data\\\"\\:\\[\\{\\\".*\\\"\\}\\]\\}", JSONString)){
                         Log.d("serverData_get()", "get data......");
                         result = data.getJSONArray("data").toString();
-                    }
-                    ;break;
+                    }break;
                 default: break;
             }
         }

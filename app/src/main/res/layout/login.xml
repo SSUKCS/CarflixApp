@@ -9,8 +9,7 @@
         android:orientation="vertical"
         android:layout_margin="10dp"
         android:layout_marginRight = "10sp"
-        android:layout_marginLeft = "10sp"
-        android:layout_marginBottom = "30dp">
+        android:layout_marginLeft = "10sp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,8 +53,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="자동 로그인" />>
+            android:text="자동 로그인" />
     </LinearLayout>
+    <TextView
+        android:id="@+id/failedLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor = "#FFFF0000"
+        android:textSize = "20sp"
+        android:layout_marginBottom="10sp"/>
     <Button
         android:id="@+id/sendInfotoServer"
         android:layout_width="wrap_content"

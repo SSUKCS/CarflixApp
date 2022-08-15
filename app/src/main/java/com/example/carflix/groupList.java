@@ -2,6 +2,7 @@ package com.example.carflix;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,7 +28,9 @@ public class groupList extends AppCompatActivity {
 
     private Context context;
 
-    private ArrayList<groupData> groupDataList;
+    private String memberID;
+
+    private ArrayList groupDataList;
     private groupListAdapter adapter;
     private RecyclerView groupListView;
     private TextView listEmpty;
@@ -43,19 +46,22 @@ public class groupList extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         groupListView.setLayoutManager(layoutManager);
 
+        memberID = getIntent().getStringExtra("mb_id");
+
         groupDataList = new ArrayList<>();
+
+
         adapter = new groupListAdapter(context, groupDataList);
         groupListView.setAdapter(adapter);
 
+        //회사 데이터 입력
+        updateListfromServer();
+
         listEmpty = findViewById(R.id.list_empty);
-        //회사 데이터 입력단
-        String small_groupDataJSONString = getIntent().getStringExtra("small_groupDataJSONString");
-        addItem(getIntent().getStringExtra("small_groupDataJSONString"), "sg");
-        addItem(getIntent().getStringExtra("ceo_groupDataJSONString"), "cg");
-        addItem(getIntent().getStringExtra("rent_groupDataJSONString"), "rg");
+        Log.d("carList", "isempty :: "+groupDataList.isEmpty());
         if(groupDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
         else listEmpty.setVisibility(View.INVISIBLE);
-        /*
+
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 data -> {
                     Log.d("carList", "data : " + data);
@@ -64,27 +70,25 @@ public class groupList extends AppCompatActivity {
 
                         Intent intent = data.getData();
 
-                        boolean isAvailableChanged = intent.getBooleanExtra("carData_isAvailableChanged", true);
-                        int position = Integer.parseInt(intent.getStringExtra("position"));
-                        if(isAvailableChanged)nowDriving = DEFAULT;
-                        else nowDriving = position;
-                        String carStatus = intent.getStringExtra("carStatusChanged");
 
-                        Log.d("carList", "isAvailableChanged : " + isAvailableChanged);
-                        Log.d("carList", "position : " + position);
-                        Log.d("carList", "carStatusChanged : " + carStatus);
-
-                        carDataList.get(position).setAvailable(isAvailableChanged);
-                        carDataList.get(position).setStatus(carStatus);
-                        adapter.notifyItemChanged(position);
+                        adapter.notifyDataSetChanged();
                     }
-                });*/
+                });
         adapter.setItemClickListener(new groupListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Intent intent = new Intent(getApplicationContext(), carList.class);
-                ArrayList<carData> carDataList = groupDataList.get(position).getCarDataList();
-                intent.putExtra("carDataList",carDataList);
+                String groupID, status;
+
+                groupData groupData = (groupData)groupDataList.get(position);
+
+                groupID = groupData.getGroupID();
+                status = groupData.getStatus();
+
+                intent.putExtra("memberID", memberID);
+                intent.putExtra("groupID", groupID);
+                intent.putExtra("status",status);
+
                 startActivity(intent);
             }
         });
@@ -102,6 +106,9 @@ public class groupList extends AppCompatActivity {
         switch(curId){
             case R.id.generateGroup:
                 Toast.makeText(this, "그룹 생성", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(context, generateGroup.class);
+                intent.putExtra("memberID", memberID);
+                startActivity(intent);
                 break;
             case R.id.joinGroup:
                 Toast.makeText(this, "그룹 가입", Toast.LENGTH_LONG).show();
@@ -110,6 +117,15 @@ public class groupList extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void updateListfromServer(){
+        String small_groupDataJSONString = new serverData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
+        String ceo_groupDataJSONString = new serverData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
+        String rent_groupDataJSONString = new serverData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
+
+        addItem(small_groupDataJSONString, "sg");
+        addItem(ceo_groupDataJSONString, "cg");
+        addItem(rent_groupDataJSONString, "rg");
     }
     private void addItem(String JSONArrayString, String groupType){
         String errorMessage;
@@ -142,7 +158,6 @@ public class groupList extends AppCompatActivity {
                             Log.d("groupList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("rg_title"));
                             break;
                     }
-
                 }
             }
             catch(JSONException e){

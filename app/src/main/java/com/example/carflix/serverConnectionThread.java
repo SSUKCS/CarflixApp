@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 
 public class serverConnectionThread extends Thread{
     private static final String TAG = "ConnectionThread";
-    String HTTPMethod;
+    String httpmethod;
     private String urlStr;
     private JSONObject requestBody=null;
 
@@ -32,20 +32,25 @@ public class serverConnectionThread extends Thread{
         if(handler != null && monitor != null)monitorExist=true;
     }
     public serverConnectionThread(String HTTPMethod, String command, JSONObject requestBody){
-        this.HTTPMethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
+        this.httpmethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
         this.urlStr = "http://13.56.94.107/admin/api/"+command+".php";
         this.requestBody = requestBody;
     }
     public serverConnectionThread(String HTTPMethod, String command, String param, JSONObject requestBody){
-        this.HTTPMethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
+        this.httpmethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
         this.urlStr = "http://13.56.94.107/admin/api/"+command+".php?"+param;
         this.requestBody = requestBody;
     }
     public void run(){
         try{
             String result = request(urlStr);
-            outputString = result.substring(result.indexOf("{"));
-            Log.d(TAG, "OUTPUT :: "+ outputString);
+            if(result != null){
+                outputString = result.substring(result.indexOf("{"));
+                Log.d(TAG, "OUTPUT :: "+ outputString);
+            }
+            else{
+                Log.d(TAG, "OUTPUT :: "+ result);
+            }
             if(monitorExist){
                 handler.post(new Runnable() {
                     @Override
@@ -68,7 +73,7 @@ public class serverConnectionThread extends Thread{
             if(connection != null){
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
-                connection.setRequestMethod(HTTPMethod);
+                connection.setRequestMethod(httpmethod);
 
                 connection.setDoInput(true);
                 connection.setDoOutput(true);

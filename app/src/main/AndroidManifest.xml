@@ -29,13 +29,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".generateCode"/>
-        <activity android:name=".groupList"/>
-        <activity android:name=".carList"/>
         <activity android:name=".logIn"/>
         <activity android:name=".join"/>
-        <activity android:name=".carInterface"/>
+
+
+        <activity android:name=".groupList"/>
+        <activity android:name =".generateGroup"/>
+
+        <activity android:name=".carList"/>
         <activity android:name=".carLookupInfo"/>
+        <activity android:name=".generateCode"/>
+
+        <activity android:name=".carInterface"/>
+
 
         <service
             android:name=".locationService"

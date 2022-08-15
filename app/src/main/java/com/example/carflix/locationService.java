@@ -90,14 +90,14 @@ public class locationService extends Service {
                 try {
                     Log.e("runnable :: ", "is alive");
                     requestLocationUpdates();
-                    handler.postDelayed(this, TimeUnit.SECONDS.toMillis(2));
+                    handler.postDelayed(this, TimeUnit.SECONDS.toMillis(5));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         };
         if (!stopService) {
-            handler.postDelayed(runnable, TimeUnit.SECONDS.toMillis(2));
+            handler.postDelayed(runnable, TimeUnit.SECONDS.toMillis(5));
         }
     }
     @Nullable

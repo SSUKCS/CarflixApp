@@ -1,6 +1,7 @@
 package com.example.carflix;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,15 +13,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class groupListAdapter extends RecyclerView.Adapter<groupListAdapter.ViewHolder>{
 
     private String TAG = "groupListAdapter";
     private Context context;
-    private ArrayList<groupData> dataList;//데이터를 담을 리스트
+    private ArrayList dataList;//데이터를 담을 리스트
 
-    public groupListAdapter(Context context, ArrayList<groupData> dataList){
+    public groupListAdapter(Context context, ArrayList dataList){
         this.context = context;
         this.dataList = dataList;
     }
@@ -46,14 +48,35 @@ public class groupListAdapter extends RecyclerView.Adapter<groupListAdapter.View
     //리스트의 각 항목에 들어갈 데이터를 지정
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position){
+
         Log.d("groupListAdpater_onBindViewHolder", "POSITION :: "+ position);
-        groupData groupData = dataList.get(position);
-        holder.groupName.setText(groupData.getGroupName());
-        holder.groupDescription.setText(groupData.getGroupDescription());
-        holder.groupType.setText(groupData.getStatus());
-        Log.d("groupListAdpater_onBindViewHolder", "GROUPNAME :: "+ holder.groupName.getText());
-        Log.d("groupListAdpater_onBindViewHolder", "DESCRIPTION :: "+ holder.groupDescription.getText());
-        Log.d("groupListAdpater_onBindViewHolder", "GROUPTYPE :: "+ holder.groupType.getText());
+        String dataType = dataList.get(position).getClass().toString();
+        dataType = dataType.substring(dataType.lastIndexOf(".")+1);
+        Log.d("groupListAdpater_onBindViewHolder", "DATATYPE :: "+ dataType);
+        switch(dataType){
+            case "groupData":
+                groupData groupData = (groupData)dataList.get(position);
+                holder.groupName.setText(groupData.getGroupName());
+                holder.groupDescription.setText(groupData.getGroupDescription());
+                holder.groupType.setText(groupData.getStatus());
+                holder.groupType.setBackgroundColor(ContextCompat.getColor(context, R.color.sg_color));
+
+                break;
+            case "ceoGroupData":
+                ceoGroupData ceoGroupData = (ceoGroupData) dataList.get(position);
+                holder.groupName.setText(ceoGroupData.getGroupName());
+                holder.groupDescription.setText(ceoGroupData.getGroupDescription());
+                holder.groupType.setText(ceoGroupData.getStatus());
+                holder.groupType.setBackgroundColor(ContextCompat.getColor(context, R.color.cg_color));
+                break;
+
+            case "rentGroupData":
+                rentGroupData rentGroupData = (rentGroupData) dataList.get(position);
+                holder.groupName.setText(rentGroupData.getGroupName());
+                holder.groupDescription.setText(rentGroupData.getGroupDescription());
+                holder.groupType.setText(rentGroupData.getStatus());
+                holder.groupType.setBackgroundColor(ContextCompat.getColor(context, R.color.rg_color));break;
+        }
     }
     //화면에 보여줄 데이터의 갯수를 반환
     @Override

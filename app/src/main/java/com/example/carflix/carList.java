@@ -8,7 +8,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -20,14 +25,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 public class carList extends AppCompatActivity {
+    private final static int DEFAULT = -1;
 
     private Context context;
 
     private ArrayList<carData> carDataList;
     private carListAdapter adapter;
     private RecyclerView carList;
+    private TextView listEmpty;
 
-    private final static int DEFAULT = -1;
+
+    private String memberID;
+    private String groupID;
+    private String status;
+
     private int nowDriving = -1;
 
     int carImg_default = R.drawable.carimage_default;
@@ -40,10 +51,24 @@ public class carList extends AppCompatActivity {
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         carList.setLayoutManager(layoutManager);
-        carDataList = (ArrayList<carData>) getIntent().getSerializableExtra("carDataList");
+
+        memberID = getIntent().getStringExtra("memberID");
+        groupID = getIntent().getStringExtra("groupID");
+        status = getIntent().getStringExtra("status");
+
+        carDataList = new ArrayList<carData>();
+        updateListfromServer();
+
         adapter = new carListAdapter(context, carDataList);
         carList.setAdapter(adapter);
-        ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+
+        listEmpty = findViewById(R.id.list_empty);
+        Log.d("carList", "isempty :: "+carDataList.isEmpty());
+        if(carDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
+        else listEmpty.setVisibility(View.INVISIBLE);
+
+        ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
                 data -> {
                     Log.d("carList", "data : " + data);
                     switch (data.getResultCode())
@@ -133,8 +158,34 @@ public class carList extends AppCompatActivity {
             intent.putExtra("carData_isAvailableChanged", carData.isAvailable());
             intent.putExtra("carStatusChanged", isAvailable.getText());
             setResult(RESULT_OK, intent);
-        }
+        }*/
         finish();
-        */
+    }
+    private void updateListfromServer(){
+
+        String params = "mb_id="+memberID+"&group_id="+groupID+"&status="+status;
+        Log.d("groupList", "params :: "+ params);
+        String carDataListJSONString = new serverData("GET", "car/group_show", params, null).get();
+
+        addItem(carDataListJSONString);
+    }
+    private void addItem(String JSONArrayString){
+        String errorMessage = "No car Found";
+        if(!JSONArrayString.equals(errorMessage)){
+            try{
+                JSONArray JSONArray = new JSONArray(JSONArrayString);
+                int len = JSONArray.length();
+                for(int i=0;i<len;i++){
+                    JSONObject jsonObject = JSONArray.getJSONObject(i);
+                    Log.d("groupList_addItem", jsonObject.getString("status"));
+                    carDataList.add(new carData(JSONArray.getJSONObject(i)));
+                    Log.d("groupList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("sg_title"));
+                }
+            }
+            catch(JSONException e){
+                Log.e("groupList.addItem", e.toString());
+            }
+        }
+
     }
 }

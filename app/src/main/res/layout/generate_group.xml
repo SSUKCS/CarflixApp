@@ -13,7 +13,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="bottom"
-            android:id="@+id/button_smallGroup"
+            android:id="@+id/smallGroupButton"
             android:text="소규모">
         </Button>
         <Button
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="bottom"
-            android:id="@+id/button_CEOGroup"
+            android:id="@+id/ceoGroupButton"
             android:text="대규모">
         </Button>
         <Button
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="bottom"
-            android:id="@+id/button_rentGroup"
+            android:id="@+id/rentGroupButton"
             android:text="렌트">
         </Button>
     </LinearLayout>
@@ -61,12 +61,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation = "horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center|top"
                         android:text="그룹명"
+                        android:textAlignment="center"
                         android:textStyle="bold"></TextView>
 
                     <EditText
@@ -85,18 +87,21 @@
                     android:layout_height="0dp"
                     android:layout_weight="20"
                     android:orientation = "horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center|top"
-                        android:text="설명"
+                        android:text="그룹\n설명"
+                        android:textAlignment="center"
                         android:textStyle="bold"></TextView>
 
                     <EditText
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="7"
+                        android:gravity="top"
                         android:id="@+id/smallGroupInfoEdit">
                     </EditText>
                 </LinearLayout>
@@ -115,7 +120,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation = "horizontal"
-            android:id="@+id/CEOGroupLayout"
+            android:id="@+id/bigGroupLayout"
             android:visibility="invisible">
             <LinearLayout
                 android:layout_width="0dp"
@@ -131,38 +136,43 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation = "horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center|top"
                         android:text="그룹명"
+                        android:textAlignment="center"
                         android:textStyle="bold"></TextView>
                     <EditText
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="7"
-                        android:id="@+id/CEOGroupNameEdit">
+                        android:id="@+id/bigGroupNameEdit">
                     </EditText>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation = "horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1.1"
                         android:gravity="center|top"
                         android:text="사업자\n등록번호"
+                        android:textAlignment="center"
                         android:textStyle="bold"></TextView>
 
                     <EditText
-                        android:id="@+id/CEOGroupCompRegNum"
+                        android:id="@+id/bigGroupCompRegNum"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="7"
@@ -171,26 +181,76 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="0.5"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
                     android:layout_weight="20"
                     android:orientation = "horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center|top"
-                        android:text="설명"
+                        android:text="사업자\n경력"
+                        android:textAlignment="center"
                         android:textStyle="bold"></TextView>
                     <EditText
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="7"
-                        android:id="@+id/CEOGroupInfoEdit">
+                        android:gravity="top"
+                        android:id="@+id/bigGroupCareerEdit">
                     </EditText>
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="20"
+                    android:orientation = "horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center|top"
+                        android:text=" 그룹\n설명"
+                        android:textAlignment="center"
+                        android:textStyle="bold"></TextView>
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:gravity="top"
+                        android:id="@+id/bigGroupInfoEdit">
+                    </EditText>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation = "horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center|top"
+                        android:text="사업자\n증멍서"
+                        android:textAlignment="center"
+                        android:textStyle="bold"></TextView>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="5"
+                        android:id="@+id/bigGroupCertificateEdit"
+                        android:background="#DDDDDD">
+                    </TextView>
+                    <Button
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text = "찾아보기"
+                        android:id = "@+id/findGroupCertificate"
+                        />
+                </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -209,8 +269,9 @@
         android:layout_weight="1"
         android:gravity="right">
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/generateGroupButton"
             android:text="그룹생성">
         </Button>
     </LinearLayout>

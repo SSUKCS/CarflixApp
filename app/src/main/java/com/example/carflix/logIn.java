@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -22,6 +23,7 @@ public class logIn extends AppCompatActivity{
     EditText inputID;
     EditText inputPW;
     CheckBox isAutoLogin;
+    TextView failedLogin;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
 
@@ -32,7 +34,7 @@ public class logIn extends AppCompatActivity{
         inputID = (EditText)findViewById(R.id.inputID);
         inputPW = (EditText)findViewById(R.id.inputPW);
         isAutoLogin = (CheckBox)findViewById(R.id.isAutoLogin);
-
+        failedLogin = (TextView)findViewById(R.id.failedLogin);
         //저장되어있는 userid와 password
         SharedPreferences autoLogin = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
@@ -83,9 +85,10 @@ public class logIn extends AppCompatActivity{
                 if(inputID.length()!=0 && inputPW.length()!=0){
                     serverData serverData = new serverData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
                     String[] result = serverData.get().split("/");
-                    Log.d("login", "LOGIN RESULT :: "+serverData.get());
+                    Log.d("login", "LOGIN RESULT :: "+result);
                     switch(result[0]){
                         case "Successfully Login!":
+                            Log.d("login", "result :: "+result[0]);
                             if(isAutoLogin.isChecked()){
                                 SharedPreferences autoLogin = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = autoLogin.edit();
@@ -93,16 +96,16 @@ public class logIn extends AppCompatActivity{
                                 editor.putString(getString(R.string.savedPWKey), mb_password);
                                 editor.apply();
                             }
-                            String small_groupDataJSONString = new serverData("GET", "small_group/group_info", "mb_id="+result[1], null).get();
-                            String ceo_groupDataJSONString = new serverData("GET", "ceo_group/group_info", "mb_id="+result[1], null).get();
-                            String rent_groupDataJSONString = new serverData("GET", "rent_group/group_info", "mb_id="+result[1], null).get();
+                            failedLogin.setText("");
+
                             Intent intent = new Intent(getApplicationContext(), groupList.class);
-                            intent.putExtra("small_groupDataJSONString", small_groupDataJSONString);
-                            intent.putExtra("ceo_groupDataJSONString", ceo_groupDataJSONString);
-                            intent.putExtra("rent_groupDataJSONString", rent_groupDataJSONString);
+                            intent.putExtra("mb_id", result[1]);
                             startActivity(intent);
                             break;
-                        case "Invalid Username or Password!":break;
+                        case "Invalid Username or Password!":
+                            Log.d("login", "result :: "+result[0]);
+                            failedLogin.setText("잘못된 아이디나 비밀번호가 입력되었습니다.");
+                            break;
                         default:Log.e("login", "LOGIN ERROR :: invalid output");break;
                     }
                 }

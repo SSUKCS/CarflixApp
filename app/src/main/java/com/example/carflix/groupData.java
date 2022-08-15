@@ -13,30 +13,18 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
 //small_group data class
+//{
+//    "sg_id":,
+//    "sg_title":,
+//    "sg_description":,
+//    "status":
+//}
 public class groupData implements Serializable {
     protected String groupID;
     protected String groupName;
     protected String groupDescription;
     protected String status;
-    protected ArrayList<carData> carDataList;
-    public groupData(String groupName, String groupDescription, String status){
-        this.groupName = groupName;
-        this.groupDescription = groupDescription;
-        this.status = status;
 
-        carDataList = new ArrayList<>();
-        //챠량 데이터 입력단(임의로 생성)
-        int carimg_default = R.drawable.carimage_default;
-        for(int i=1;i<11;i++){
-            carDataList.add(new carData(carimg_default, groupName+"의 차량"+i));
-        }
-    }
-    public groupData(String groupName, String groupDescription, String status, ArrayList<carData> carDataList){
-        this.groupName = groupName;
-        this.groupDescription = groupDescription;
-        this.status = status;
-        this.carDataList = carDataList;
-    }
     public groupData(JSONObject groupData){
         String groupStatus=null;
         try{
@@ -57,10 +45,12 @@ public class groupData implements Serializable {
     }
     protected groupData(){
     }
+
+    public String getGroupID() {return groupID;}
     public String getGroupName(){
         return groupName;
     }
-    public void setGroupname(String carName){
+    public void setGroupName(String carName){
         this.groupName = carName;
     }
     public String getGroupDescription(){
@@ -69,6 +59,4 @@ public class groupData implements Serializable {
     public void setGroupDescription(String groupDescription){this.groupDescription = groupDescription; }
     public String getStatus(){ return status; }
     public void setStatus(String status){ this.status = status;}
-    public ArrayList<carData> getCarDataList(){return carDataList;}
-    public void setCarDataList(ArrayList<carData> carDataList){this.carDataList = carDataList;}
 }
