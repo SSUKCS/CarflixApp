@@ -3,11 +3,17 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable-anydpi/ic_action_name.xml" value="0.152" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/drawable/image_lock_resize.xml" value="0.1675" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/activity_bletest.xml" value="0.3619791666666667" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/add_car.xml" value="0.21145833333333333" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/car_list.xml" value="0.2713541666666667" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/car_list_item.xml" value="0.2713541666666667" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/car_lookupinfo.xml" value="0.2713541666666667" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/group_list.xml" value="0.2713541666666667" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/group_list_item.xml" value="0.2713541666666667" />
+        <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/join.xml" value="0.2713541666666667" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1975" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/bluetooth_button.xml" value="0.3315" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/buttonimg_xml.xml" value="0.195" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/enable_car_connected.xml" value="0.1705" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1975" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_connect_resize.xml" value="0.195" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_disconnect_resize.xml" value="0.352" />
@@ -16,39 +22,31 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_lockxml.xml" value="0.195" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_trunk_resize.xml" value="0.271" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_unlock_resize.xml" value="0.271" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/search_enable_car.xml" value="0.1705" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout-land/activity_main.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout-sw600dp/activity_main.xml" value="0.12528691660290742" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/activity_main.xml" value="0.22" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/add_car.xml" value="0.33" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_interface.xml" value="0.2" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_list.xml" value="0.25" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_list_item.xml" value="0.25" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_list_item.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_list_noitem.xml" value="0.15433946130825138" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_lookupinfo.xml" value="0.25" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/generate_code.xml" value="0.22" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_lookupinfo.xml" value="0.1" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/generate_code.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/generate_group.xml" value="0.25" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/group_list.xml" value="0.171875" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/group_list_item.xml" value="0.5" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/invite_code.xml" value="0.25" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/invite_code_list.xml" value="0.17647058823529413" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/join.xml" value="0.1" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/group_list.xml" value="0.15519452757588714" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/group_list_item.xml" value="0.33" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/join.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/login.xml" value="0.33" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/notyet.xml" value="0.15" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/layout/toolbar.xml" value="0.2231722958529286" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/menu/manu_userprofile_drawer.xml" value="0.16891891891891891" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/menu/menu.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/menu/menu_car_list.xml" value="0.1" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/menu/menu_generate_code.xml" value="0.22727272727272727" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/menu/menu_group_list.xml" value="0.1" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/menu/userprofile_drawer.xml" value="0.2877297990594271" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.342" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/xml/network_security_config.xml" value="0.12312954253954682" />
       </map>
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
