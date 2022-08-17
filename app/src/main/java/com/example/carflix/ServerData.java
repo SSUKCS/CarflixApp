@@ -35,7 +35,7 @@ public class ServerData {
                         result = result +"/"+data.getString("mb_id");
                     }break;
                 case "show_single_name":
-                    Log.d("serverData_get()", data.getString("message"));
+                    Log.d("serverData_get()", data.getString(category+"_userid"));
                     result = data.getString(category+"_userid");break;
                 case "show":
                     if(!category.equals("ic")){//json 객체 1개를 return

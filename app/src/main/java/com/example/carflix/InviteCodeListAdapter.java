@@ -73,7 +73,6 @@ public class InviteCodeListAdapter extends RecyclerView.Adapter<InviteCodeListAd
         public ViewHolder(@NonNull View itemView){
             super(itemView);
             groupTitle = itemView.findViewById(R.id.groupTitle);
-            groupStatus = itemView.findViewById(R.id.groupStatus);
             inviteCodeText = itemView.findViewById(R.id.inviteCode);
         }
     }
