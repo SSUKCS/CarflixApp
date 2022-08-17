@@ -14,13 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHolder>{
+public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHolder>{
 
     private String TAG = "carListAdapter";
     private Context context;
-    private ArrayList<carData> dataList;//데이터를 담을 리스트
+    private ArrayList<CarData> dataList;//데이터를 담을 리스트
 
-    public carListAdapter(Context context, ArrayList<carData> dataList){
+    public CarListAdapter(Context context, ArrayList<CarData> dataList){
         this.context = context;
         this.dataList = dataList;
     }
@@ -46,7 +46,7 @@ public class carListAdapter extends RecyclerView.Adapter<carListAdapter.ViewHold
     //리스트의 각 항목에 들어갈 데이터를 지정
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position){
-        carData carData = dataList.get(position);
+        CarData carData = dataList.get(position);
         holder.carImg.setImageResource(carData.getcarImg());
         holder.carName.setText(carData.getCarName());
         holder.isAvailable.setText(carData.getStatus());

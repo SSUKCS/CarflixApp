@@ -14,7 +14,7 @@ import java.net.URL;
 
 import androidx.annotation.NonNull;
 
-public class serverConnectionThread extends Thread{
+public class ServerConnectionThread extends Thread{
     private static final String TAG = "ConnectionThread";
     String httpmethod;
     private String urlStr;
@@ -23,20 +23,13 @@ public class serverConnectionThread extends Thread{
     private String outputString;
 
     public boolean monitorExist = false;
-    private Handler handler=null;
-    private TextView monitor=null;
 
-    public void setMonitor(Handler handler, TextView monitor){
-        this.handler = handler;
-        this.monitor = monitor;
-        if(handler != null && monitor != null)monitorExist=true;
-    }
-    public serverConnectionThread(String HTTPMethod, String command, JSONObject requestBody){
+    public ServerConnectionThread(String HTTPMethod, String command, JSONObject requestBody){
         this.httpmethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
         this.urlStr = "http://13.56.94.107/admin/api/"+command+".php";
         this.requestBody = requestBody;
     }
-    public serverConnectionThread(String HTTPMethod, String command, String param, JSONObject requestBody){
+    public ServerConnectionThread(String HTTPMethod, String command, String param, JSONObject requestBody){
         this.httpmethod = HTTPMethod;//GET|POST|HEAD|OPTIONS|PUT|DELETE|TRACE
         this.urlStr = "http://13.56.94.107/admin/api/"+command+".php?"+param;
         this.requestBody = requestBody;
@@ -50,14 +43,6 @@ public class serverConnectionThread extends Thread{
             }
             else{
                 Log.d(TAG, "OUTPUT :: "+ result);
-            }
-            if(monitorExist){
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        monitor.setText(outputString);
-                    }
-                });
             }
         }
         catch(Exception e){

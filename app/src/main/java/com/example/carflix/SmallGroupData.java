@@ -19,13 +19,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 //    "sg_description":,
 //    "status":
 //}
-public class groupData implements Serializable {
+public class SmallGroupData implements Serializable {
     protected String groupID;
     protected String groupName;
     protected String groupDescription;
     protected String status;
 
-    public groupData(JSONObject groupData){
+    public SmallGroupData(JSONObject groupData){
         String groupStatus=null;
         try{
             switch(groupData.getString("status")){
@@ -43,7 +43,7 @@ public class groupData implements Serializable {
             Log.e("groupData", e.toString());
         }
     }
-    protected groupData(){
+    protected SmallGroupData(){
     }
 
     public String getGroupID() {return groupID;}

@@ -1,8 +1,5 @@
 package com.example.carflix;
 
-import android.util.Log;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 //{
 //    "mb_id" :,
@@ -14,6 +11,6 @@ import org.json.JSONObject;
 //    "status" :,
 //    "cg_regdate" :
 //}
-public class rentGroupData extends ceoGroupData{
-    public rentGroupData(JSONObject groupData) {super(groupData);}
+public class RentGroupData extends CEOGroupData {
+    public RentGroupData(JSONObject groupData) {super(groupData);}
 }

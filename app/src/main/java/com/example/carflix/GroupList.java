@@ -2,7 +2,6 @@ package com.example.carflix;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -20,18 +19,19 @@ import java.util.ArrayList;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 //자신의 그룹 화면을 표시
-public class groupList extends AppCompatActivity {
+public class GroupList extends AppCompatActivity {
 
     private Context context;
 
     private String memberID;
 
     private ArrayList groupDataList;
-    private groupListAdapter adapter;
+    private GroupListAdapter adapter;
     private RecyclerView groupListView;
     private TextView listEmpty;
 
@@ -46,12 +46,15 @@ public class groupList extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         groupListView.setLayoutManager(layoutManager);
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         memberID = getIntent().getStringExtra("mb_id");
 
         groupDataList = new ArrayList<>();
-
-
-        adapter = new groupListAdapter(context, groupDataList);
+        adapter = new GroupListAdapter(context, groupDataList);
         groupListView.setAdapter(adapter);
 
         //회사 데이터 입력
@@ -74,19 +77,21 @@ public class groupList extends AppCompatActivity {
                         adapter.notifyDataSetChanged();
                     }
                 });
-        adapter.setItemClickListener(new groupListAdapter.itemClickListener() {
+        adapter.setItemClickListener(new GroupListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                Intent intent = new Intent(getApplicationContext(), carList.class);
-                String groupID, status;
+                Intent intent = new Intent(getApplicationContext(), CarList.class);
+                String groupID, groupName, status;
 
-                groupData groupData = (groupData)groupDataList.get(position);
+                SmallGroupData groupData = (SmallGroupData)groupDataList.get(position);
 
                 groupID = groupData.getGroupID();
+                groupName = groupData.getGroupName();
                 status = groupData.getStatus();
 
                 intent.putExtra("memberID", memberID);
                 intent.putExtra("groupID", groupID);
+                intent.putExtra("groupName", groupName);
                 intent.putExtra("status",status);
 
                 startActivity(intent);
@@ -104,9 +109,12 @@ public class groupList extends AppCompatActivity {
         int curId = item.getItemId();
 
         switch(curId){
+            case android.R.id.home:
+                Toast.makeText(this, "프로필", Toast.LENGTH_LONG).show();
+                break;
             case R.id.generateGroup:
                 Toast.makeText(this, "그룹 생성", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context, generateGroup.class);
+                Intent intent = new Intent(context, GenerateGroup.class);
                 intent.putExtra("memberID", memberID);
                 startActivity(intent);
                 break;
@@ -119,9 +127,9 @@ public class groupList extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     private void updateListfromServer(){
-        String small_groupDataJSONString = new serverData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
-        String ceo_groupDataJSONString = new serverData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
-        String rent_groupDataJSONString = new serverData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
+        String small_groupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
+        String ceo_groupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
+        String rent_groupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
 
         addItem(small_groupDataJSONString, "sg");
         addItem(ceo_groupDataJSONString, "cg");
@@ -146,15 +154,15 @@ public class groupList extends AppCompatActivity {
                     Log.d("groupList_addItem", jsonObject.getString("status"));
                     switch(jsonObject.getString("status")){
                         case"small_group":
-                            groupDataList.add(new groupData(JSONArray.getJSONObject(i)));
+                            groupDataList.add(new SmallGroupData(JSONArray.getJSONObject(i)));
                             Log.d("groupList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("sg_title"));
                             break;
                         case"ceo_group":
-                            groupDataList.add(new ceoGroupData(JSONArray.getJSONObject(i)));
+                            groupDataList.add(new CEOGroupData(JSONArray.getJSONObject(i)));
                             Log.d("groupList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("cg_title"));
                             break;
                         case"rent_group":
-                            groupDataList.add(new rentGroupData(JSONArray.getJSONObject(i)));
+                            groupDataList.add(new RentGroupData(JSONArray.getJSONObject(i)));
                             Log.d("groupList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("rg_title"));
                             break;
                     }

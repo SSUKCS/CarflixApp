@@ -1,13 +1,11 @@
 package com.example.carflix;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -16,13 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class groupListAdapter extends RecyclerView.Adapter<groupListAdapter.ViewHolder>{
+public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.ViewHolder>{
 
     private String TAG = "groupListAdapter";
     private Context context;
     private ArrayList dataList;//데이터를 담을 리스트
 
-    public groupListAdapter(Context context, ArrayList dataList){
+    public GroupListAdapter(Context context, ArrayList dataList){
         this.context = context;
         this.dataList = dataList;
     }
@@ -54,24 +52,24 @@ public class groupListAdapter extends RecyclerView.Adapter<groupListAdapter.View
         dataType = dataType.substring(dataType.lastIndexOf(".")+1);
         Log.d("groupListAdpater_onBindViewHolder", "DATATYPE :: "+ dataType);
         switch(dataType){
-            case "groupData":
-                groupData groupData = (groupData)dataList.get(position);
+            case "SmallGroupData":
+                SmallGroupData groupData = (SmallGroupData)dataList.get(position);
                 holder.groupName.setText(groupData.getGroupName());
                 holder.groupDescription.setText(groupData.getGroupDescription());
                 holder.groupType.setText(groupData.getStatus());
                 holder.groupType.setBackgroundColor(ContextCompat.getColor(context, R.color.sg_color));
 
                 break;
-            case "ceoGroupData":
-                ceoGroupData ceoGroupData = (ceoGroupData) dataList.get(position);
+            case "CEOGroupData":
+                CEOGroupData ceoGroupData = (CEOGroupData) dataList.get(position);
                 holder.groupName.setText(ceoGroupData.getGroupName());
                 holder.groupDescription.setText(ceoGroupData.getGroupDescription());
                 holder.groupType.setText(ceoGroupData.getStatus());
                 holder.groupType.setBackgroundColor(ContextCompat.getColor(context, R.color.cg_color));
                 break;
 
-            case "rentGroupData":
-                rentGroupData rentGroupData = (rentGroupData) dataList.get(position);
+            case "RentGroupData":
+                RentGroupData rentGroupData = (RentGroupData) dataList.get(position);
                 holder.groupName.setText(rentGroupData.getGroupName());
                 holder.groupDescription.setText(rentGroupData.getGroupDescription());
                 holder.groupType.setText(rentGroupData.getStatus());

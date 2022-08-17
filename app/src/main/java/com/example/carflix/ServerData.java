@@ -2,26 +2,25 @@ package com.example.carflix;
 
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.regex.Pattern;
 
-public class serverData {
+public class ServerData {
     private String category;
     private String purpose;
     JSONObject data;
     //dataArray = data.getJSONArray("data");
 
-    serverData(String HTTPMethod, String command, JSONObject requestBody){
+    ServerData(String HTTPMethod, String command, JSONObject requestBody){
         initCategory(command);
-        serverConnectionThread thread = new serverConnectionThread(HTTPMethod, command, requestBody);
+        ServerConnectionThread thread = new ServerConnectionThread(HTTPMethod, command, requestBody);
         start(thread);
     }
-    serverData(String HTTPMethod, String command, String params, JSONObject requestBody){
+    ServerData(String HTTPMethod, String command, String params, JSONObject requestBody){
         initCategory(command);
-        serverConnectionThread thread = new serverConnectionThread(HTTPMethod, command, params, requestBody);
+        ServerConnectionThread thread = new ServerConnectionThread(HTTPMethod, command, params, requestBody);
         start(thread);
     }
     public String get(){
@@ -38,6 +37,10 @@ public class serverData {
                 case "show_single_name":
                     Log.d("serverData_get()", data.getString("message"));
                     result = data.getString(category+"_userid");break;
+                case "show":
+                    if(!category.equals("ic")){//json 객체 1개를 return
+                        result = data.getJSONArray("data").toString();break;
+                    }
                 case "group_show":
                 case "group_info":
                     String JSONString = data.toString();
@@ -73,7 +76,7 @@ public class serverData {
         }
         purpose = categoryAndPurpose[1];
     }
-    private void start(serverConnectionThread thread){
+    private void start(ServerConnectionThread thread){
         thread.start();
         try{
             thread.join();

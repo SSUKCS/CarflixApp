@@ -1,6 +1,5 @@
 package com.example.carflix;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-public class generateGroup extends AppCompatActivity {
+public class GenerateGroup extends AppCompatActivity {
 
     Button smallGroupButton;
     Button ceoGroupButton;
@@ -162,7 +161,7 @@ public class generateGroup extends AppCompatActivity {
         }
         Log.d("generateGroup", "layoutVisibility"+isViewVisible);
         if(isViewVisible){
-            serverConnectionThread thread = new serverConnectionThread("POST", "small_group/create", generateGroupJSONData(generateGroupType));
+            ServerConnectionThread thread = new ServerConnectionThread("POST", "small_group/create", generateGroupJSONData(generateGroupType));
             thread.start();
             try{
                 thread.join();

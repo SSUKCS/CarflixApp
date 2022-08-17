@@ -1,6 +1,5 @@
 package com.example.carflix;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,8 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,19 +21,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-public class carList extends AppCompatActivity {
+public class CarList extends AppCompatActivity {
     private final static int DEFAULT = -1;
 
     private Context context;
 
-    private ArrayList<carData> carDataList;
-    private carListAdapter adapter;
-    private RecyclerView carList;
+    private ArrayList<CarData> carDataList;
+    private CarListAdapter adapter;
+    private RecyclerView carListView;
     private TextView listEmpty;
 
 
     private String memberID;
     private String groupID;
+    private String groupName;
     private String status;
 
     private int nowDriving = -1;
@@ -47,20 +45,20 @@ public class carList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_list);
         context = getApplicationContext();
-        carList = findViewById(R.id.carListView);
+        carListView = findViewById(R.id.carListView);
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        carList.setLayoutManager(layoutManager);
+        carListView.setLayoutManager(new LinearLayoutManager(this));
 
         memberID = getIntent().getStringExtra("memberID");
         groupID = getIntent().getStringExtra("groupID");
+        groupName = getIntent().getStringExtra("groupName");
         status = getIntent().getStringExtra("status");
 
-        carDataList = new ArrayList<carData>();
+        carDataList = new ArrayList<CarData>();
         updateListfromServer();
 
-        adapter = new carListAdapter(context, carDataList);
-        carList.setAdapter(adapter);
+        adapter = new CarListAdapter(context, carDataList);
+        carListView.setAdapter(adapter);
 
         listEmpty = findViewById(R.id.list_empty);
         Log.d("carList", "isempty :: "+carDataList.isEmpty());
@@ -99,13 +97,13 @@ public class carList extends AppCompatActivity {
                         default:break;
                     }
                 });
-        adapter.setItemClickListener(new carListAdapter.itemClickListener() {
+        adapter.setItemClickListener(new CarListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 //carInterface로 이동
                 if(nowDriving == DEFAULT || nowDriving==position){
-                    Intent intent = new Intent(getApplicationContext(), carInterface.class);
-                    carData carData = carDataList.get(position);
+                    Intent intent = new Intent(getApplicationContext(), CarInterface.class);
+                    CarData carData = carDataList.get(position);
                     intent.putExtra("carData", carData);
                     intent.putExtra("position", position);
                     launcher.launch(intent);
@@ -117,8 +115,9 @@ public class carList extends AppCompatActivity {
 
             @Override
             public void onLookupInfoClick(View v, int position) {
-                //lookupInfo
-                Intent intent = new Intent(getApplicationContext(), carLookupInfo.class);
+                //lookupInfo로 이동
+                Intent intent = new Intent(getApplicationContext(), CarLookupInfo.class);
+                intent.putExtra("carName", carDataList.get(position).getCarName());
                 startActivity(intent);
             }
         });
@@ -133,14 +132,23 @@ public class carList extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int curId = item.getItemId();
-
+        Intent intent;
         switch(curId){
             case R.id.addCar:
                 Toast.makeText(this, "차량 추가", Toast.LENGTH_LONG).show();
+                intent = new Intent(getApplicationContext(), AddCar.class);
+                intent.putExtra("memberID", memberID);
+                intent.putExtra("groupID", groupID);
+                intent.putExtra("status", status);
+                startActivity(intent);
                 break;
             case R.id.generateCode:
                 Toast.makeText(this, "코드 생성", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), generateCode.class);
+                intent = new Intent(getApplicationContext(), GenerateCode.class);
+                intent.putExtra("memberID", memberID);
+                intent.putExtra("groupID", groupID);
+                intent.putExtra("groupName", groupName);
+                intent.putExtra("status", status);
                 startActivity(intent);
                 break;
             default:
@@ -165,7 +173,7 @@ public class carList extends AppCompatActivity {
 
         String params = "mb_id="+memberID+"&group_id="+groupID+"&status="+status;
         Log.d("groupList", "params :: "+ params);
-        String carDataListJSONString = new serverData("GET", "car/group_show", params, null).get();
+        String carDataListJSONString = new ServerData("GET", "car/group_show", params, null).get();
 
         addItem(carDataListJSONString);
     }
@@ -178,7 +186,7 @@ public class carList extends AppCompatActivity {
                 for(int i=0;i<len;i++){
                     JSONObject jsonObject = JSONArray.getJSONObject(i);
                     Log.d("groupList_addItem", jsonObject.getString("status"));
-                    carDataList.add(new carData(JSONArray.getJSONObject(i)));
+                    carDataList.add(new CarData(JSONArray.getJSONObject(i)));
                     Log.d("groupList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("sg_title"));
                 }
             }

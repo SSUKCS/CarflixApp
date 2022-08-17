@@ -1,8 +1,6 @@
 package com.example.carflix;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,16 +11,14 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -33,7 +29,7 @@ import com.google.android.gms.location.Priority;
 
 import java.util.concurrent.TimeUnit;
 
-public class locationService extends Service {
+public class LocationService extends Service {
     private static final String TAG = "locationService";
     private Context context;
 
@@ -47,14 +43,14 @@ public class locationService extends Service {
     private final Location[] location = {new Location(LocationManager.GPS_PROVIDER)};
     private LocationCallback locationCallback;
 
-    IBinder LBinder = new locationBinder();
+    String message;
 
     class locationBinder extends Binder {
         // 외부로 데이터를 전달하려면 바인더 사용
         // Binder 객체는 IBinder 인터페이스 상속구현 객체
         //public class Binder extends Object implements IBinder
-        locationService getService(){
-            return locationService.this;
+        LocationService getService(){
+            return LocationService.this;
         }
     }
 
@@ -78,6 +74,7 @@ public class locationService extends Service {
                     Log.e(TAG, "locationCallback :: "+locationCallback);
 
                     if (NotificationManager != null && fusedLocationClient != null && !stopService) {
+                        message = location[0].getLatitude()+"|"+location[0].getLongitude()+"|"+location[0].getSpeed();
                         notification.setContentText("Your current location is " +  location[0].getLatitude() + "," + location[0].getLongitude());
                         NotificationManager.notify(101, notification.build());
                     }
@@ -103,9 +100,6 @@ public class locationService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        //액티비티에서 bindService() 를 실행하면 호출
-        // 리턴한 IBinder 객체는 서비스와 클라이언트 사이의 인터페이스 정의
-        // 서비스 객체를 리턴
         return null;
     }
     @Override
@@ -117,6 +111,7 @@ public class locationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "onStartCommand :: ");
         startForeground();
+        sendMessage();
         // GPS를 2초마다 가져오는 스레드를 서비스에서 실행해준다. 서비스가 실행되면 이 스레드도 같이 실행된다.
         if (fusedLocationClient != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
@@ -128,7 +123,7 @@ public class locationService extends Service {
     {
         Log.e(TAG, "startForeground :: ");
         // 포그라운드 서비스 상태에서 알림을 누르면 carInterface를 다시 열게 된다.
-        Intent returnIntent = new Intent(this, carInterface.class);
+        Intent returnIntent = new Intent(this, CarInterface.class);
         //pendingIntent 설정
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
                 returnIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -192,18 +187,12 @@ public class locationService extends Service {
         }
         if(stopService)fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-    @Override
-    public boolean onUnbind(Intent intent) {
-        // All clients have unbound with unbindService()
-        Log.d(TAG, "onUnbind :: "+intent.toString());
-        return super.onUnbind(intent);
-    }
-    @Override
-    public void onRebind(Intent intent) {
-        // A client is binding to the service with bindService(),
-        // after onUnbind() has already been called
-        Log.d(TAG, "onRebind :: "+intent.toString());
-        super.onRebind(intent);
+
+    private void sendMessage(){
+        Log.d("messageService", "Broadcasting message");
+        Intent intent = new Intent("locationService_location&speed");
+        intent.putExtra("message", message);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
     public boolean isRunning(){
         return !stopService;

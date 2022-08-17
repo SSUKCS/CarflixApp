@@ -1,12 +1,9 @@
 package com.example.carflix;
 
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-public class carInterface extends AppCompatActivity {
+public class CarInterface extends AppCompatActivity {
     int position;
     private Context context;
 
@@ -32,7 +29,7 @@ public class carInterface extends AppCompatActivity {
     Button trunk;
     Button startCar;
 
-    carData carData;
+    CarData carData;
 
     boolean carData_isAvailable_initialState;
     boolean door_isOpen;
@@ -45,7 +42,7 @@ public class carInterface extends AppCompatActivity {
 
         context = getApplicationContext();
         position = getIntent().getIntExtra("position", -1);
-        carData = (carData)getIntent().getSerializableExtra("carData");
+        carData = (CarData)getIntent().getSerializableExtra("carData");
 
         carImg = (ImageView)findViewById(R.id.carImg);
         carName = (TextView)findViewById(R.id.carName);
@@ -106,7 +103,7 @@ public class carInterface extends AppCompatActivity {
                     isAvailable.setText("운전중");
                     isAvailable.setTextColor(Color.parseColor("#9911BB"));
 
-                    Intent intent = new Intent(getApplicationContext(), locationService.class);
+                    Intent intent = new Intent(getApplicationContext(), LocationService.class);
                     startService(intent);
                 }
                 else if(isAvailable.getText().equals("운전 불가능")){
@@ -118,7 +115,7 @@ public class carInterface extends AppCompatActivity {
                     isAvailable.setText("운전 가능");
                     isAvailable.setTextColor(Color.parseColor("#4488FF"));
 
-                    Intent intent = new Intent(getApplicationContext(), locationService.class);
+                    Intent intent = new Intent(getApplicationContext(), LocationService.class);
                     Log.e("carInterface", "STOP CONTEXT "+getApplicationContext());
                     stopService(intent);
                 }

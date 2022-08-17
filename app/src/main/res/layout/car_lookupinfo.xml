@@ -2,21 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="9">
+        android:layout_weight="1">
         <fragment
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment" />
     </LinearLayout>
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/getLog"
-        >
-    </Button>
+        android:orientation="vertical"
+        android:layout_marginTop="10sp"
+        android:layout_marginBottom="20sp"
+        android:layout_marginLeft="5sp"
+        android:layout_marginRight="5sp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="100sp"
+                android:layout_height="100sp"
+
+                android:src="@drawable/userimage_default"
+                android:background="@android:color/transparent"
+                app:civ_circle_background_color="#FFFFFF"
+                app:civ_border_overlay="true"
+                app:civ_border_width="2sp"
+                app:civ_border_color="#000000"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
+                android:layout_marginLeft="15sp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text = "홍길동 님이 이용중\n11:20부터 운행 시작"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

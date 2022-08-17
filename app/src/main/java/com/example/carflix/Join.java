@@ -27,7 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-public class join extends AppCompatActivity{
+public class Join extends AppCompatActivity{
     
     EditText useridEdit;
     
@@ -66,7 +66,7 @@ public class join extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 String params =  "mb_userid="+useridEdit.getText().toString();
-                serverData data = new serverData("GET", "member/show_single_name", params, null);
+                ServerData data = new ServerData("GET", "member/show_single_name", params, null);
                 //아이디가 입력되지 않았을 경우 false 반환
                 if(useridEdit.length()==0){
                     isEnableID_result.setText("아이디가 입력되지 않았습니다.");
@@ -118,7 +118,7 @@ public class join extends AppCompatActivity{
                 }
                 if(allEditTextisNotnull&&checkIDisOK&&checkPasswordisOK&&checkEmailisOK)
                 {
-                    serverData data = new serverData("GET", "member/read", null);
+                    ServerData data = new ServerData("GET", "member/read", null);
                     String userid = useridEdit.getText().toString();
                     String password = passwordEdit.getText().toString();
                     String email = emailEdit.getText().toString();
@@ -157,9 +157,9 @@ public class join extends AppCompatActivity{
                     }
                     Log.e("json", "생성한 json : " + userInfo);
                     //서버와 연결
-                    serverConnectionThread thread = new serverConnectionThread("POST", "member/create", userInfo);
+                    ServerConnectionThread thread = new ServerConnectionThread("POST", "member/create", userInfo);
                     thread.start();
-                    Intent intent = new Intent(getApplicationContext(), groupList.class);
+                    Intent intent = new Intent(getApplicationContext(), GroupList.class);
                     startActivity(intent);
                 }
             }

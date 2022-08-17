@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 //차량 데이터 클래스
 //carImg = 차량의 이미지
 //carName = 차량의 이름
-public class carData implements Serializable {
+public class CarData implements Serializable {
     int carImg;
     String carName;
     String carID;
@@ -22,24 +22,11 @@ public class carData implements Serializable {
     boolean available;//vs_authentication_value - ok/
     String status;//vs_startup_infomation
 
-    public carData(int carImg, String carName){
-        this.carImg = carImg;
-        this.carName = carName;
-        this.available = true;
-        status = "운전 가능";
-    }
-    public carData(int carImg, String carID, String carName){
-        this.carImg = carImg;
-        this.carID = carID;
-        this.carName = carName;
-        this.available = true;
-        status = "운전 가능";
-    }
-    public carData(JSONObject carData){
+    public CarData(JSONObject carData){
         //{
         //            "cr_id":,
-        //            "cr_number_classification":,
-        //            "cr_registeration_number":,
+        //            "cr_number_classification":,예)서울 5 바 : 서울(등록지역), 차종기호(승용차/승합차)/...., 용도기호(자가용/영업용)
+        //            "cr_registeration_number":, 예) 1234
         //            "cr_carname":,
         //            "cr_mac_address":,
         //            "cr_regdate":
@@ -56,21 +43,15 @@ public class carData implements Serializable {
         catch(JSONException e){
             Log.e("carData", e.toString());
         }
-
-
     }
     public String getCarName(){
         return carName;
     }
-    public void setCarName(String carName){
-        this.carName = carName;
-    }
+    public void setCarName(String carName){ this.carName = carName;}
     public int getcarImg(){
         return carImg;
     }
-    public void setCarImg(int carImg){
-        this.carImg = carImg;
-    }
+    public void setCarImg(int carImg){ this.carImg = carImg;}
     public boolean isAvailable(){return available;}
     public void setAvailable(boolean isAvailable){this.available = isAvailable;}
     public String getStatus(){return status;}

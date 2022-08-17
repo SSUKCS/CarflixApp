@@ -5,8 +5,6 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-
 //{
 //    "mb_id" :,
 //    "cg_title" :,
@@ -18,12 +16,12 @@ import java.util.ArrayList;
 //    "cg_company_registernumber" :,
 //    "cg_regdate" :
 //}
-public class ceoGroupData extends groupData{
+public class CEOGroupData extends SmallGroupData {
     protected String career;
     protected String certificate;
     protected String companyRegisterNumber;
 
-    public ceoGroupData(JSONObject groupData){
+    public CEOGroupData(JSONObject groupData){
         super(groupData);
         String groupStatus=null;
 
@@ -40,7 +38,7 @@ public class ceoGroupData extends groupData{
             Log.e("ceo_groupData", e.toString());
         }
     }
-    protected ceoGroupData(){
+    protected CEOGroupData(){
         super();
     };
 

@@ -12,13 +12,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class logIn extends AppCompatActivity{
+public class Login extends AppCompatActivity{
     Button logInButton;
     EditText inputID;
     EditText inputPW;
@@ -83,7 +80,7 @@ public class logIn extends AppCompatActivity{
                     }
                 }
                 if(inputID.length()!=0 && inputPW.length()!=0){
-                    serverData serverData = new serverData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
+                    ServerData serverData = new ServerData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
                     String[] result = serverData.get().split("/");
                     Log.d("login", "LOGIN RESULT :: "+result);
                     switch(result[0]){
@@ -98,7 +95,7 @@ public class logIn extends AppCompatActivity{
                             }
                             failedLogin.setText("");
 
-                            Intent intent = new Intent(getApplicationContext(), groupList.class);
+                            Intent intent = new Intent(getApplicationContext(), GroupList.class);
                             intent.putExtra("mb_id", result[1]);
                             startActivity(intent);
                             break;
