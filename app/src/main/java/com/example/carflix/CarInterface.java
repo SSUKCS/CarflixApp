@@ -74,7 +74,7 @@ public class CarInterface extends AppCompatActivity {
 
         /*DEVICE_CREDENTIAL 및 BIOMETRIC_STRONG | DEVICE_CREDENTIAL 인증자 유형 조합은
         Android 10(API 수준 29) 이하에서 지원되지 않는다*/
-        if(Build.VERSION.SDK_INT>29)
+        /*if(Build.VERSION.SDK_INT>29)
         {
             executor = ContextCompat.getMainExecutor(this);
             biometricPrompt = new BiometricPrompt(this,
@@ -113,7 +113,7 @@ public class CarInterface extends AppCompatActivity {
         }
         else if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M){
 
-        }
+        }*/
 
         //차량 문을 연다
         doorOpen.setOnClickListener(new View.OnClickListener() {
@@ -144,7 +144,8 @@ public class CarInterface extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 getPermission();
-                biometricPrompt.authenticate(promptInfo);
+                /*
+                biometricPrompt.authenticate(promptInfo);*/
                 if(carData.isAvailable())
                 {
                     carData.setAvailable(false);

@@ -61,9 +61,13 @@ public class CarList extends AppCompatActivity {
         carListView.setAdapter(adapter);
 
         listEmpty = findViewById(R.id.list_empty);
-        Log.d("carList", "isempty :: "+carDataList.isEmpty());
         if(carDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
         else listEmpty.setVisibility(View.INVISIBLE);
+
+        getSupportActionBar().setTitle(groupName);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
