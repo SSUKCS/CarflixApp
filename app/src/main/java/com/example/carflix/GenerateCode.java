@@ -20,13 +20,15 @@ import java.sql.Array;
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class GenerateCode extends AppCompatActivity {
 
     Context context;
-
+    TextView groupTitle;
+    TextView groupStatus;
 
     private ArrayList<InviteCode> inviteCodeList;
     private InviteCodeListAdapter adapter;
@@ -45,6 +47,9 @@ public class GenerateCode extends AppCompatActivity {
         setContentView(R.layout.generate_code);
         context = getApplicationContext();
 
+        groupTitle = findViewById(R.id.groupTitle);
+        groupStatus = findViewById(R.id.status);
+
         inviteCodeListView = findViewById(R.id.inviteCodeListView);
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
         inviteCodeListView.setLayoutManager(new LinearLayoutManager(this));
@@ -54,6 +59,14 @@ public class GenerateCode extends AppCompatActivity {
         groupName = getIntent().getStringExtra("groupName");
         status = getIntent().getStringExtra("status");
 
+        groupTitle.setText(groupName);
+        switch(status){
+            case "small_group":groupStatus.setBackgroundColor(ContextCompat.getColor(context, R.color.sg_color));break;
+            case "ceo_group":groupStatus.setBackgroundColor(ContextCompat.getColor(context, R.color.cg_color));break;
+            case "rent_group":groupStatus.setBackgroundColor(ContextCompat.getColor(context, R.color.rg_color));break;
+        }
+        groupStatus.setText(status);
+
         inviteCodeList = new ArrayList<InviteCode>();
         updateListfromServer();
 
@@ -62,7 +75,7 @@ public class GenerateCode extends AppCompatActivity {
 
         listEmpty = findViewById(R.id.list_empty);
         if(inviteCodeList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
-        else listEmpty.setVisibility(View.INVISIBLE);
+        else listEmpty.setVisibility(View.GONE);
 
         generateCodeButton = findViewById(R.id.generateCodeButton);
         generateCodeButton.setOnClickListener(new View.OnClickListener() {
@@ -92,14 +105,13 @@ public class GenerateCode extends AppCompatActivity {
                 Log.e("generateCode_generate()_thread.join()", e.toString());
             }
             //생성한 코드를 포함한 지금까지 만들어온 코드들을 서버로부터 전부 받아온다.
-            if(new JSONObject(thread.getResult()).getString("message").equals("invite_code created")){
-                updateListfromServer();
-                adapter.notifyItemInserted(0);
-                inviteCodeListView.scrollToPosition(0);
-            }
+            Log.d("generateCode_generate()", thread.getResult());
+            updateListfromServer();
+            adapter.notifyItemInserted(0);
+            inviteCodeListView.scrollToPosition(0);
         }
         catch(JSONException e){
-            Log.d("generateCode_generate()", e.toString());
+            Log.e("generateCode_generate()", e.toString());
         }
 
     }
@@ -126,7 +138,7 @@ public class GenerateCode extends AppCompatActivity {
             Log.d("generateCode", "SIZE :: "+inviteCodeList.size());
         }
         catch(JSONException e){
-            Log.d("generateCode_updateListfromServer()", e.toString());
+            Log.e("generateCode_updateListfromServer()", e.toString());
         }
     }
 }

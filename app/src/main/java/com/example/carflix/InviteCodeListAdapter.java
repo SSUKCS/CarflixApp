@@ -49,15 +49,8 @@ public class InviteCodeListAdapter extends RecyclerView.Adapter<InviteCodeListAd
     public void onBindViewHolder(@NonNull final InviteCodeListAdapter.ViewHolder holder, int position){
         InviteCode inviteCode = dataList.get(position);
 
-        holder.groupTitle.setText(inviteCode.getGroupName());
-        String status = inviteCode.getStatus();
-        switch(status){
-            case"small_group": holder.groupStatus.setBackgroundColor(ContextCompat.getColor(context, R.color.sg_color));break;
-            case"ceo_group":holder.groupStatus.setBackgroundColor(ContextCompat.getColor(context, R.color.cg_color));break;
-            case"rent_group":holder.groupStatus.setBackgroundColor(ContextCompat.getColor(context, R.color.rg_color));break;
-        }
-        holder.groupStatus.setText(status);
         holder.inviteCodeText.setText(inviteCode.getCode());
+        holder.regDate.setText(inviteCode.getRegDate());
     }
     //화면에 보여줄 데이터의 갯수를 반환
     @Override
@@ -66,14 +59,13 @@ public class InviteCodeListAdapter extends RecyclerView.Adapter<InviteCodeListAd
     }
     //ViewHolder 객체에 저장되어 화면에 표시되고, 필요에 따라 생성 또는 재활용 된다.
     public class ViewHolder extends RecyclerView.ViewHolder{
-        TextView groupTitle;
         TextView inviteCodeText;
-        Button groupStatus;
+        TextView regDate;
 
         public ViewHolder(@NonNull View itemView){
             super(itemView);
-            groupTitle = itemView.findViewById(R.id.groupTitle);
             inviteCodeText = itemView.findViewById(R.id.inviteCode);
+            regDate = itemView.findViewById(R.id.regDate);
         }
     }
 }

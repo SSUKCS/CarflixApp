@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,9 +13,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.concurrent.Executor;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
+
 
 public class CarInterface extends AppCompatActivity {
     int position;
@@ -32,8 +41,12 @@ public class CarInterface extends AppCompatActivity {
     CarData carData;
 
     boolean carData_isAvailable_initialState;
-    boolean door_isOpen;
-    boolean trunk_isOpen;
+    boolean door_isOpen=false;
+    boolean trunk_isOpen=false;
+
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +57,7 @@ public class CarInterface extends AppCompatActivity {
         position = getIntent().getIntExtra("position", -1);
         carData = (CarData)getIntent().getSerializableExtra("carData");
 
-        carImg = (ImageView)findViewById(R.id.carImg);
-        carName = (TextView)findViewById(R.id.carName);
-        isAvailable = (TextView)findViewById(R.id.isAvailable);
-
-        doorOpen = (Button)findViewById(R.id.doorOpen);
-        doorClose = (Button)findViewById(R.id.doorClose);
-        trunk = (Button)findViewById(R.id.trunk);
-        startCar = (Button)findViewById(R.id.startCar);
+        connectUI();
 
         carImg.setImageResource(carData.getcarImg());
         carName.setText(carData.getCarName());
@@ -65,8 +71,49 @@ public class CarInterface extends AppCompatActivity {
         }
 
 
-        door_isOpen = false;
-        trunk_isOpen = false;
+
+        /*DEVICE_CREDENTIAL 및 BIOMETRIC_STRONG | DEVICE_CREDENTIAL 인증자 유형 조합은
+        Android 10(API 수준 29) 이하에서 지원되지 않는다*/
+        if(Build.VERSION.SDK_INT>29)
+        {
+            executor = ContextCompat.getMainExecutor(this);
+            biometricPrompt = new BiometricPrompt(this,
+                    executor, new BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode,
+                                                  @NonNull CharSequence errString) {
+                    super.onAuthenticationError(errorCode, errString);
+                    Toast.makeText(getApplicationContext(),
+                                    R.string.auth_error_message, Toast.LENGTH_SHORT)
+                            .show();
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(
+                        @NonNull BiometricPrompt.AuthenticationResult result) {
+                    super.onAuthenticationSucceeded(result);
+                    Toast.makeText(getApplicationContext(),
+                            R.string.auth_success_message, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    super.onAuthenticationFailed();
+                    Toast.makeText(getApplicationContext(), R.string.auth_fail_message,
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                }
+            });
+            promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("지문 인증")
+                    .setSubtitle("기기에 등록된 지문을 이용하여 지문을 인증해주세요.")
+                    .setNegativeButtonText("취소")
+                    .setAllowedAuthenticators(DEVICE_CREDENTIAL|BIOMETRIC_STRONG)
+                    .build();
+        }
+        else if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M){
+
+        }
 
         //차량 문을 연다
         doorOpen.setOnClickListener(new View.OnClickListener() {
@@ -97,6 +144,7 @@ public class CarInterface extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 getPermission();
+                biometricPrompt.authenticate(promptInfo);
                 if(carData.isAvailable())
                 {
                     carData.setAvailable(false);
@@ -151,5 +199,15 @@ public class CarInterface extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, requiredPermission, 1
             );
         }
+    }
+    private void connectUI(){
+        carImg = (ImageView)findViewById(R.id.carImg);
+        carName = (TextView)findViewById(R.id.carName);
+        isAvailable = (TextView)findViewById(R.id.isAvailable);
+
+        doorOpen = (Button)findViewById(R.id.doorOpen);
+        doorClose = (Button)findViewById(R.id.doorClose);
+        trunk = (Button)findViewById(R.id.trunk);
+        startCar = (Button)findViewById(R.id.startCar);
     }
 }

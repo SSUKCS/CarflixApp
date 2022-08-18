@@ -16,5 +16,7 @@
     <string name = "savedPWKey">com.example.carflix.savedPWKey</string>
     <string name = "savedIDKey_noValue">com.example.carflix.savedIDKey.noValue</string>
     <string name = "savedPWKey_noValue">com.example.carflix.savedPWKey.noValue</string>
-
+    <string name = "auth_error_message">인증 과정 중에 오류가 발생했습니다.</string>
+    <string name = "auth_success_message">"인증에 성공하였습니다."</string>
+    <string name = "auth_fail_message">인증에실패했습니다.</string>
 </resources>

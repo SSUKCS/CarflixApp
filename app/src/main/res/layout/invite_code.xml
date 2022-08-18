@@ -12,7 +12,8 @@
         android:id="@+id/inviteCode"
         android:gravity="center"
         android:text="texttexttexttext"
-        android:textSize="32sp"/>
+        android:textSize="36sp"
+        android:layout_marginBottom="10sp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

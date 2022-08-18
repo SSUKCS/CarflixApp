@@ -37,12 +37,9 @@ public class ServerConnectionThread extends Thread{
     public void run(){
         try{
             String result = request(urlStr);
-            if(result != null){
+            Log.d(TAG, "RESULT :: "+ result);
+            if(result != ""){
                 outputString = result.substring(result.indexOf("{"));
-                Log.d(TAG, "OUTPUT :: "+ outputString);
-            }
-            else{
-                Log.d(TAG, "OUTPUT :: "+ result);
             }
         }
         catch(Exception e){
@@ -77,14 +74,16 @@ public class ServerConnectionThread extends Thread{
                 int responseCode = connection.getResponseCode();
                 Log.d(TAG, "URLSTR :: "+urlStr);
                 Log.d(TAG, "HTTP RESPONSECODE :: "+ responseCode);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String line = null;
-                while(true) {
-                    line = reader.readLine();
-                    if(line==null)break;
-                    output.append(line+"\n");
+                if(httpmethod == "GET"){
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line = null;
+                    while(true) {
+                        line = reader.readLine();
+                        if(line==null)break;
+                        output.append(line+"\n");
+                    }
+                    reader.close();
                 }
-                reader.close();
                 connection.disconnect();
             }
         }
@@ -94,6 +93,11 @@ public class ServerConnectionThread extends Thread{
         return output.toString();
     }
     public String getResult(){
-        return outputString;
+        if(httpmethod=="GET"){
+            return outputString;
+        }
+        else{
+            return httpmethod+" :: connected successfully";
+        }
     }
 }

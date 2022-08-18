@@ -46,7 +46,7 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
     @Override
     protected void onResume() {
         super.onResume();
-        // action 이름이 "custom-event-name"으로 정의된 인텐트를 수신
+        // action 이름이 "locationService_location&speed"으로 정의된 인텐트를 수신
         // observer의 이름은 mMessageReceiver이다.
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter("locationService_location&speed"));

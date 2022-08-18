@@ -99,11 +99,16 @@ public class GroupList extends AppCompatActivity {
         });
     }
     @Override
+    protected void onResume() {
+        super.onResume();
+        updateListfromServer();
+        adapter.notifyDataSetChanged();
+    }
+    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_group_list, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int curId = item.getItemId();
@@ -126,7 +131,9 @@ public class GroupList extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void updateListfromServer(){
+        groupDataList.clear();
         String small_groupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
         String ceo_groupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
         String rent_groupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
@@ -173,5 +180,11 @@ public class GroupList extends AppCompatActivity {
             }
         }
 
+    }
+
+    @Override public void onBackPressed() {
+
+        super.onBackPressed();
+        startActivity(new Intent(getApplicationContext(),MainActivity.class));
     }
 }

@@ -73,6 +73,7 @@ public class LocationService extends Service {
                     Log.d(TAG, "Speed :: " + location[0].getSpeed() * 3.6);
                     Log.e(TAG, "locationCallback :: "+locationCallback);
 
+
                     if (NotificationManager != null && fusedLocationClient != null && !stopService) {
                         message = location[0].getLatitude()+"|"+location[0].getLongitude()+"|"+location[0].getSpeed();
                         notification.setContentText("Your current location is " +  location[0].getLatitude() + "," + location[0].getLongitude());

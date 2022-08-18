@@ -124,11 +124,16 @@ public class CarList extends AppCompatActivity {
         
     }
     @Override
+    protected void onResume() {
+        super.onResume();
+        updateListfromServer();
+        adapter.notifyDataSetChanged();
+    }
+    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_car_list, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int curId = item.getItemId();
@@ -170,9 +175,9 @@ public class CarList extends AppCompatActivity {
         finish();
     }
     private void updateListfromServer(){
-
+        carDataList.clear();
         String params = "mb_id="+memberID+"&group_id="+groupID+"&status="+status;
-        Log.d("groupList", "params :: "+ params);
+        Log.d("carList_updateListfromServer", "params :: "+ params);
         String carDataListJSONString = new ServerData("GET", "car/group_show", params, null).get();
 
         addItem(carDataListJSONString);
@@ -185,9 +190,9 @@ public class CarList extends AppCompatActivity {
                 int len = JSONArray.length();
                 for(int i=0;i<len;i++){
                     JSONObject jsonObject = JSONArray.getJSONObject(i);
-                    Log.d("groupList_addItem", jsonObject.getString("status"));
+                    Log.d("carListList_addItem", jsonObject.getString("status"));
                     carDataList.add(new CarData(JSONArray.getJSONObject(i)));
-                    Log.d("groupList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("sg_title"));
+                    Log.d("carList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("cr_carname"));
                 }
             }
             catch(JSONException e){

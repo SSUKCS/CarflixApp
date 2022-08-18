@@ -159,17 +159,21 @@ public class GenerateGroup extends AppCompatActivity {
                 isViewVisible = (bigGroupLayout.getVisibility()==View.VISIBLE);
                 break;
         }
-        Log.d("generateGroup", "layoutVisibility"+isViewVisible);
-        if(isViewVisible){
-            ServerConnectionThread thread = new ServerConnectionThread("POST", "small_group/create", generateGroupJSONData(generateGroupType));
-            thread.start();
-            try{
-                thread.join();
+        if(smallGroupNameEdit.length()!=0&&smallGroupInfoEdit.length()!=0){
+            if(isViewVisible){
+                ServerConnectionThread thread = new ServerConnectionThread("POST", "small_group/create", generateGroupJSONData(generateGroupType));
+                thread.start();
+                try{
+                    thread.join();
+                }
+                catch(Exception e){
+                    Log.e("generateGroupItem_thread.join()", e.toString());
+                }
             }
-            catch(Exception e){
-                Log.e("generateGroupItem_thread.join()", e.toString());
-            }
-            Log.d("generateGroup", thread.getResult());
+            finish();
+        }
+        else{
+            Toast.makeText(this, "누락된 정보가 존재합니다.", Toast.LENGTH_SHORT).show();
         }
     }
     private JSONObject generateGroupJSONData(String generateGroupType){
@@ -194,7 +198,6 @@ public class GenerateGroup extends AppCompatActivity {
                         Log.e("generateGroup_generateGroupItem", e.toString());
                     }
                 }
-                else Toast.makeText(this, "누락된 정보가 존재합니다.", Toast.LENGTH_SHORT).show();
                 break;
             case "cg":status = "ceo_group";
             case "rg":
