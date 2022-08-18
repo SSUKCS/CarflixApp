@@ -35,6 +35,7 @@ public class GroupList extends AppCompatActivity {
     private GroupListAdapter adapter;
     private RecyclerView groupListView;
     private TextView listEmpty;
+    private ProfileMenu profileMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -99,6 +100,8 @@ public class GroupList extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        //프로파일 메뉴
+        profileMenu = new ProfileMenu(this);
     }
     @Override
     protected void onResume() {
@@ -117,7 +120,9 @@ public class GroupList extends AppCompatActivity {
 
         switch(curId){
             case android.R.id.home:
-                Toast.makeText(this, "프로필", Toast.LENGTH_LONG).show();
+                if(!profileMenu.isMenuOpen()) {
+                    profileMenu.openRightMenu();
+                }
                 break;
             case R.id.generateGroup:
                 Toast.makeText(this, "그룹 생성", Toast.LENGTH_LONG).show();
