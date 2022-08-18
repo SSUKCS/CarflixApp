@@ -192,17 +192,7 @@ public class GroupList extends AppCompatActivity {
     @Override public void onBackPressed() {
 
         super.onBackPressed();
-
-        // 태스크를 백그라운드로 이동
-        moveTaskToBack(true);
-        if (Build.VERSION.SDK_INT >= 21) {
-            // 액티비티 종료 + 태스크 리스트에서 지우기
-            finishAndRemoveTask();
-        } else {
-            // 액티비티 종료
-            finish();
-        }
-        System.exit(0);
+        finish();
 
     }
 }
