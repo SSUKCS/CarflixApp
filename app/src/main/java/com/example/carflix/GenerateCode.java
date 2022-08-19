@@ -30,9 +30,8 @@ public class GenerateCode extends AppCompatActivity {
     TextView groupTitle;
     TextView groupStatus;
 
-    private ArrayList<InviteCode> inviteCodeList;
-    private InviteCodeListAdapter adapter;
-    RecyclerView inviteCodeListView;
+    private String inviteCode;
+    TextView inviteCodeText;
     TextView listEmpty;
 
     Button generateCodeButton;
@@ -50,9 +49,7 @@ public class GenerateCode extends AppCompatActivity {
         groupTitle = findViewById(R.id.groupTitle);
         groupStatus = findViewById(R.id.status);
 
-        inviteCodeListView = findViewById(R.id.inviteCodeListView);
-        //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
-        inviteCodeListView.setLayoutManager(new LinearLayoutManager(this));
+        inviteCodeText = findViewById(R.id.inviteCodeText);
 
         memberID = getIntent().getStringExtra("memberID");
         groupID = getIntent().getStringExtra("groupID");
@@ -67,15 +64,9 @@ public class GenerateCode extends AppCompatActivity {
         }
         groupStatus.setText(status);
 
-        inviteCodeList = new ArrayList<InviteCode>();
-        updateListfromServer();
-
-        adapter = new InviteCodeListAdapter(this, inviteCodeList);
-        inviteCodeListView.setAdapter(adapter);
+        updateCodefromServer();
 
         listEmpty = findViewById(R.id.list_empty);
-        if(inviteCodeList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
-        else listEmpty.setVisibility(View.GONE);
 
         generateCodeButton = findViewById(R.id.generateCodeButton);
         generateCodeButton.setOnClickListener(new View.OnClickListener() {
@@ -106,17 +97,15 @@ public class GenerateCode extends AppCompatActivity {
             }
             //생성한 코드를 포함한 지금까지 만들어온 코드들을 서버로부터 전부 받아온다.
             Log.d("generateCode_generate()", thread.getResult());
-            updateListfromServer();
-            adapter.notifyItemInserted(0);
-            inviteCodeListView.scrollToPosition(0);
+            updateCodefromServer();
         }
         catch(JSONException e){
             Log.e("generateCode_generate()", e.toString());
         }
 
     }
-    private void updateListfromServer(){
-        inviteCodeList.clear();
+    private void updateCodefromServer(){
+        ArrayList<InviteCode> inviteCodeList= new ArrayList<InviteCode>();;
         ServerData serverData = new ServerData("GET", "invite_code/show", "mb_id="+memberID, null);
         Log.d("generateCode_generate()", "SERVERDATA :: "+serverData.get());
         try {
@@ -136,6 +125,8 @@ public class GenerateCode extends AppCompatActivity {
                 }
             }
             Log.d("generateCode", "SIZE :: "+inviteCodeList.size());
+            inviteCode = inviteCodeList.get(0).getCode();
+            inviteCodeText.setText(inviteCode);
         }
         catch(JSONException e){
             Log.e("generateCode_updateListfromServer()", e.toString());

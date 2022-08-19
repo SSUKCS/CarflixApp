@@ -1,13 +1,17 @@
 package com.example.carflix;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class ProfileMenu {
@@ -22,6 +26,9 @@ public class ProfileMenu {
     private LinearLayout slideMenu;
     private View darkBackground;
 
+    private TextView userName;
+    private TextView userEmail;
+
     private View invitationListView;
     private View friendsView;
     private View myAccountsView;
@@ -33,6 +40,8 @@ public class ProfileMenu {
     private Animation offDarkAnim;
 
     boolean menuOpen = false;
+
+    private JSONObject userData;
     private void setMenuOpen(boolean opened){menuOpen = opened;}
     public boolean isMenuOpen(){return menuOpen;}
 
@@ -103,10 +112,23 @@ public class ProfileMenu {
         darkBackground = baseActivity.findViewById(R.id.dark_background);
         setTouchEventWhenSlide();
         setAnimation();
+        userName = baseActivity.findViewById(R.id.userName);
+        userEmail = baseActivity.findViewById(R.id.userEmail);
+
         invitationListView = baseActivity.findViewById(R.id.invitation_list);
         friendsView = baseActivity.findViewById(R.id.friends);
         myAccountsView = baseActivity.findViewById(R.id.my_account);
         settingsView = baseActivity.findViewById(R.id.settings);
         setMenuOption();
+    }
+    public void settingProfile(JSONObject userData){
+        this.userData = userData;
+        try{
+            userName.setText(userData.getString("mb_nickname"));
+            userEmail.setText(userData.getString("mb_email"));
+        }
+        catch(JSONException e){
+            Log.e("ProfileMenu", e.toString());
+        }
     }
 }

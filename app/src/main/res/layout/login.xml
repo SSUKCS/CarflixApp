@@ -47,13 +47,6 @@
                 android:ems="10"
                 android:inputType="textPassword"/>
         </LinearLayout>
-
-        <CheckBox
-            android:id="@+id/isAutoLogin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:text="자동 로그인" />
     </LinearLayout>
     <TextView
         android:id="@+id/failedLogin"

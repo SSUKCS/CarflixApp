@@ -26,6 +26,8 @@ public class CarList extends AppCompatActivity {
 
     private Context context;
 
+    private ProfileMenu profileMenu;
+
     private ArrayList<CarData> carDataList;
     private CarListAdapter adapter;
     private RecyclerView carListView;
@@ -66,8 +68,11 @@ public class CarList extends AppCompatActivity {
 
         getSupportActionBar().setTitle(groupName);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //프로파일 메뉴
+        profileMenu = new ProfileMenu(this);
 
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -143,6 +148,10 @@ public class CarList extends AppCompatActivity {
         int curId = item.getItemId();
         Intent intent;
         switch(curId){
+            case android.R.id.home:
+                if(!profileMenu.isMenuOpen()) {
+                    profileMenu.openRightMenu();
+                }break;
             case R.id.addCar:
                 Toast.makeText(this, "차량 추가", Toast.LENGTH_LONG).show();
                 intent = new Intent(getApplicationContext(), AddCar.class);
@@ -167,15 +176,7 @@ public class CarList extends AppCompatActivity {
     }
 
     public void onBackPressed(){
-        /*
-        if(carData_isAvailable_initialState != carData.isAvailable())
-        {
-            Intent intent = new Intent();
-            intent.putExtra("position", Integer.toString(position));
-            intent.putExtra("carData_isAvailableChanged", carData.isAvailable());
-            intent.putExtra("carStatusChanged", isAvailable.getText());
-            setResult(RESULT_OK, intent);
-        }*/
+
         finish();
     }
     private void updateListfromServer(){

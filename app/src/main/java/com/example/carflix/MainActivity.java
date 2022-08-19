@@ -1,9 +1,15 @@
 package com.example.carflix;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,8 +31,35 @@ public class MainActivity extends AppCompatActivity {
         logInButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), Login.class);
-                startActivity(intent);
+                SharedPreferences autoLogin = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                if(savedIDPWExist(autoLogin)){
+                    String mb_userid = autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue));
+                    String mb_password = autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue));
+                    ServerData serverData = new ServerData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
+                    JSONObject result;
+                    try{
+                        result = new JSONObject(serverData.get());
+                        Log.d("login", "LOGIN RESULT :: "+result);
+                        switch(result.getString("message")){
+                            case "Successfully Login!":
+                                Intent intent = new Intent(getApplicationContext(), GroupList.class);
+                                intent.putExtra("mb_id", result.getString("mb_id"));
+                                startActivity(intent);
+                                break;
+                            case "Invalid Username or Password!":
+                                break;
+                            default:Log.e("login", "LOGIN ERROR :: invalid output");break;
+                        }
+                    }
+                    catch(JSONException e){
+                        Log.e("MainActivity", e.toString());
+                    }
+
+                }
+                else{
+                    Intent intent = new Intent(getApplicationContext(), Login.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -39,5 +72,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+    private boolean savedIDPWExist(SharedPreferences autoLogin){
+        //저장되어있는 userid와 password가 있는경우 true 반환
+        return !(autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue)).
+                equals(getString(R.string.savedIDKey_noValue))
+                && autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue)).
+                equals(getString(R.string.savedPWKey_noValue)));
     }
 }

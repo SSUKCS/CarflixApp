@@ -2,7 +2,6 @@ package com.example.carflix;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +28,11 @@ public class GroupList extends AppCompatActivity {
     private Context context;
 
     private String memberID;
+    private String memberEmail;
+    private String memberNickname;
+    private String memberPhoneNumber;
+    private String memberImage;
+    private String isAdmin;
 
     private ArrayList groupDataList;
     private GroupListAdapter adapter;
@@ -39,6 +42,7 @@ public class GroupList extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
+        Log.i("GroupList", "onCreate: "+getClass());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.group_list);
         context = getApplicationContext();
@@ -48,13 +52,36 @@ public class GroupList extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         groupListView.setLayoutManager(layoutManager);
 
+        memberID = getIntent().getStringExtra("mb_id");
+
+        ServerData serverData = new ServerData("GET", "member/show", "mb_id="+memberID, null);
+        try{
+            JSONObject userData = new JSONObject(serverData.get());
+            memberEmail = userData.getString("mb_email");
+            memberPhoneNumber= userData.getString("mb_phone");
+            memberNickname= userData.getString("mb_nickname");
+            memberImage= userData.getString("mb_image");
+            isAdmin= userData.getString("mb_is_admin");
+
+            //프로파일 메뉴
+            profileMenu = new ProfileMenu(this);
+            profileMenu.settingProfile(userData);
+        }
+        catch(JSONException e){
+            Log.e("GroupList", e.toString());
+        }
+
+        try{
+            memberID = savedInstanceState.getString("mb_id");
+            Log.i("GroupList", "saved memberID: "+memberID);
+        }
+        catch(NullPointerException e){
+
+        }
         getSupportActionBar().setTitle("그룹 선택");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        memberID = getIntent().getStringExtra("mb_id");
 
         groupDataList = new ArrayList<>();
         adapter = new GroupListAdapter(context, groupDataList);
@@ -68,18 +95,6 @@ public class GroupList extends AppCompatActivity {
         if(groupDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
         else listEmpty.setVisibility(View.INVISIBLE);
 
-        ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                data -> {
-                    Log.d("carList", "data : " + data);
-                    if (data.getResultCode() == RESULT_OK)
-                    {
-
-                        Intent intent = data.getData();
-
-
-                        adapter.notifyDataSetChanged();
-                    }
-                });
         adapter.setItemClickListener(new GroupListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
@@ -100,11 +115,10 @@ public class GroupList extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        //프로파일 메뉴
-        profileMenu = new ProfileMenu(this);
     }
     @Override
     protected void onResume() {
+        Log.i("GroupList", "onResume: ");
         super.onResume();
         updateListfromServer();
         adapter.notifyDataSetChanged();
@@ -122,6 +136,9 @@ public class GroupList extends AppCompatActivity {
             case android.R.id.home:
                 if(!profileMenu.isMenuOpen()) {
                     profileMenu.openRightMenu();
+                }
+                else{
+                    profileMenu.closeRightMenu();
                 }
                 break;
             case R.id.generateGroup:
@@ -188,11 +205,17 @@ public class GroupList extends AppCompatActivity {
         }
 
     }
-
+    @Override protected void onDestroy(){
+        Log.i("GroupList", "onDestroy: ");
+        super.onDestroy();
+    }
     @Override public void onBackPressed() {
-
-        super.onBackPressed();
-        finish();
-
+        Log.i("GroupList", "onBackPressed: ");
+        if(profileMenu.isMenuOpen()){
+            profileMenu.closeRightMenu();
+        }
+        else{
+            moveTaskToBack(true);
+        }
     }
 }

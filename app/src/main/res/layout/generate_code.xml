@@ -47,12 +47,12 @@
                     android:text="status"
                     android:textSize="16sp" />
             </RelativeLayout>
-            <androidx.recyclerview.widget.RecyclerView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="300sp"
-                android:id="@+id/inviteCodeListView"/>
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
             <TextView
-                android:id="@+id/list_empty"
+                android:id="@+id/inviteCodeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -77,7 +77,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="0.5"/>
+                android:layout_weight="0.8"/>
         </LinearLayout>
         <LinearLayout
             android:id="@+id/rightMargin"

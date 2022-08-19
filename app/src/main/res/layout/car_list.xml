@@ -1,25 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/carListView"/>
+
+        <TextView
+            android:id="@+id/list_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="소속되어있는 차량이\n존재하지 않습니다."
+            android:textAlignment="center"
+            android:textSize="25sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- 슬라이드 메뉴 -->
+    <View
+        android:id="@+id/dark_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/carListView"/>
+        android:visibility="gone"
+        android:background="#000"
+        android:alpha="0.6">
+    </View>
 
-    <TextView
-        android:id="@+id/list_empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="소속되어있는 차량이\n존재하지 않습니다."
-        android:textAlignment="center"
-        android:textSize="25sp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:id="@+id/slide_menu"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="#225"
+        android:layout_width="250dp"
+        android:layout_height="match_parent">
+
+        <!--메뉴 상단 유저정보 부분-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:orientation="vertical"
+            android:background="#779"
+            android:paddingLeft="12dp"
+            android:gravity="bottom|left">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/avatar"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:text="사용자명"
+                android:textColor="#FFF"
+                android:layout_marginBottom="3dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12dp"
+                android:text="email@address.com"
+                android:textColor="#FFF"
+                android:layout_marginBottom="14dp"/>
+        </LinearLayout>
+
+        <!--메뉴 하단 각종 메뉴-->
+        <LinearLayout
+            android:id="@+id/invitation_list"
+            android:layout_marginTop="15dp"
+            style="@style/RightScreenButtonStyle">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/mail_icon"/>
+            <TextView
+                android:layout_marginLeft="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="초대 목록"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/friends"
+            style="@style/RightScreenButtonStyle">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/friend_icon"/>
+            <TextView
+                android:layout_marginLeft="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="친구"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/my_account"
+            style="@style/RightScreenButtonStyle">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/accounts_icon"/>
+            <TextView
+                android:layout_marginLeft="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내 계정"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/settings"
+            style="@style/RightScreenButtonStyle"
+            android:layout_marginTop="15dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/settings_icon"/>
+            <TextView
+                android:layout_marginLeft="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="설정"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

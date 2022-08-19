@@ -12,6 +12,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,8 +22,8 @@ public class Login extends AppCompatActivity{
     Button logInButton;
     EditText inputID;
     EditText inputPW;
-    CheckBox isAutoLogin;
     TextView failedLogin;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
 
@@ -30,17 +33,12 @@ public class Login extends AppCompatActivity{
         logInButton = (Button)findViewById(R.id.sendInfotoServer);
         inputID = (EditText)findViewById(R.id.inputID);
         inputPW = (EditText)findViewById(R.id.inputPW);
-        isAutoLogin = (CheckBox)findViewById(R.id.isAutoLogin);
         failedLogin = (TextView)findViewById(R.id.failedLogin);
         //저장되어있는 userid와 password
         SharedPreferences autoLogin = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        //서버단에 저장되어있는 내용
-        String mb_userid_correct="userIDexample";
-        String mb_password_correct="passwordExample";
 
-        inputID.setText("");
-        inputPW.setText("");
+
 
         logInButton.setOnClickListener(new View.OnClickListener(){
             /*
@@ -52,58 +50,43 @@ public class Login extends AppCompatActivity{
             @Override
             public void onClick(View view) {
 
-                String mb_userid = inputID.getText().toString();
-                String mb_password =inputPW.getText().toString();
-                if(isAutoLogin.isChecked()) {
-                    Log.d("autoLogin", "isAutoLogin");
+                String mb_userid = null;
+                String mb_password =null;
 
-                    Log.d("autoLogin", autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue)));
-                    Log.d("autoLogin",autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue)));
-                    //자동 로그인 시, 저장되어있는 userid와 password가 없는 경우
-                    if(autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue)).equals(getString(R.string.savedIDKey_noValue))
-                            && autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue)).equals(getString(R.string.savedPWKey_noValue))) {
-                        if(inputID.length()!=0 && inputPW.length()!=0){
-                            SharedPreferences.Editor editor = autoLogin.edit();
-                            editor.putString(getString(R.string.savedIDKey), mb_userid);
-                            editor.putString(getString(R.string.savedPWKey), mb_password);
-                            editor.apply();
-                        }
-                    }
-                    else
-                    {
-                        if(inputID.length()==0 && inputPW.length()==0){
-                            inputID.setText(autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue)));
-                            inputPW.setText(autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue)));
-                            mb_userid = inputID.getText().toString();
-                            mb_password =inputPW.getText().toString();
-                        }
+                //저장되어있는 userid와 password가 있는 경우
+                if(savedIDPWExist(autoLogin)) {
+                    mb_userid = autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue));
+                    mb_password =autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue));
+                }
+                //저장되어있는 userid와 password가 없는 경우
+                else
+                {
+                    if(inputIDPWExist()){
+                        mb_userid = inputID.getText().toString();
+                        mb_password =inputPW.getText().toString();
                     }
                 }
-                if(inputID.length()!=0 && inputPW.length()!=0){
+                Log.d("login", "USER ID :: "+mb_userid);
+                Log.d("login", "USER PASSWORD :: "+mb_password);
+                if(savedIDPWExist(autoLogin)||inputIDPWExist()){
                     ServerData serverData = new ServerData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
-                    String[] result = serverData.get().split("/");
-                    Log.d("login", "LOGIN RESULT :: "+result);
-                    switch(result[0]){
-                        case "Successfully Login!":
-                            Log.d("login", "result :: "+result[0]);
-                            if(isAutoLogin.isChecked()){
-                                SharedPreferences autoLogin = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = autoLogin.edit();
-                                editor.putString(getString(R.string.savedIDKey), mb_userid);
-                                editor.putString(getString(R.string.savedPWKey), mb_password);
-                                editor.apply();
-                            }
-                            failedLogin.setText("");
-
-                            Intent intent = new Intent(getApplicationContext(), GroupList.class);
-                            intent.putExtra("mb_id", result[1]);
-                            startActivity(intent);
-                            break;
-                        case "Invalid Username or Password!":
-                            Log.d("login", "result :: "+result[0]);
-                            failedLogin.setText("잘못된 아이디나 비밀번호가 입력되었습니다.");
-                            break;
-                        default:Log.e("login", "LOGIN ERROR :: invalid output");break;
+                    JSONObject result;
+                    try{
+                        result = new JSONObject(serverData.get());
+                        Log.d("login", "LOGIN RESULT :: "+result);
+                        switch(result.getString("message")){
+                            case "Successfully Login!":
+                                Intent intent = new Intent(getApplicationContext(), GroupList.class);
+                                intent.putExtra("mb_id", result.getString("mb_id"));
+                                startActivity(intent);
+                                break;
+                            case "Invalid Username or Password!":
+                                break;
+                            default:Log.e("login", "LOGIN ERROR :: invalid output");break;
+                        }
+                    }
+                    catch(JSONException e){
+                        Log.e("MainActivity", e.toString());
                     }
                 }
                 else
@@ -112,5 +95,16 @@ public class Login extends AppCompatActivity{
                 }
             }
         });
+    }
+    private boolean savedIDPWExist(SharedPreferences autoLogin){
+        //저장되어있는 userid와 password가 있는경우 true 반환
+        return !(autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue)).
+                equals(getString(R.string.savedIDKey_noValue))
+                && autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue)).
+                equals(getString(R.string.savedPWKey_noValue)));
+    }
+    private boolean inputIDPWExist(){
+        //inputID와 input password가 둘 다 비어있을 경우 false 반환
+        return (inputID.length()!=0 && inputPW.length()!=0);
     }
 }

@@ -19,7 +19,6 @@ public class AddCar extends AppCompatActivity {
 
     EditText carNameEdit;
     EditText carNumberEdit;
-    ImageButton searchEnableCarButton;
     Button addCarButton;
 
     private String memberID;
@@ -42,20 +41,13 @@ public class AddCar extends AppCompatActivity {
     private void connectUI(){
         carNameEdit = (EditText) findViewById(R.id.carNameEdit);
         carNumberEdit = (EditText)findViewById(R.id.carNumberEdit);
-        searchEnableCarButton = (ImageButton)findViewById(R.id.searchEnableCarButton);
         addCarButton = (Button)findViewById(R.id.addCarButton);
-    }
-    private void setOnClickListener(){
-        searchEnableCarButton.setOnClickListener(new View.OnClickListener() {
+        addCarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //블루투스 페어링이 가능한 차량 탐색
                 //등록할 차량의 macAddress를 가져온다.
-            }
-        });
-        addCarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+
                 //차량의 데이터를 서버에 등록한다.
                 String carName = carNameEdit.getText().toString();
                 String carNumber = carNumberEdit.getText().toString().replaceAll("\\s", "");

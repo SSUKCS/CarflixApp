@@ -24,38 +24,52 @@ public class ServerData {
         start(thread);
     }
     public String get(){
+        //13.56.94.107/admin/api/vehicle_status/boot_on.php?cr_id=3&mb_id=4
         String result = null;
         try{
             Log.d("serverData", category+"/"+purpose+" :: "+data.toString());
             switch(purpose){
-                case "login_v3":
-                    Log.d("serverData_get()", data.getString("message"));
-                    result = data.getString("message");
-                    if(result.equals("Successfully Login!")){
-                        result = result +"/"+data.getString("mb_id");
-                    }break;
-                case "show_single_name":
-                    Log.d("serverData_get()", data.getString(category+"_userid"));
-                    result = data.getString(category+"_userid");break;
-                case "show":
-                    if(!category.equals("ic")){//json 객체 1개를 return
-                        result = data.getJSONArray("data").toString();break;
+                case "boot_on": data.toString();break;
+                case "create"://mb, sg, cg, rg, ic : {message:}, cr:{message:, cr_id:}, cc:{message, mb_id:, group_id:, status:}
+                    if(category.equals("cr")){
+                        Log.d("serverData_"+category+"id", data.getString(category+"_id"));
+                        result = data.getString(category+"_id");break;
+                    }
+                    else if(category.equals("cc")){
+                        //그룹을 생성한 사람 id/그룹id/그룹status를 return
+                        result = data.toString();
                     }
                 case "group_show":
                 case "group_info":
                     String JSONString = data.toString();
                     //{"message":" .... "} : 실패
                     if(Pattern.matches("^\\{\\\"message\\\"\\:\\\".*\\\"\\}$", JSONString)){
-                        Log.d("serverData_get()", data.getString("message"));
-                        Log.d("serverData_get()", "get Message......");
+                        Log.d("serverData_message", data.getString("message"));
                         result = data.getString("message");
                     }
                     //{"data":[{" .... "}]} : 성공
                     else if(Pattern.matches("^\\{\\\"data\\\"\\:\\[\\{\\\".*\\\"\\}\\]\\}", JSONString)){
-                        Log.d("serverData_get()", "get data......");
+                        Log.d("serverData_data", "get data......");
                         result = data.getJSONArray("data").toString();
                     }break;
-                default: break;
+                case "login_v3":
+                    Log.d("serverData_message", data.getString("message"));
+                    if(data.getString("message").equals("Successfully Login!")){
+                        result = data.toString();
+                    }break;
+                case "show":
+                    if(!category.equals("ic")){//json 객체 1개를 return
+                        result = data.toString();
+                    }
+                    else
+                    {//jsonArray 객체 1개를 return
+                        result = data.getJSONArray("data").toString();
+                    }break;
+                case "show_single_name":
+                    Log.d("serverData_"+category+"userid", data.getString(category+"_userid"));
+                    result = data.getString(category+"_userid");break;
+
+                default: result = data.toString();break;
             }
         }
         catch(JSONException e){
@@ -73,6 +87,8 @@ public class ServerData {
             case "ceo_group":category="cg";break;
             case "rent_group":category="rg";break;
             case "invite_code":category="ic";break;
+            case "vehicle_status":category="vs";break;
+            case "code_car":category="cc";break;
         }
         purpose = categoryAndPurpose[1];
     }

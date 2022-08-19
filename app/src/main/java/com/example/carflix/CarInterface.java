@@ -39,6 +39,7 @@ public class CarInterface extends AppCompatActivity {
     Button startCar;
 
     CarData carData;
+    String userName;
 
     boolean carData_isAvailable_initialState;
     boolean door_isOpen=false;
@@ -153,6 +154,8 @@ public class CarInterface extends AppCompatActivity {
                     isAvailable.setTextColor(Color.parseColor("#9911BB"));
 
                     Intent intent = new Intent(getApplicationContext(), LocationService.class);
+                    intent.putExtra("user_id",userName);
+                    intent.putExtra("carData",carData);
                     startService(intent);
                 }
                 else if(isAvailable.getText().equals("운전 불가능")){
@@ -168,6 +171,9 @@ public class CarInterface extends AppCompatActivity {
                     Log.e("carInterface", "STOP CONTEXT "+getApplicationContext());
                     stopService(intent);
                 }
+
+                //버튼을 보이지 않게 한다.
+                view.setVisibility(View.INVISIBLE);
             }
         });
     }

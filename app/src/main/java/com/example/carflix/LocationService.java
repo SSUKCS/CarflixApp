@@ -27,11 +27,13 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.concurrent.TimeUnit;
 
 public class LocationService extends Service {
     private static final String TAG = "locationService";
-    private Context context;
 
     private NotificationCompat.Builder notification;
     private NotificationManager NotificationManager;
@@ -43,22 +45,16 @@ public class LocationService extends Service {
     private final Location[] location = {new Location(LocationManager.GPS_PROVIDER)};
     private LocationCallback locationCallback;
 
-    String message;
 
-    class locationBinder extends Binder {
-        // 외부로 데이터를 전달하려면 바인더 사용
-        // Binder 객체는 IBinder 인터페이스 상속구현 객체
-        //public class Binder extends Object implements IBinder
-        LocationService getService(){
-            return LocationService.this;
-        }
-    }
+    String userID;
+    String carID;
+    String vs_startupInformation="on";
 
     @Override
     public void onCreate() {
         Log.e(TAG, "Background Service onCreate :: ");
         super.onCreate();
-        context = this;
+
         handler = new Handler();
         locationCallback = new LocationCallback() {
             @Override
@@ -67,15 +63,28 @@ public class LocationService extends Service {
                 location[0] = locationResult.getLastLocation();
 
                 if (location[0] != null) {
+                    //location update
                     Log.d(TAG, "location update " + location[0]);
                     Log.d(TAG, "location Latitude " + location[0].getLatitude());
                     Log.d(TAG, "location Longitude " + location[0].getLongitude());
                     Log.d(TAG, "Speed :: " + location[0].getSpeed() * 3.6);
                     Log.e(TAG, "locationCallback :: "+locationCallback);
+                    try{
+                        JSONObject requestBody = new JSONObject();
+                        requestBody.put("vs_startup_information", vs_startupInformation);
+                        requestBody.put("member", userID);
+                        requestBody.put("vs_latitude", location[0].getLatitude());
+                        requestBody.put("vs_longitude", location[0].getLongitude());
+                        requestBody.put("cr_id", carID);
 
-
+                        ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", "vehicle_status/boot_status", requestBody);
+                        serverConnectionThread.start();
+                    }
+                    catch(JSONException e){
+                        Log.e(TAG, e.toString());
+                    }
                     if (NotificationManager != null && fusedLocationClient != null && !stopService) {
-                        message = location[0].getLatitude()+"|"+location[0].getLongitude()+"|"+location[0].getSpeed();
+                        //pendingIntent를 통해 notification에 정보 전달
                         notification.setContentText("Your current location is " +  location[0].getLatitude() + "," + location[0].getLongitude());
                         NotificationManager.notify(101, notification.build());
                     }
@@ -83,11 +92,13 @@ public class LocationService extends Service {
             }
         };
         runnable = new Runnable() {
+            // GPS를 5초마다 가져오는 스레드를 서비스에서 실행해준다. 서비스가 실행되면 이 스레드도 같이 실행된다.
             @Override
             public void run() {
                 try {
                     Log.e("runnable :: ", "is alive");
                     requestLocationUpdates();
+
                     handler.postDelayed(this, TimeUnit.SECONDS.toMillis(5));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -112,8 +123,8 @@ public class LocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "onStartCommand :: ");
         startForeground();
-        sendMessage();
-        // GPS를 2초마다 가져오는 스레드를 서비스에서 실행해준다. 서비스가 실행되면 이 스레드도 같이 실행된다.
+        userID = intent.getStringExtra("user_id");
+        carID = intent.getStringExtra("car_id");
         if (fusedLocationClient != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             Log.e(TAG, "Location Update Callback Removed");
@@ -122,6 +133,7 @@ public class LocationService extends Service {
     }
     private void startForeground()
     {
+        //pending인텐트 설정 및 notification 과 broadcast 리시버를 통해 연결
         Log.e(TAG, "startForeground :: ");
         // 포그라운드 서비스 상태에서 알림을 누르면 carInterface를 다시 열게 된다.
         Intent returnIntent = new Intent(this, CarInterface.class);
@@ -143,7 +155,7 @@ public class LocationService extends Service {
             // Notification 세팅
             notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                     .setWhen(System.currentTimeMillis())
-                    .setSmallIcon(R.drawable.userimage_default)
+                    .setSmallIcon(R.drawable.image_carflix_logo)
                     .setContentTitle("Carflix")
                     .setContentIntent(pendingIntent)
                     .setChannelId(CHANNEL_ID)
@@ -187,15 +199,5 @@ public class LocationService extends Service {
             fusedLocationClient.requestLocationUpdates(request, locationCallback, null);
         }
         if(stopService)fusedLocationClient.removeLocationUpdates(locationCallback);
-    }
-
-    private void sendMessage(){
-        Log.d("messageService", "Broadcasting message");
-        Intent intent = new Intent("locationService_location&speed");
-        intent.putExtra("message", message);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-    public boolean isRunning(){
-        return !stopService;
     }
 }
