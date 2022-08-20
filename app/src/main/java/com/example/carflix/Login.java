@@ -70,14 +70,15 @@ public class Login extends AppCompatActivity{
                 Log.d("login", "USER PASSWORD :: "+mb_password);
                 if(savedIDPWExist(autoLogin)||inputIDPWExist()){
                     ServerData serverData = new ServerData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
-                    JSONObject result;
+
                     try{
-                        result = new JSONObject(serverData.get());
-                        Log.d("login", "LOGIN RESULT :: "+result);
-                        switch(result.getString("message")){
+                        JSONObject userData;
+                        userData = new JSONObject(serverData.get());
+                        Log.d("login", "LOGIN RESULT :: "+userData);
+                        switch(userData.getString("message")){
                             case "Successfully Login!":
                                 Intent intent = new Intent(getApplicationContext(), GroupList.class);
-                                intent.putExtra("mb_id", result.getString("mb_id"));
+                                intent.putExtra("userData", userData.toString());
                                 startActivity(intent);
                                 break;
                             case "Invalid Username or Password!":

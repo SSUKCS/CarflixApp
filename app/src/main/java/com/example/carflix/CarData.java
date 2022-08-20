@@ -38,6 +38,7 @@ public class CarData implements Serializable {
             this.registerationNumber = carData.getString("cr_registeration_number");
             this.carName = carData.getString("cr_carname");
             this.mac_address = carData.getString("cr_mac_address");
+            available = true;
             status = "운전 가능";
         }
         catch(JSONException e){

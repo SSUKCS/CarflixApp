@@ -6,6 +6,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,9 +30,8 @@ public class ProfileMenu {
     private TextView userName;
     private TextView userEmail;
 
-    private View invitationListView;
-    private View friendsView;
-    private View myAccountsView;
+    private View usageView;
+    private View outView;
     private View settingsView;
 
     private Animation menuOpenAnim;
@@ -80,28 +80,31 @@ public class ProfileMenu {
         menuCloseAnim = AnimationUtils.loadAnimation(baseActivity, R.anim.menu_close_to_left);
     }
     private void setMenuOption(){
-        invitationListView.setOnClickListener(new View.OnClickListener(){
+        usageView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Toast.makeText(baseActivity.getApplicationContext(), "초대 목록 기능", Toast.LENGTH_SHORT).show();
+                switch(baseActivity.getClass().toString()){
+                    case "class com.example.carflix.GroupList"://프로필 변경
+                        break;
+                    case "class com.example.carflix.CarList"://초대코드 생성
+                        break;
+                }
             }
         });
-        friendsView.setOnClickListener(new View.OnClickListener(){
+        outView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Toast.makeText(baseActivity.getApplicationContext(), "친구목록 기능", Toast.LENGTH_SHORT).show();
-            }
-        });
-        myAccountsView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(baseActivity.getApplicationContext(), "내 계정 기능", Toast.LENGTH_SHORT).show();
+                switch(baseActivity.getClass().toString()){
+                    case "class com.example.carflix.GroupList"://로그아웃
+                        break;
+                    case "class com.example.carflix.CarList"://그룹 탈퇴
+                        break;
+                }
             }
         });
         settingsView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Toast.makeText(baseActivity.getApplicationContext(), "설정 기능", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -114,17 +117,33 @@ public class ProfileMenu {
         setAnimation();
         userName = baseActivity.findViewById(R.id.userName);
         userEmail = baseActivity.findViewById(R.id.userEmail);
+        Log.d("ProfileMenu", activity.getClass().toString());
+        switch(activity.getClass().toString()){
+            case "class com.example.carflix.GroupList":
+                ((TextView)baseActivity.findViewById(R.id.usageText)).setText("프로필 변경");
+                ((ImageView)baseActivity.findViewById(R.id.usageImg)).setImageResource(R.drawable.ic_round_person_24);
+                ((TextView)baseActivity.findViewById(R.id.outText)).setText("로그아웃");
+                ((ImageView)baseActivity.findViewById(R.id.outImg)).setImageResource(R.drawable.image_logout_resize);
 
-        invitationListView = baseActivity.findViewById(R.id.invitation_list);
-        friendsView = baseActivity.findViewById(R.id.friends);
-        myAccountsView = baseActivity.findViewById(R.id.my_account);
+                break;
+            case "class com.example.carflix.CarList":
+                ((TextView)baseActivity.findViewById(R.id.usageText)).setText("초대코드 생성");
+                ((ImageView)baseActivity.findViewById(R.id.usageImg)).setImageResource(R.drawable.ic_round_car_rental);
+                ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 탈퇴");
+                ((ImageView)baseActivity.findViewById(R.id.outImg)).setImageResource(R.drawable.ic_group_off);
+                //만약 그룹 생성자일 경우 "그룹 삭제"로 text설정
+                break;
+        }
+
+        usageView = baseActivity.findViewById(R.id.usageView);
+        outView = baseActivity.findViewById(R.id.outView);
         settingsView = baseActivity.findViewById(R.id.settings);
         setMenuOption();
     }
     public void settingProfile(JSONObject userData){
         this.userData = userData;
         try{
-            userName.setText(userData.getString("mb_nickname"));
+            userName.setText(userData.getString("mb_nickname")/*+("mb의 직책")*/);
             userEmail.setText(userData.getString("mb_email"));
         }
         catch(JSONException e){

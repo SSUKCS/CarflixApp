@@ -148,12 +148,12 @@ public class CarTracingService extends Service {
                         case GOT_REQ://아두이노로부터 응답을 받았다는 데이터("on")를 전송
                             timerTask.cancel();
                             command +="boot_status";
-                            requestBody.put("vs_startup_information", "connection_fault");
+                            requestBody.put("vs_startup_information", "on");
                             break;
                         case GOT_OFF://아두이노로부터 시동꺼짐을 받았다는 데이터("off")를 전송
                             timerTask.cancel();
                             command +="boot_off";
-                            requestBody.put("vs_startup_information", "connection_fault");
+                            requestBody.put("vs_startup_information", "off");
                             return;
                     }
                     //서버에게 시동상태를 전송

@@ -40,7 +40,7 @@
         android:id="@+id/slide_menu"
         android:orientation="vertical"
         android:visibility="gone"
-        android:background="#225"
+        android:background="#425"
         android:layout_width="250dp"
         android:layout_height="match_parent">
 
@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:orientation="vertical"
-            android:background="#779"
+            android:background="#77D"
             android:paddingLeft="12dp"
             android:gravity="bottom|left">
             <ImageView
@@ -59,6 +59,7 @@
                 android:layout_marginBottom="8dp"
                 android:src="@drawable/avatar"/>
             <TextView
+                android:id = "@+id/userName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18dp"
@@ -66,6 +67,7 @@
                 android:textColor="#FFF"
                 android:layout_marginBottom="3dp"/>
             <TextView
+                android:id = "@+id/userEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12dp"
@@ -76,14 +78,16 @@
 
         <!--메뉴 하단 각종 메뉴-->
         <LinearLayout
-            android:id="@+id/invitation_list"
+            android:id="@+id/usageView"
             android:layout_marginTop="15dp"
             style="@style/RightScreenButtonStyle">
             <ImageView
+                android:id="@+id/usageImg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/mail_icon"/>
             <TextView
+                android:id="@+id/usageText"
                 android:layout_marginLeft="13dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -91,13 +95,15 @@
                 android:textColor="#FFF"/>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/friends"
+            android:id="@+id/outView"
             style="@style/RightScreenButtonStyle">
             <ImageView
+                android:id="@+id/outImg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/friend_icon"/>
             <TextView
+                android:id="@+id/outText"
                 android:layout_marginLeft="13dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -105,23 +111,11 @@
                 android:textColor="#FFF"/>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/my_account"
-            style="@style/RightScreenButtonStyle">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/accounts_icon"/>
-            <TextView
-                android:layout_marginLeft="13dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="내 계정"
-                android:textColor="#FFF"/>
-        </LinearLayout>
-        <LinearLayout
             android:id="@+id/settings"
             style="@style/RightScreenButtonStyle"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="bottom">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

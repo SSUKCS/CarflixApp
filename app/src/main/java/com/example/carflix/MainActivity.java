@@ -36,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
                     String mb_userid = autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue));
                     String mb_password = autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue));
                     ServerData serverData = new ServerData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
-                    JSONObject result;
                     try{
+                        JSONObject result;
                         result = new JSONObject(serverData.get());
                         Log.d("login", "LOGIN RESULT :: "+result);
                         switch(result.getString("message")){

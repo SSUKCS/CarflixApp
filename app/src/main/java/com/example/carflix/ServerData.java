@@ -41,14 +41,13 @@ public class ServerData {
                     }
                 case "group_show":
                 case "group_info":
-                    String JSONString = data.toString();
                     //{"message":" .... "} : 실패
-                    if(Pattern.matches("^\\{\\\"message\\\"\\:\\\".*\\\"\\}$", JSONString)){
+                    if(Pattern.matches("^\\{\\\"message\\\"\\:\\\".*\\\"\\}$", data.toString())){
                         Log.d("serverData_message", data.getString("message"));
                         result = data.getString("message");
                     }
                     //{"data":[{" .... "}]} : 성공
-                    else if(Pattern.matches("^\\{\\\"data\\\"\\:\\[\\{\\\".*\\\"\\}\\]\\}", JSONString)){
+                    else if(Pattern.matches("^\\{\\\"data\\\"\\:\\[\\{\\\".*\\\"\\}\\]\\}", data.toString())){
                         Log.d("serverData_data", "get data......");
                         result = data.getJSONArray("data").toString();
                     }break;
@@ -57,13 +56,30 @@ public class ServerData {
                     if(data.getString("message").equals("Successfully Login!")){
                         result = data.toString();
                     }break;
-                case "show":
-                    if(!category.equals("ic")){//json 객체 1개를 return
+                case "registration_delete_request":
+                    Log.d("serverData_message", data.getString("message"));
+                    if(data.getString("message").equals("Successfully Login!")){
                         result = data.toString();
                     }
+                    else{
+                        result = data.getString("message");
+                    }break;
+                case "show":
+                    if(category.equals("ic")||category.equals("vs")){
+                        //{"message":" .... "} : 실패
+                        if(Pattern.matches("^\\{\\\"message\\\"\\:\\\".*\\\"\\}$", data.toString())){
+                            Log.d("serverData_message", data.getString("message"));
+                            result = data.getString("message");
+                        }
+                        //{"data":[{" .... "}]} : 성공
+                        else if(Pattern.matches("^\\{\\\"data\\\"\\:\\[\\{\\\".*\\\"\\}\\]\\}", data.toString())){
+                            Log.d("serverData_data", "get data......");
+                            result = data.getJSONArray("data").toString();
+                        }
+                    }
                     else
-                    {//jsonArray 객체 1개를 return
-                        result = data.getJSONArray("data").toString();
+                    {//json 객체 1개를 return
+                        result = data.toString();
                     }break;
                 case "show_single_name":
                     Log.d("serverData_"+category+"userid", data.getString(category+"_userid"));

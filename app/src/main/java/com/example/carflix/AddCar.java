@@ -48,6 +48,7 @@ public class AddCar extends AppCompatActivity {
                 //블루투스 페어링이 가능한 차량 탐색
                 //등록할 차량의 macAddress를 가져온다.
 
+
                 //차량의 데이터를 서버에 등록한다.
                 String carName = carNameEdit.getText().toString();
                 String carNumber = carNumberEdit.getText().toString().replaceAll("\\s", "");

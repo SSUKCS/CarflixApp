@@ -9,7 +9,6 @@
     android:layout_height="0dp"
     android:layout_weight = "0.3"/>
     <TextView
-        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="초대코드를 입력하세요."
@@ -17,6 +16,7 @@
         android:layout_marginBottom="10sp"
         android:textSize="32sp"/>
     <EditText
+        android:id="@+id/inviteCodeEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize = "32sp"
@@ -25,6 +25,7 @@
         android:layout_marginBottom="10sp">
     </EditText>
     <Button
+        android:id="@+id/joinGroupButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5sp"

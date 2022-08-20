@@ -32,7 +32,6 @@ public class GroupList extends AppCompatActivity {
     private String memberNickname;
     private String memberPhoneNumber;
     private String memberImage;
-    private String isAdmin;
 
     private ArrayList groupDataList;
     private GroupListAdapter adapter;
@@ -53,7 +52,6 @@ public class GroupList extends AppCompatActivity {
         groupListView.setLayoutManager(layoutManager);
 
         memberID = getIntent().getStringExtra("mb_id");
-
         ServerData serverData = new ServerData("GET", "member/show", "mb_id="+memberID, null);
         try{
             JSONObject userData = new JSONObject(serverData.get());
@@ -61,7 +59,6 @@ public class GroupList extends AppCompatActivity {
             memberPhoneNumber= userData.getString("mb_phone");
             memberNickname= userData.getString("mb_nickname");
             memberImage= userData.getString("mb_image");
-            isAdmin= userData.getString("mb_is_admin");
 
             //프로파일 메뉴
             profileMenu = new ProfileMenu(this);
@@ -87,13 +84,8 @@ public class GroupList extends AppCompatActivity {
         adapter = new GroupListAdapter(context, groupDataList);
         groupListView.setAdapter(adapter);
 
-        //회사 데이터 입력
-        updateListfromServer();
-
         listEmpty = findViewById(R.id.list_empty);
         Log.d("carList", "isempty :: "+groupDataList.isEmpty());
-        if(groupDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
-        else listEmpty.setVisibility(View.INVISIBLE);
 
         adapter.setItemClickListener(new GroupListAdapter.itemClickListener() {
             @Override
@@ -120,8 +112,11 @@ public class GroupList extends AppCompatActivity {
     protected void onResume() {
         Log.i("GroupList", "onResume: ");
         super.onResume();
+        //서버로부터 데이터 입력
         updateListfromServer();
-        adapter.notifyDataSetChanged();
+        if(groupDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
+        else listEmpty.setVisibility(View.INVISIBLE);
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -131,7 +126,7 @@ public class GroupList extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int curId = item.getItemId();
-
+        Intent intent;
         switch(curId){
             case android.R.id.home:
                 if(!profileMenu.isMenuOpen()) {
@@ -143,12 +138,14 @@ public class GroupList extends AppCompatActivity {
                 break;
             case R.id.generateGroup:
                 Toast.makeText(this, "그룹 생성", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context, GenerateGroup.class);
+                intent = new Intent(context, GenerateGroup.class);
                 intent.putExtra("memberID", memberID);
                 startActivity(intent);
                 break;
             case R.id.joinGroup:
                 Toast.makeText(this, "그룹 가입", Toast.LENGTH_LONG).show();
+                intent = new Intent(context, JoinGroup.class);
+                startActivity(intent);
                 break;
             default:
                 break;
@@ -158,13 +155,17 @@ public class GroupList extends AppCompatActivity {
 
     private void updateListfromServer(){
         groupDataList.clear();
-        String small_groupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
-        String ceo_groupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
-        String rent_groupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
-
-        addItem(small_groupDataJSONString, "sg");
-        addItem(ceo_groupDataJSONString, "cg");
-        addItem(rent_groupDataJSONString, "rg");
+        new Thread(() -> {
+            Log.d("Annonymus thread", "run");
+            String small_groupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
+            String ceo_groupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
+            String rent_groupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
+            addItem(small_groupDataJSONString, "sg");
+            addItem(ceo_groupDataJSONString, "cg");
+            addItem(rent_groupDataJSONString, "rg");
+        }).run();
+        Log.d("carList", "isempty :: "+groupDataList.isEmpty());
+        adapter.notifyDataSetChanged();
     }
     private void addItem(String JSONArrayString, String groupType){
         String errorMessage;

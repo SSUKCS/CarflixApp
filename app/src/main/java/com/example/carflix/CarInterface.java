@@ -1,11 +1,16 @@
 package com.example.carflix;
 
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -15,10 +20,15 @@ import android.widget.Toast;
 
 import java.util.concurrent.Executor;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
@@ -26,6 +36,8 @@ import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRON
 
 
 public class CarInterface extends AppCompatActivity {
+    String blueToothConnectionState;
+
     int position;
     private Context context;
 
@@ -38,32 +50,86 @@ public class CarInterface extends AppCompatActivity {
     Button trunk;
     Button startCar;
 
+    String memberID;
     CarData carData;
     String userName;
 
     boolean carData_isAvailable_initialState;
-    boolean door_isOpen=false;
     boolean trunk_isOpen=false;
-
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
+
+    private CarTracingService carTracingService;
+    private final CarTracingService.StateUpdateCallBack carTracingStateUpdateCallBack = this::carTracingStateUpdateCallBack;
+    private final ServiceConnection carTracingStateBindConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.i("CarInterface_carTracingStateBindConnection", "onServiceConnected: connected");
+            CarTracingService.CarServiceBinder carServiceBinder = (CarTracingService.CarServiceBinder) iBinder;
+            carTracingService = carServiceBinder.getService();
+            carTracingService.registerCallback(carTracingStateUpdateCallBack);
+            carTracingStateUpdateCallBack(carTracingService.getState());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.i("CarInterface_CarInterface_carTracingStateBindConnection", "onServiceDisconnected: disconnected");
+            carTracingService = null;
+        }
+    };
+
+    private CarControlService carControlService;
+    private CarControlService.StateUpdateCallBack carControlStateUpdateCallBack = this::carControlStateUpdateCallBack;
+    private final ServiceConnection carControlServiceBindConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.i("CarInterface_carControlServiceBindConnection", "onServiceConnected: connected");
+            CarControlService.CarServiceBinder carServiceBinder = (CarControlService.CarServiceBinder) iBinder;
+            carControlService = carServiceBinder.getService();
+            carControlService.registerCallback(carControlStateUpdateCallBack);
+            carTracingStateUpdateCallBack(carControlService.getState());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.i("CarInterface_CarInterface_carControlServiceBindConnection", "onServiceDisconnected: disconnected");
+            carControlService = null;
+        }
+    };
+
+    private Intent startServiceIntent;
+    private Intent bindServiceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_interface);
-
-        context = getApplicationContext();
-        position = getIntent().getIntExtra("position", -1);
-        carData = (CarData)getIntent().getSerializableExtra("carData");
-
+        getPermission();
+        if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                Toast.makeText(context, "블루투스 권한을 허용해주세요.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            //startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT, savedInstanceState); is deprecated
+            ActivityResultLauncher<Intent> startActivityForResult =
+                    registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                        if(result.getResultCode()!=RESULT_OK){
+                            Toast.makeText(context, "블루투스 권한을 허용해주세요.", Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    });
+            startActivityForResult.launch(enableBtIntent);
+        }
         connectUI();
 
-        carImg.setImageResource(carData.getcarImg());
-        carName.setText(carData.getCarName());
-        carData_isAvailable_initialState = carData.isAvailable();
-        isAvailable.setText(carData.getStatus());
+        context = getApplicationContext();
+        memberID = getIntent().getStringExtra("memberID");
+        position = getIntent().getIntExtra("position", -1);
+        carData = (CarData)getIntent().getSerializableExtra("carData");
         switch(carData.getStatus())
         {
             case"운전 가능":isAvailable.setTextColor(Color.parseColor("#4488FF"));break;
@@ -71,8 +137,10 @@ public class CarInterface extends AppCompatActivity {
             case"운전중":isAvailable.setTextColor(Color.parseColor("#9911BB"));break;
         }
 
-
-
+        carImg.setImageResource(carData.getcarImg());
+        carName.setText(carData.getCarName());
+        carData_isAvailable_initialState = carData.isAvailable();
+        isAvailable.setText(carData.getStatus());
         /*DEVICE_CREDENTIAL 및 BIOMETRIC_STRONG | DEVICE_CREDENTIAL 인증자 유형 조합은
         Android 10(API 수준 29) 이하에서 지원되지 않는다*/
         /*if(Build.VERSION.SDK_INT>29)
@@ -120,7 +188,11 @@ public class CarInterface extends AppCompatActivity {
         doorOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                bindServiceIntent = new Intent(context, CarControlService.class);
+                bindServiceIntent.putExtra("mb_id", memberID);
+                bindServiceIntent.putExtra("mac_address", carData.getMac_address());
+                bindServiceIntent.putExtra("mode", CarControlService.DOOR_OPEN);
+                bindService(bindServiceIntent, carControlServiceBindConnection, BIND_AUTO_CREATE);
             }
         });
 
@@ -128,7 +200,11 @@ public class CarInterface extends AppCompatActivity {
         doorClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                bindServiceIntent = new Intent(context, CarControlService.class);
+                bindServiceIntent.putExtra("mb_id", memberID);
+                bindServiceIntent.putExtra("mac_address", carData.getMac_address());
+                bindServiceIntent.putExtra("mode", CarControlService.DOOR_CLOSE);
+                bindService(bindServiceIntent, carControlServiceBindConnection, BIND_AUTO_CREATE);
             }
         });
 
@@ -136,7 +212,16 @@ public class CarInterface extends AppCompatActivity {
         trunk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                bindServiceIntent = new Intent(context, CarControlService.class);
+                bindServiceIntent.putExtra("mb_id", memberID);
+                bindServiceIntent.putExtra("mac_address", carData.getMac_address());
+                if(trunk_isOpen){
+                    bindServiceIntent.putExtra("mode", CarControlService.DOOR_CLOSE);
+                }
+                else{
+                    bindServiceIntent.putExtra("mode", CarControlService.DOOR_OPEN);
+                }
+                bindService(bindServiceIntent, carControlServiceBindConnection, BIND_AUTO_CREATE);
             }
         });
 
@@ -144,36 +229,68 @@ public class CarInterface extends AppCompatActivity {
         startCar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getPermission();
+                Log.d("carInterface", ""+carData.isAvailable());
                 /*
                 biometricPrompt.authenticate(promptInfo);*/
                 if(carData.isAvailable())
                 {
+                    blueToothConnectionState = "블루투스 연결 시작";
                     carData.setAvailable(false);
                     isAvailable.setText("운전중");
                     isAvailable.setTextColor(Color.parseColor("#9911BB"));
 
-                    Intent intent = new Intent(getApplicationContext(), LocationService.class);
-                    intent.putExtra("user_id",userName);
-                    intent.putExtra("carData",carData);
-                    startService(intent);
+                    startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
+                    startServiceIntent.putExtra("user_id",userName);
+                    startServiceIntent.putExtra("carData",carData);
+                    startServiceIntent.putExtra("mac_address", carData.getMac_address());
+                    startService(startServiceIntent);
+
+                    bindService(bindServiceIntent, carTracingStateBindConnection, BIND_AUTO_CREATE);
+                    //버튼을 보이지 않게 한다.
+                    view.setVisibility(View.INVISIBLE);
                 }
-                else if(isAvailable.getText().equals("운전 불가능")){
-                    Toast.makeText(context,"운전할 수 없습니다.",Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+
+                /*  차량 시동이 꺼진 뒤
                     carData.setAvailable(true);
                     isAvailable.setText("운전 가능");
                     isAvailable.setTextColor(Color.parseColor("#4488FF"));
 
                     Intent intent = new Intent(getApplicationContext(), LocationService.class);
                     Log.e("carInterface", "STOP CONTEXT "+getApplicationContext());
-                    stopService(intent);
-                }
+                    stopService(intent);*/
+            }
+        });
+    }
+    private void carTracingStateUpdateCallBack(String state){
 
-                //버튼을 보이지 않게 한다.
-                view.setVisibility(View.INVISIBLE);
+    }
+    private void carControlStateUpdateCallBack(String state){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch(state){
+                    case ArduinoBluetooth.SEARCHING:
+                        blueToothConnectionState="기기 탐색중";
+                        isAvailable.setText("기기 탐색중....");
+                        isAvailable.setTextColor(Color.parseColor("#5DC19B"));
+
+                        break;
+                    case ArduinoBluetooth.FOUND_DEVICE:
+                        blueToothConnectionState="기기 연결중";
+                        isAvailable.setText("기기 연결중...");
+                        isAvailable.setTextColor(Color.parseColor("#5DC19B"));
+                        break;
+                    case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
+                        blueToothConnectionState="연결 성공";
+                        isAvailable.setText("운전중");
+                        isAvailable.setTextColor(Color.parseColor("#9911BB"));
+                        break;
+                    case ArduinoBluetooth.FAILED_CONNECTION:
+                        blueToothConnectionState="연결 실패";
+                        isAvailable.setText("연결 실패");
+                        isAvailable.setTextColor(Color.parseColor("#F23920"));
+                        break;
+                }
             }
         });
     }

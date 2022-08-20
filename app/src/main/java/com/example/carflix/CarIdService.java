@@ -22,17 +22,6 @@ import androidx.core.app.NotificationCompat;
 public class CarIdService extends Service {
     private static final String TAG = "CarIdService";
 
-    /*
-    {
-      "mb_id" : "3",
-      "group_id" : "2",
-      "status" : "ceo_group",
-      "cr_number_classification" : "0419(나)",
-      "cr_registeration_number" : "0419",
-      "cr_carname" : "dowojtw",
-      "cr_mac_address" : "00112233445589"
-    }
-    */
     private String mbId;
     private String groupId;
     private String groupStatus;
@@ -163,7 +152,23 @@ public class CarIdService extends Service {
                        서버로 헤더번호 71번의 차량등록 해제 요청을 한 뒤
                        서버로부터 crId를 받는다.
                      */
-                    crId = new String("something");
+                    JSONObject requestBody = new JSONObject();
+                    try{
+                        requestBody.put("mb_id", mbId);
+                        requestBody.put("cr_mac_address", macAddress);
+                    }
+                    catch(JSONException e) {
+                        Log.e(TAG, e.toString());
+                    }
+                    ServerData serverData = new ServerData("DELETE", "registration_delete_request", null);
+                    if(!serverData.get().equals("car delete request fail")) {
+                        try{
+                            crId = new JSONObject(serverData.get()).getString("cr_id");
+                        }
+                        catch(JSONException e){
+                            Log.e(TAG, e.toString());
+                        }
+                    }
                     //
                     arduinoData = new ArduinoData.Builder()
                             .setDeleteId(crId)
@@ -175,6 +180,14 @@ public class CarIdService extends Service {
                         //crId를 지운것이다.
                         //이때 서버에서 해당 crId의 차량정보가 삭제된다.
                         onStateUpdate(DELETE_OK);
+                        try{
+                            ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/create", new JSONObject().put("cr_id", crId));
+                            serverConnectionThread.start();
+                        }
+                        catch(JSONException e){
+                            Log.e(TAG, e.toString());
+                        }
+
                     }
                     else if(curStatus.equals(DELETE_FAILED)){
                         //아두이노가 지우기에 실패한 경우이다.

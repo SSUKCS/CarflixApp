@@ -81,14 +81,16 @@
 
         <!--메뉴 하단 각종 메뉴-->
         <LinearLayout
-            android:id="@+id/invitation_list"
+            android:id="@+id/usageView"
             android:layout_marginTop="15dp"
             style="@style/RightScreenButtonStyle">
             <ImageView
+                android:id="@+id/usageImg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/mail_icon"/>
             <TextView
+                android:id="@+id/usageText"
                 android:layout_marginLeft="13dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -96,13 +98,15 @@
                 android:textColor="#FFF"/>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/friends"
+            android:id="@+id/outView"
             style="@style/RightScreenButtonStyle">
             <ImageView
+                android:id="@+id/outImg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/friend_icon"/>
             <TextView
+                android:id="@+id/outText"
                 android:layout_marginLeft="13dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -110,23 +114,11 @@
                 android:textColor="#FFF"/>
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/my_account"
-            style="@style/RightScreenButtonStyle">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/accounts_icon"/>
-            <TextView
-                android:layout_marginLeft="13dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="내 계정"
-                android:textColor="#FFF"/>
-        </LinearLayout>
-        <LinearLayout
             android:id="@+id/settings"
             style="@style/RightScreenButtonStyle"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="bottom">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

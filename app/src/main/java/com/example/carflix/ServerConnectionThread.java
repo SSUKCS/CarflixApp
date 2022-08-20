@@ -37,7 +37,7 @@ public class ServerConnectionThread extends Thread{
     public void run(){
         try{
             String result = request(urlStr);
-            Log.d(TAG, "RESULT :: "+ result);
+            Log.d("ServerConnectionThread", "RESULT :: "+result);
             if(result != ""){
                 outputString = result.substring(result.indexOf("{"));
             }
@@ -56,14 +56,16 @@ public class ServerConnectionThread extends Thread{
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
                 connection.setRequestMethod(httpmethod);
-
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
 
                 //outstream을 통해 requestBody(jsonObject) 전달
                 if(requestBody!=null){
                     //request body 전달시 json 형식으로 전달
-                    connection.setRequestProperty("Content-Type", "applicaiont/json");
+                    connection.setRequestProperty("Accept", "application/json");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setRequestProperty("Accept-Language", "ko-KR,ko;q=0.8,en-US;q=0.6,en;q=0.4");
+                    connection.setRequestProperty("Content-Transfer-Encoding", "application/json");
 
                     OutputStream outputStream = connection.getOutputStream();
                     Log.d(TAG, "REQUESTBODY :: "+ requestBody.toString());

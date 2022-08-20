@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +22,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 public class CarList extends AppCompatActivity {
     private final static int DEFAULT = -1;
 
@@ -32,7 +37,6 @@ public class CarList extends AppCompatActivity {
     private CarListAdapter adapter;
     private RecyclerView carListView;
     private TextView listEmpty;
-
 
     private String memberID;
     private String groupID;
@@ -101,7 +105,7 @@ public class CarList extends AppCompatActivity {
                         //carLookupInfo->carList
                         case 9002: break;
 
-                        //addCar -> break;
+                        //addCar -> carList;
                         case 9003: break;
                         default:break;
                     }
@@ -111,8 +115,10 @@ public class CarList extends AppCompatActivity {
             public void onItemClick(View v, int position) {
                 //carInterface로 이동
                 if(nowDriving == DEFAULT || nowDriving==position){
+                    Log.d("CarList_serItemClickListener_onItemClick: ", "nowDriving"+nowDriving);
                     Intent intent = new Intent(getApplicationContext(), CarInterface.class);
                     CarData carData = carDataList.get(position);
+                    intent.putExtra("memberID", memberID);
                     intent.putExtra("carData", carData);
                     intent.putExtra("position", position);
                     launcher.launch(intent);
@@ -160,6 +166,7 @@ public class CarList extends AppCompatActivity {
                 intent.putExtra("status", status);
                 startActivity(intent);
                 break;
+                /*
             case R.id.generateCode:
                 Toast.makeText(this, "코드 생성", Toast.LENGTH_LONG).show();
                 intent = new Intent(getApplicationContext(), GenerateCode.class);
@@ -168,7 +175,7 @@ public class CarList extends AppCompatActivity {
                 intent.putExtra("groupName", groupName);
                 intent.putExtra("status", status);
                 startActivity(intent);
-                break;
+                break;*/
             default:
                 break;
         }
@@ -184,7 +191,6 @@ public class CarList extends AppCompatActivity {
         String params = "mb_id="+memberID+"&group_id="+groupID+"&status="+status;
         Log.d("carList_updateListfromServer", "params :: "+ params);
         String carDataListJSONString = new ServerData("GET", "car/group_show", params, null).get();
-
         addItem(carDataListJSONString);
     }
     private void addItem(String JSONArrayString){
@@ -195,13 +201,26 @@ public class CarList extends AppCompatActivity {
                 int len = JSONArray.length();
                 for(int i=0;i<len;i++){
                     JSONObject jsonObject = JSONArray.getJSONObject(i);
+                    CarData carData=new CarData(jsonObject);
                     Log.d("carListList_addItem", jsonObject.getString("status"));
-                    carDataList.add(new CarData(JSONArray.getJSONObject(i)));
-                    Log.d("carList.addItem", "GROUP_item "+i+" :: "+jsonObject.getString("cr_carname"));
+
+                    Log.d("carList_addItem", "GROUP_item "+i+" :: "+jsonObject.getString("cr_carname"));
+                    //cr_id를 통해 차량 상태를 가져오고
+                    //가장 최근 상태에서
+                    // vs_startup_information ==on :사용 중
+                    String param = "cr_id="+jsonObject.getString("cr_id");
+                    String serverData = new ServerData("GET", "vehicle_status/show", param, null).get();
+                    if(!serverData.equals("No vehicle_status Found")){
+                        String recentVehicleStatus = new JSONArray(serverData).getJSONObject(0).getString("vs_startup_information");
+                        if(recentVehicleStatus.equals("on")){
+                            carData.setAvailable(false);
+                        }
+                    }
+                    carDataList.add(carData);
                 }
             }
             catch(JSONException e){
-                Log.e("groupList.addItem", e.toString());
+                Log.e("carList_addItem", e.toString());
             }
         }
 
