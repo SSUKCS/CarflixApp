@@ -102,7 +102,7 @@ public class CarIdService extends Service {
                        서버로부터 crId를 받는다.
                      */
                     try{
-                        JSONObject  carInfo = new JSONObject();
+                        JSONObject carInfo = new JSONObject();
                         carInfo.put("mb_id", mbId);
                         carInfo.put("group_id", groupId);
                         carInfo.put("status", groupStatus);

@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import androidx.annotation.NonNull;
 
@@ -38,7 +39,7 @@ public class ServerConnectionThread extends Thread{
         try{
             String result = request(urlStr);
             Log.d("ServerConnectionThread", "RESULT :: "+result);
-            if(result != ""){
+            if(!result.equals("")){
                 outputString = result.substring(result.indexOf("{"));
             }
         }
@@ -64,6 +65,8 @@ public class ServerConnectionThread extends Thread{
                     //request body 전달시 json 형식으로 전달
                     connection.setRequestProperty("Accept", "application/json");
                     connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setRequestProperty("Accept-Charset", "UTF-8");
+                    connection.setRequestProperty("X-Data-Type", "application/json");
                     connection.setRequestProperty("Accept-Language", "ko-KR,ko;q=0.8,en-US;q=0.6,en;q=0.4");
                     connection.setRequestProperty("Content-Transfer-Encoding", "application/json");
 
@@ -76,16 +79,16 @@ public class ServerConnectionThread extends Thread{
                 int responseCode = connection.getResponseCode();
                 Log.d(TAG, "URLSTR :: "+urlStr);
                 Log.d(TAG, "HTTP RESPONSECODE :: "+ responseCode);
-                if(httpmethod == "GET"){
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String line = null;
-                    while(true) {
-                        line = reader.readLine();
-                        if(line==null)break;
-                        output.append(line+"\n");
-                    }
-                    reader.close();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+                String line = null;
+                while(true) {
+                    line = reader.readLine();
+                    if(line==null)break;
+                    output.append(line);
                 }
+                reader.close();
+
                 connection.disconnect();
             }
         }

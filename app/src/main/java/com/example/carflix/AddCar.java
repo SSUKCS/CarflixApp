@@ -113,7 +113,9 @@ public class AddCar extends AppCompatActivity {
                 String carNumber = carNumberEdit.getText().toString().replaceAll("\\s", "");
                 //차량 번호
                 //예) 12 가 1234 or 12가 1234 or 12 가1234 or 12가1234
-                if(!editTextIsEmpty()&&Pattern.matches("^\\d{2,3}[가-힣]\\d{4}$", carNumber)){
+                boolean debug_mode_l = true;
+                if(debug_mode_l ||
+                        (!editTextIsEmpty()&&Pattern.matches("^\\d{2,3}[가-힣]\\d{4}$", carNumber))){
                     int len = carNumber.length();
                     //블루투스 페어링이 가능한 차량 탐색
                     //등록할 차량의 macAddress를 가져온다.
