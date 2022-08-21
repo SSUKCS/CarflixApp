@@ -73,7 +73,6 @@ public class AddCar extends AppCompatActivity {
                     case ArduinoBluetooth.SEARCHING:
                         carIdServiceState.setText("기기 탐색중....");
                         carIdServiceState.setTextColor(Color.parseColor("#5DC19B"));
-
                         break;
                     case ArduinoBluetooth.FOUND_DEVICE:
                         carIdServiceState.setText("기기 연결중...");
@@ -120,8 +119,10 @@ public class AddCar extends AppCompatActivity {
                     bindServiceIntent.putExtra("carName", carName);
                     bindServiceIntent.putExtra("mode", CarIdService.ASSIGN_MODE);
                     bindService(bindServiceIntent, carIdServiceConnection, BIND_AUTO_CREATE);
-
-
+                }
+                else{
+                    Log.d("AddCar", "editTextIsEmpty :: "+editTextIsEmpty());
+                    Log.d("AddCar", "Pattern matches :: "+Pattern.matches("^\\d{2,3}[가-힣]\\d{4}$", carNumber));
                 }
             }
         });

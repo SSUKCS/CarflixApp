@@ -115,7 +115,6 @@ public class CarIdService extends Service {
                     catch(JSONException e){
                         Log.e(TAG, e.toString());
                     }
-
                     //
                     arduinoData = new ArduinoData.Builder()
                             .setAssignId(crId)
@@ -127,6 +126,7 @@ public class CarIdService extends Service {
                         //차량에 crId를 성공한 경우이다.
                         //이때에는 최종적으로 서버에 해당 crId를 등록해야한다.
                         onStateUpdate(ASSIGN_OK);
+
                     }
                     else {
                         //차량에 crId를 등록실패한 경우이다.

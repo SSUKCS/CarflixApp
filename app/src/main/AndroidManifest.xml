@@ -40,13 +40,20 @@
         <activity android:name=".GenerateCode"/>
 
         <activity android:name=".CarInterface"/>
-
-
         <service
-            android:name=".LocationService"
+            android:name=".CarTracingService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location" />
+        <service
+            android:name=".CarControlService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".CarIdService"
+            android:enabled="true"
+            android:exported="true" />
+
     </application>
 
     <!--블루투스 권한-->
