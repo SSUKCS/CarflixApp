@@ -1,10 +1,12 @@
 package com.example.carflix;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,6 +23,7 @@ import org.w3c.dom.Text;
 import java.util.regex.Pattern;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -135,6 +138,7 @@ public class AddCar extends AppCompatActivity {
         //둘중 하나라도 0일경우 true, 아니면 false
         return (carNumberEdit.length()==0||carNameEdit.length()==0);
     }
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     public void getPermission(){
         if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -144,13 +148,13 @@ public class AddCar extends AppCompatActivity {
         }
         // 권한이 없을 경우 권한을 요구함
         else {
-            final String requiredPermission[] = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                    android.Manifest.permission.BLUETOOTH_CONNECT,
-                    android.Manifest.permission.BLUETOOTH_SCAN};
-            ActivityCompat.requestPermissions(this, requiredPermission, 1
-            );
+            String[] permission_list = {
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN
+            };
+            ActivityCompat.requestPermissions(this, permission_list, 1);
         }
     }
 }
