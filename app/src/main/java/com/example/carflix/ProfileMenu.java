@@ -1,6 +1,10 @@
 package com.example.carflix;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -83,10 +87,24 @@ public class ProfileMenu {
         usageView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                switch(baseActivity.getClass().toString()){
+                String baseActivityClass = baseActivity.getClass().toString();
+                switch(baseActivityClass){
                     case "class com.example.carflix.GroupList"://프로필 변경
                         break;
                     case "class com.example.carflix.CarList"://초대코드 생성
+                        Context context = baseActivity.getApplicationContext();
+                        Intent intent = new Intent(context, GenerateCode.class);
+                        Log.d(baseActivityClass, "USERDATA :: "+ userData.toString());
+                        try{
+                            intent.putExtra("memberID", userData.getString("mb_id"));
+                            intent.putExtra("groupID", userData.getString("group_id"));
+                            intent.putExtra("groupName", userData.getString("group_name"));
+                            intent.putExtra("status", userData.getString("status"));
+                            baseActivity.startActivity(intent);
+                        }
+                        catch(JSONException e){
+                            Log.e(baseActivity.getClass().toString()+"ProfileMenu", e.toString());
+                        }
                         break;
                 }
             }
@@ -96,7 +114,14 @@ public class ProfileMenu {
             public void onClick(View v) {
                 switch(baseActivity.getClass().toString()){
                     case "class com.example.carflix.GroupList"://로그아웃
-                        break;
+                        //1.저장되어있는 id/비밀번호 초기화
+                        Context context = baseActivity.getApplicationContext();
+                        SharedPreferences autoLogin = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = autoLogin.edit();
+                        editor.putString(context.getString(R.string.savedIDKey), context.getString(R.string.savedIDKey_noValue));
+                        editor.putString(context.getString(R.string.savedPWKey), context.getString(R.string.savedPWKey_noValue));
+                        editor.commit();
+                        quitProgram();
                     case "class com.example.carflix.CarList"://그룹 탈퇴
                         break;
                 }
@@ -107,6 +132,10 @@ public class ProfileMenu {
             public void onClick(View v) {
             }
         });
+    }
+    private void quitProgram(){
+        baseActivity.moveTaskToBack(true);
+        baseActivity.finish();
     }
 
     public ProfileMenu(Activity activity) {

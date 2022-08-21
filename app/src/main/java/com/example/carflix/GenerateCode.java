@@ -46,6 +46,7 @@ public class GenerateCode extends AppCompatActivity {
         setContentView(R.layout.generate_code);
         context = getApplicationContext();
 
+        getSupportActionBar().setTitle("차량 추가");
         groupTitle = findViewById(R.id.groupTitle);
         groupStatus = findViewById(R.id.status);
 

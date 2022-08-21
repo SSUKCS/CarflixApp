@@ -32,21 +32,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 SharedPreferences autoLogin = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                Intent intent;
                 if(savedIDPWExist(autoLogin)){
                     String mb_userid = autoLogin.getString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue));
                     String mb_password = autoLogin.getString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue));
                     ServerData serverData = new ServerData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
                     try{
-                        JSONObject result;
-                        result = new JSONObject(serverData.get());
-                        Log.d("login", "LOGIN RESULT :: "+result);
-                        switch(result.getString("message")){
+                        JSONObject userData = new JSONObject(serverData.get());
+                        Log.d("login", "LOGIN RESULT :: "+userData);
+                        switch(userData.getString("message")){
                             case "Successfully Login!":
-                                Intent intent = new Intent(getApplicationContext(), GroupList.class);
-                                intent.putExtra("mb_id", result.getString("mb_id"));
+                                intent = new Intent(getApplicationContext(), GroupList.class);
+                                intent.putExtra("mb_id", userData.getString("mb_id"));
                                 startActivity(intent);
                                 break;
                             case "Invalid Username or Password!":
+                                SharedPreferences.Editor editor = autoLogin.edit();
+                                editor.putString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue));
+                                editor.putString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue));
+                                editor.commit();
+
+                                intent = new Intent(getApplicationContext(), Login.class);
+                                startActivity(intent);
                                 break;
                             default:Log.e("login", "LOGIN ERROR :: invalid output");break;
                         }
@@ -57,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 else{
-                    Intent intent = new Intent(getApplicationContext(), Login.class);
+                    intent = new Intent(getApplicationContext(), Login.class);
                     startActivity(intent);
                 }
             }

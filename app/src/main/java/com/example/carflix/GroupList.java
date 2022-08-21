@@ -28,10 +28,7 @@ public class GroupList extends AppCompatActivity {
     private Context context;
 
     private String memberID;
-    private String memberEmail;
-    private String memberNickname;
-    private String memberPhoneNumber;
-    private String memberImage;
+    JSONObject userData;
 
     private ArrayList groupDataList;
     private GroupListAdapter adapter;
@@ -41,7 +38,6 @@ public class GroupList extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-        Log.i("GroupList", "onCreate: "+getClass());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.group_list);
         context = getApplicationContext();
@@ -54,11 +50,7 @@ public class GroupList extends AppCompatActivity {
         memberID = getIntent().getStringExtra("mb_id");
         ServerData serverData = new ServerData("GET", "member/show", "mb_id="+memberID, null);
         try{
-            JSONObject userData = new JSONObject(serverData.get());
-            memberEmail = userData.getString("mb_email");
-            memberPhoneNumber= userData.getString("mb_phone");
-            memberNickname= userData.getString("mb_nickname");
-            memberImage= userData.getString("mb_image");
+            userData = new JSONObject(serverData.get());
 
             //프로파일 메뉴
             profileMenu = new ProfileMenu(this);
@@ -93,16 +85,15 @@ public class GroupList extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), CarList.class);
                 String groupID, groupName, status;
 
-                SmallGroupData groupData = (SmallGroupData)groupDataList.get(position);
-
-                groupID = groupData.getGroupID();
-                groupName = groupData.getGroupName();
-                status = groupData.getStatus();
+                groupID = ((SmallGroupData) groupDataList.get(position)).getGroupID();
+                groupName = ((SmallGroupData) groupDataList.get(position)).getGroupName();
+                status = ((SmallGroupData) groupDataList.get(position)).getStatus();
 
                 intent.putExtra("memberID", memberID);
+                intent.putExtra("userData", userData.toString());
                 intent.putExtra("groupID", groupID);
                 intent.putExtra("groupName", groupName);
-                intent.putExtra("status",status);
+                intent.putExtra("status", status);
 
                 startActivity(intent);
             }

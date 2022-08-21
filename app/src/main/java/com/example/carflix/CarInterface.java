@@ -221,6 +221,7 @@ public class CarInterface extends AppCompatActivity {
                 else{
                     bindServiceIntent.putExtra("mode", CarControlService.DOOR_OPEN);
                 }
+                trunk_isOpen = !trunk_isOpen;
                 bindService(bindServiceIntent, carControlServiceBindConnection, BIND_AUTO_CREATE);
             }
         });

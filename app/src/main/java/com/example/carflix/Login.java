@@ -3,6 +3,7 @@ package com.example.carflix;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,10 +36,7 @@ public class Login extends AppCompatActivity{
         inputPW = (EditText)findViewById(R.id.inputPW);
         failedLogin = (TextView)findViewById(R.id.failedLogin);
         //저장되어있는 userid와 password
-        SharedPreferences autoLogin = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-
-
-
+        SharedPreferences autoLogin = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
         logInButton.setOnClickListener(new View.OnClickListener(){
             /*
@@ -69,8 +67,13 @@ public class Login extends AppCompatActivity{
                 Log.d("login", "USER ID :: "+mb_userid);
                 Log.d("login", "USER PASSWORD :: "+mb_password);
                 if(savedIDPWExist(autoLogin)||inputIDPWExist()){
+                    if(!savedIDPWExist(autoLogin)){
+                        SharedPreferences.Editor editor = autoLogin.edit();
+                        editor.putString(getString(R.string.savedIDKey), mb_userid);
+                        editor.putString(getString(R.string.savedPWKey), mb_password);
+                        editor.commit();
+                    }
                     ServerData serverData = new ServerData("GET", "member/login_v3", "mb_userid="+mb_userid+"&mb_password="+mb_password, null);
-
                     try{
                         JSONObject userData;
                         userData = new JSONObject(serverData.get());
@@ -78,10 +81,18 @@ public class Login extends AppCompatActivity{
                         switch(userData.getString("message")){
                             case "Successfully Login!":
                                 Intent intent = new Intent(getApplicationContext(), GroupList.class);
-                                intent.putExtra("userData", userData.toString());
+                                intent.putExtra("mb_id", userData.getString("mb_id"));
                                 startActivity(intent);
                                 break;
                             case "Invalid Username or Password!":
+                                if(savedIDPWExist(autoLogin)){
+                                    SharedPreferences.Editor editor = autoLogin.edit();
+                                    editor.putString(getString(R.string.savedIDKey), getString(R.string.savedIDKey_noValue));
+                                    editor.putString(getString(R.string.savedPWKey), getString(R.string.savedPWKey_noValue));
+                                    editor.commit();
+                                }
+                                failedLogin.setText("아이디 또는 비밀번호가 틀렸습니다.");
+                                failedLogin.setTextColor(Color.parseColor("#F23920"));
                                 break;
                             default:Log.e("login", "LOGIN ERROR :: invalid output");break;
                         }

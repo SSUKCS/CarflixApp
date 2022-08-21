@@ -56,9 +56,10 @@ public class CarList extends AppCompatActivity {
         carListView.setLayoutManager(new LinearLayoutManager(this));
 
         memberID = getIntent().getStringExtra("memberID");
+        status = getIntent().getStringExtra("status");
         groupID = getIntent().getStringExtra("groupID");
         groupName = getIntent().getStringExtra("groupName");
-        status = getIntent().getStringExtra("status");
+
 
         carDataList = new ArrayList<CarData>();
         updateListfromServer();
@@ -76,7 +77,17 @@ public class CarList extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //프로파일 메뉴
-        profileMenu = new ProfileMenu(this);
+        try{
+            profileMenu = new ProfileMenu(this);
+            JSONObject userData = new JSONObject(getIntent().getStringExtra("userData"));
+            userData.put("group_id", groupID);
+            userData.put("group_name", groupName);
+            userData.put("status", status);
+            profileMenu.settingProfile(userData);
+        }
+        catch(JSONException e){
+            Log.e("CarList", e.toString());
+        }
 
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -169,12 +180,7 @@ public class CarList extends AppCompatActivity {
                 /*
             case R.id.generateCode:
                 Toast.makeText(this, "코드 생성", Toast.LENGTH_LONG).show();
-                intent = new Intent(getApplicationContext(), GenerateCode.class);
-                intent.putExtra("memberID", memberID);
-                intent.putExtra("groupID", groupID);
-                intent.putExtra("groupName", groupName);
-                intent.putExtra("status", status);
-                startActivity(intent);
+
                 break;*/
             default:
                 break;

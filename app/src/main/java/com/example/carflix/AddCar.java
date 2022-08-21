@@ -1,14 +1,21 @@
 package com.example.carflix;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.regex.Pattern;
 
@@ -19,6 +26,7 @@ public class AddCar extends AppCompatActivity {
 
     EditText carNameEdit;
     EditText carNumberEdit;
+    TextView carIdServiceState;
     Button addCarButton;
 
     private String memberID;
@@ -26,6 +34,25 @@ public class AddCar extends AppCompatActivity {
     private String status;
 
     private String macAddress;
+
+    private CarIdService carIdService;
+    private CarIdService.CarIdServiceCallback CarIdServiceCallback = this::CarIdStateUpdateCallback;
+    private final ServiceConnection carIdServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.i("CarInterface_carControlServiceBindConnection", "onServiceConnected: connected");
+            CarIdService.CarServiceBinder carServiceBinder = (CarIdService.CarServiceBinder) iBinder;
+            carIdService = carServiceBinder.getService();
+            carIdService.registerCallback(CarIdServiceCallback);
+            CarIdStateUpdateCallback(carIdService.getState());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.i("CarInterface_CarInterface_carControlServiceBindConnection", "onServiceDisconnected: disconnected");
+            carIdService = null;
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,16 +65,53 @@ public class AddCar extends AppCompatActivity {
 
         connectUI();
     }
+    private void CarIdStateUpdateCallback(String state){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch(state){
+                    case ArduinoBluetooth.SEARCHING:
+                        carIdServiceState.setText("기기 탐색중....");
+                        carIdServiceState.setTextColor(Color.parseColor("#5DC19B"));
+
+                        break;
+                    case ArduinoBluetooth.FOUND_DEVICE:
+                        carIdServiceState.setText("기기 연결중...");
+                        carIdServiceState.setTextColor(Color.parseColor("#5DC19B"));
+                        break;
+                    case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
+                        carIdServiceState.setText("차량과 성공적으로 연결되었습니다.");
+                        carIdServiceState.setTextColor(Color.parseColor("#9911BB"));
+                        break;
+                    case ArduinoBluetooth.FAILED_CONNECTION:
+                        carIdServiceState.setText("차량과 연결이 실패하였습니다.");
+                        carIdServiceState.setTextColor(Color.parseColor("#F23920"));
+                        break;
+                }
+            }
+        });
+    }
     private void connectUI(){
+        getSupportActionBar().setTitle("차량 추가");
+
         carNameEdit = (EditText) findViewById(R.id.carNameEdit);
         carNumberEdit = (EditText)findViewById(R.id.carNumberEdit);
+        carIdServiceState = (TextView)findViewById(R.id.carIdServiceState);
         addCarButton = (Button)findViewById(R.id.addCarButton);
         addCarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //블루투스 페어링이 가능한 차량 탐색
                 //등록할 차량의 macAddress를 가져온다.
-
+                Intent bindServiceIntent = new Intent(getApplicationContext(), CarIdService.class);
+                bindServiceIntent.putExtra("mb_id", memberID);
+                bindServiceIntent.putExtra("group_id", groupID);
+                bindServiceIntent.putExtra("status", status);
+                bindServiceIntent.putExtra("numberClassification", memberID);
+                bindServiceIntent.putExtra("registerationNum", CarIdService.ASSIGN_MODE);
+                bindServiceIntent.putExtra("carName", CarIdService.ASSIGN_MODE);
+                bindServiceIntent.putExtra("mode", CarIdService.ASSIGN_MODE);
+                bindService(bindServiceIntent, carIdServiceConnection, BIND_AUTO_CREATE);
 
                 //차량의 데이터를 서버에 등록한다.
                 String carName = carNameEdit.getText().toString();

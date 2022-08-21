@@ -53,9 +53,8 @@ public class ServerData {
                     }break;
                 case "login_v3":
                     Log.d("serverData_message", data.getString("message"));
-                    if(data.getString("message").equals("Successfully Login!")){
-                        result = data.toString();
-                    }break;
+                    result = data.toString();
+                    break;
                 case "registration_delete_request":
                     Log.d("serverData_message", data.getString("message"));
                     if(data.getString("message").equals("Successfully Login!")){
