@@ -95,11 +95,6 @@ public class ServerConnectionThread extends Thread{
         return output.toString();
     }
     public String getResult(){
-        if(httpmethod=="GET"){
-            return outputString;
-        }
-        else{
-            return httpmethod+" :: connected successfully";
-        }
+        return outputString;
     }
 }

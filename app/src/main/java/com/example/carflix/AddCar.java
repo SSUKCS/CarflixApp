@@ -86,7 +86,7 @@ public class AddCar extends AppCompatActivity {
                         carIdServiceState.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                        carIdServiceState.setText("차량과 성공적으로 연결되었습니다.");
+                        carIdServiceState.setText("연결 성공.");
                         carIdServiceState.setTextColor(Color.parseColor("#9911BB"));
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
