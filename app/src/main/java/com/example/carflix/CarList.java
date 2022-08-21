@@ -189,8 +189,12 @@ public class CarList extends AppCompatActivity {
     }
 
     public void onBackPressed(){
-
-        finish();
+        if(profileMenu.isMenuOpen()){
+            profileMenu.closeRightMenu();
+        }
+        else{
+            finish();
+        }
     }
     private void updateListfromServer(){
         carDataList.clear();
