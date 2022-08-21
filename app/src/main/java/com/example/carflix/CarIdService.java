@@ -269,6 +269,7 @@ public class CarIdService extends Service {
         if(mode == 0){
             Log.e(TAG, "onStartCommand: mode isn't be set.", new Exception("CarIdServiceException: not exist mode."));
         }
+        arduinoBluetooth.start();
         return mBinder;
     }
 
