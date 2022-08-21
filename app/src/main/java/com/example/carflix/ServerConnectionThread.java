@@ -72,7 +72,7 @@ public class ServerConnectionThread extends Thread{
 
                     OutputStream outputStream = connection.getOutputStream();
                     Log.d(TAG, "REQUESTBODY :: "+ requestBody.toString());
-                    outputStream.write(requestBody.toString().getBytes("euc-kr"));
+                    outputStream.write(requestBody.toString().getBytes(StandardCharsets.UTF_8));
                     outputStream.flush();
                 }
 

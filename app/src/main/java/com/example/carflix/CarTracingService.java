@@ -186,7 +186,7 @@ public class CarTracingService extends Service {
                 //availData.getMbId() : 아두이노로부터 받은 mbid
                 String param = "cr_id="+availData.getCrId()+"&mb_id="+availData.getMbId();
                 //서버에 시동요청이 올바른가 보냄
-                ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", "cr_id=3&mb_id=4", null);
+                ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", param, null);
                 JSONObject serverJsonData=null;
                 String isRequestAvailable="";
                 try{
