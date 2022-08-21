@@ -61,6 +61,7 @@ public class AddCar extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_car);
+        getPermission();
 
         memberID = getIntent().getStringExtra("memberID");
         groupID = getIntent().getStringExtra("groupID");
@@ -103,7 +104,7 @@ public class AddCar extends AppCompatActivity {
         addCarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getPermission();
+
                 //차량의 데이터를 서버에 등록한다.
                 String carName = carNameEdit.getText().toString();
                 String carNumber = carNumberEdit.getText().toString().replaceAll("\\s", "");
