@@ -3,6 +3,7 @@ package com.example.carflix;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,6 +22,8 @@ import java.util.regex.Pattern;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class AddCar extends AppCompatActivity {
 
@@ -100,7 +103,7 @@ public class AddCar extends AppCompatActivity {
         addCarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                getPermission();
                 //차량의 데이터를 서버에 등록한다.
                 String carName = carNameEdit.getText().toString();
                 String carNumber = carNumberEdit.getText().toString().replaceAll("\\s", "");
@@ -130,5 +133,23 @@ public class AddCar extends AppCompatActivity {
     private boolean editTextIsEmpty(){
         //둘중 하나라도 0일경우 true, 아니면 false
         return (carNumberEdit.length()==0||carNameEdit.length()==0);
+    }
+    public void getPermission(){
+        if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED){
+        }
+        // 권한이 없을 경우 권한을 요구함
+        else {
+            final String requiredPermission[] = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    android.Manifest.permission.BLUETOOTH_CONNECT,
+                    android.Manifest.permission.BLUETOOTH_SCAN};
+            ActivityCompat.requestPermissions(this, requiredPermission, 1
+            );
+        }
     }
 }
