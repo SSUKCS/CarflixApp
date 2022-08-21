@@ -106,6 +106,7 @@ public class CarIdService extends Service {
                         carInfo.put("mb_id", mbId);
                         carInfo.put("group_id", groupId);
                         carInfo.put("cr_number_classification", numberClassification);
+                        carInfo.put("status", groupStatus);
                         carInfo.put("cr_registeration_number", registerationNum);
                         carInfo.put("cr_carName", carName);
                         carInfo.put("cr_mac_address", macAddress);
