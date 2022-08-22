@@ -41,7 +41,25 @@ public class CEOGroupData extends SmallGroupData {
     protected CEOGroupData(){
         super();
     };
-
+    @Override
+    protected JSONObject toJSONObject(){
+        JSONObject  jsonObject = super.toJSONObject();
+        try{
+            jsonObject.put("career", career);
+            jsonObject.put("certificate", certificate);
+            jsonObject.put("companyRegisterNumber", companyRegisterNumber);
+        }
+        catch(JSONException e){
+            Log.d(getClass().getSimpleName(), e.toString());
+        }
+        return jsonObject;
+    }
+    @Override
+    public String toJSONString(){
+        return super.toJSONString();
+    }
+    @Override
+    public String getCreatorID(){return super.getCreatorID();}
     @Override
     public String getGroupID() {return super.getGroupID();}
     @Override

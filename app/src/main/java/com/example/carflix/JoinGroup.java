@@ -81,27 +81,52 @@ public class JoinGroup extends AppCompatActivity {
          *                           ceo_group:[{"ic_number": "...."}, ....],
          *                           rent_group:[{"ic_number": "...."}, ....]
          */
-        SharedPreferences savedInviteGroupData = getSharedPreferences("savedInviteGroupData", MODE_PRIVATE);
-        String savedGroupJSONArrayString = savedInviteGroupData.getString(status, "there's no data");
+        SharedPreferences savedInviteGroupData = getSharedPreferences(getString(R.string.invite_Group_Data), MODE_PRIVATE);
+        String savedGroupJSONArrayString = "";
+        switch(status){
+            case"small_group":
+                savedGroupJSONArrayString = savedInviteGroupData.getString(getString(R.string.smallGroupKey), getString(R.string.groupDataKey_noValue));
+                break;
+            case"ceo_group":
+                savedGroupJSONArrayString = savedInviteGroupData.getString(getString(R.string.ceoGroupKey), getString(R.string.groupDataKey_noValue));
+                break;
+            case"rent_group":
+                savedGroupJSONArrayString = savedInviteGroupData.getString(getString(R.string.rentGroupKey), getString(R.string.groupDataKey_noValue));
+                break;
+        }
+
         Log.d("JoinGroup_saveGroupData", "BEFORE :: "+savedGroupJSONArrayString);
         //저장되어 있는 값이 존재
         if(!savedGroupJSONArrayString.contains(inviteCode)){
             try{
                 JSONArray savedGroupJSONArray;
-                if(savedGroupJSONArrayString.equals("there's no data"))
+                if(savedGroupJSONArrayString.equals(getString(R.string.groupDataKey_noValue)))
                     savedGroupJSONArray = new JSONArray();
                 else//저장되어 있는 값이 존재하지 않음
                     savedGroupJSONArray = new JSONArray(savedGroupJSONArrayString);
 
                 savedGroupJSONArray.put(new JSONObject().put("ic_number", inviteCode));
                 Log.d("JoinGroup_saveGroupData", "AFTER :: "+savedGroupJSONArray);
-                savedInviteGroupData.edit().putString(status, savedGroupJSONArray.toString());
+                SharedPreferences.Editor editor = savedInviteGroupData.edit();
+                switch(status){
+                    case"small_group":
+                        editor.putString(getString(R.string.smallGroupKey), savedGroupJSONArray.toString());
+                        break;
+                    case"ceo_group":
+                        editor.putString(getString(R.string.ceoGroupKey), savedGroupJSONArray.toString());
+                        break;
+                    case"rent_group":
+                        editor.putString(getString(R.string.rentGroupKey), savedGroupJSONArray.toString());
+                        break;
+                }
+                editor.apply();
             }
             catch(JSONException e){
                 Log.e("JoinGroup_saveGroupData", e.toString());
             }
         }
         else{
+            Toast.makeText(getApplicationContext(), "이미 가입되어있는 그룹입니다.", Toast.LENGTH_LONG).show();
             Log.d("JoinGroup_saveGroupData", "이미 가입되어있는 그룹입니다.");
         }
     }

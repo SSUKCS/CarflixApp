@@ -41,6 +41,8 @@ public class CarList extends AppCompatActivity {
     private String memberID;
     private String groupID;
     private String groupName;
+    private JSONObject userData;
+    private JSONObject groupData;
     private String status;
 
     private int nowDriving = -1;
@@ -57,9 +59,15 @@ public class CarList extends AppCompatActivity {
 
         memberID = getIntent().getStringExtra("memberID");
         status = getIntent().getStringExtra("status");
-        groupID = getIntent().getStringExtra("groupID");
-        groupName = getIntent().getStringExtra("groupName");
-
+        try{
+            userData = new JSONObject(getIntent().getStringExtra("userData"));
+            groupData = new JSONObject(getIntent().getStringExtra("groupData"));
+            groupID = groupData.getString("groupID");
+            groupName = groupData.getString("groupName");
+        }
+        catch(JSONException e){
+            Log.e("CarList_OnCreate", e.toString());
+        }
 
         carDataList = new ArrayList<CarData>();
         updateListfromServer();

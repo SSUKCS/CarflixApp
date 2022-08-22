@@ -35,6 +35,7 @@ public class SmallGroupData implements Serializable {
                 case "rent_group":groupStatus = "rg";break;
             }
             Log.d("groupData", groupStatus);
+            creatorID = groupData.getString("mb_id");
             groupID = groupData.getString(groupStatus+"_id");
             groupName = groupData.getString(groupStatus+"_title");
             groupDescription = groupData.getString(groupStatus+"_description");
@@ -46,18 +47,37 @@ public class SmallGroupData implements Serializable {
     }
     protected SmallGroupData(){
     }
-
+    protected JSONObject toJSONObject(){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            jsonObject.put("creatorID", creatorID);
+            jsonObject.put("groupID", groupID);
+            jsonObject.put("groupName", groupName);
+            jsonObject.put("groupDescription", groupDescription);
+            jsonObject.put("status", status);
+        }
+        catch(JSONException e){
+            Log.d(getClass().getSimpleName(), e.toString());
+        }
+        return jsonObject;
+    }
+    public String toJSONString(){
+        return this.toJSONObject().toString();
+    }
+    public String getCreatorID(){return creatorID;}
     public String getGroupID() {return groupID;}
+    public String getStatus(){ return status; }
+
     public String getGroupName(){
         return groupName;
     }
     public void setGroupName(String carName){
         this.groupName = carName;
     }
+
     public String getGroupDescription(){
         return groupDescription;
     }
     public void setGroupDescription(String groupDescription){this.groupDescription = groupDescription; }
-    public String getStatus(){ return status; }
-    public void setStatus(String status){ this.status = status;}
+
 }

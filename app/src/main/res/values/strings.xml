@@ -16,6 +16,11 @@
     <string name = "savedPWKey">com.example.carflix.savedPWKey</string>
     <string name = "savedIDKey_noValue">com.example.carflix.savedIDKey.noValue</string>
     <string name = "savedPWKey_noValue">com.example.carflix.savedPWKey.noValue</string>
+    <string name = "invite_Group_Data">com.example.carflix.INVITE_GROUP_DATA</string>
+    <string name = "smallGroupKey">com.example.carflix.SMALL_GROUP_KEY</string>
+    <string name = "ceoGroupKey">com.example.carflix.CEO_GROUP_KEY</string>
+    <string name = "rentGroupKey">com.example.carflix.RENT_GROUP_KEY</string>
+    <string name = "groupDataKey_noValue">com.example.carflix.groupDataKey.noValue</string>
     <string name = "auth_error_message">인증 과정 중에 오류가 발생했습니다.</string>
     <string name = "auth_success_message">"인증에 성공하였습니다."</string>
     <string name = "auth_fail_message">인증에실패했습니다.</string>

@@ -17,7 +17,20 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+//userData
+//{
+//    "mb_id": 사용자의 ID값
+//    "mb_userid": 사용자 아이디,
+//    "mb_password": 사용자 비밀번호,
+//    "mb_email": 사용자의 이메일,
+//    "mb_phone": "사용자의 휴대폰 번호,
+//    "mb_nickname": 사용자의 별명,
+//    "mb_image": 사용자 이미지,
+//    "mb_is_admin": 시스템 관리자인지 여부,
+//    "mb_register_car": 소유한 그룹 내에 차량 등록 여부,
+//    "mb_lastlogin_datetime": 마지막으로 로그인한 시간,
+//    "mb_regdate": 회원가입한 시간
+//}
 
 public class ProfileMenu {
     private class ConsumeTouchEvent implements View.OnTouchListener {
@@ -46,6 +59,7 @@ public class ProfileMenu {
     boolean menuOpen = false;
 
     private JSONObject userData;
+    private JSONObject groupData;
     private void setMenuOpen(boolean opened){menuOpen = opened;}
     public boolean isMenuOpen(){return menuOpen;}
 
@@ -173,9 +187,10 @@ public class ProfileMenu {
             case "class com.example.carflix.CarList":
                 ((TextView)baseActivity.findViewById(R.id.usageText)).setText("초대코드 생성");
                 ((ImageView)baseActivity.findViewById(R.id.usageImg)).setImageResource(R.drawable.ic_round_car_rental);
+                //만약 그룹 생성자일 경우 "그룹 삭제"로 text설정
                 ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 탈퇴");
                 ((ImageView)baseActivity.findViewById(R.id.outImg)).setImageResource(R.drawable.ic_group_off);
-                //만약 그룹 생성자일 경우 "그룹 삭제"로 text설정
+
                 break;
         }
 
@@ -185,7 +200,7 @@ public class ProfileMenu {
         setMenuOption();
     }
     public void settingProfile(JSONObject userData){
-        this.userData = userData;
+
         try{
             userName.setText(userData.getString("mb_nickname")/*+("mb의 직책")*/);
             userEmail.setText(userData.getString("mb_email"));
@@ -193,5 +208,9 @@ public class ProfileMenu {
         catch(JSONException e){
             Log.e("ProfileMenu", e.toString());
         }
+    }
+    public void settingProfile(JSONObject userData, JSONObject groupData){
+        settingProfile(userData);
+        this.groupData = groupData;
     }
 }

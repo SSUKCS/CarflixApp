@@ -76,16 +76,25 @@ public class GroupList extends AppCompatActivity {
             @Override
             public void onItemClick(View v, int position) {
                 Intent intent = new Intent(getApplicationContext(), CarList.class);
-                String groupID, groupName, status;
+                String status = ((SmallGroupData) groupDataList.get(position)).getStatus();
 
-                groupID = ((SmallGroupData) groupDataList.get(position)).getGroupID();
-                groupName = ((SmallGroupData) groupDataList.get(position)).getGroupName();
-                status = ((SmallGroupData) groupDataList.get(position)).getStatus();
-
+                String groupData;
+                switch(status){
+                    case"small_group":
+                        groupData = ((SmallGroupData) groupDataList.get(position)).toJSONString();
+                        intent.putExtra("groupData", groupData);
+                        break;
+                    case"ceo_group":
+                        groupData = ((CEOGroupData) groupDataList.get(position)).toJSONString();
+                        intent.putExtra("groupData", groupData);
+                        break;
+                    case"rent_group":
+                        groupData = ((RentGroupData) groupDataList.get(position)).toJSONString();
+                        intent.putExtra("groupData", groupData);
+                        break;
+                }
                 intent.putExtra("memberID", memberID);
                 intent.putExtra("userData", userData.toString());
-                intent.putExtra("groupID", groupID);
-                intent.putExtra("groupName", groupName);
                 intent.putExtra("status", status);
 
                 startActivity(intent);
@@ -162,10 +171,22 @@ public class GroupList extends AppCompatActivity {
          *                           ceo_group:[{"ic_number": "...."}, ....],
          *                           rent_group:[{"ic_number": "...."}, ....]
          */
-        SharedPreferences savedInviteGroupData = getSharedPreferences("savedInviteGroupData", MODE_PRIVATE);
-        String savedGroupJSONArrayString = savedInviteGroupData.getString(groupType, "there's no data");
+        SharedPreferences savedInviteGroupData= getSharedPreferences(getString(R.string.invite_Group_Data), MODE_PRIVATE);
+        String savedGroupJSONArrayString ="";
+        switch(groupType){
+            case "small_group":
+                savedGroupJSONArrayString= savedInviteGroupData.getString(getString(R.string.smallGroupKey), getString(R.string.groupDataKey_noValue));
+                break;
+            case "ceo_group":
+                savedGroupJSONArrayString= savedInviteGroupData.getString(getString(R.string.ceoGroupKey), getString(R.string.groupDataKey_noValue));
+                break;
+            case "rent_group":
+                savedGroupJSONArrayString= savedInviteGroupData.getString(getString(R.string.rentGroupKey), getString(R.string.groupDataKey_noValue));
+                break;
+        }
+
         Log.d("GroupList_addItemFromSaveData", "savedGroupJSONArrayString :: "+savedGroupJSONArrayString);
-        if(!savedGroupJSONArrayString.equals("there's no data")){
+        if(!savedGroupJSONArrayString.equals(getString(R.string.groupDataKey_noValue))){
             try{
                 String inviteCode;
 
