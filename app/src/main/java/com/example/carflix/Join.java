@@ -158,7 +158,7 @@ public class Join extends AppCompatActivity{
                     //서버와 연결
                     ServerConnectionThread thread = new ServerConnectionThread("POST", "member/create", userInfo);
                     thread.start();
-                    Intent intent = new Intent(getApplicationContext(), GroupList.class);
+                    Intent intent = new Intent(getApplicationContext(), Login.class);
                     startActivity(intent);
                 }
             }

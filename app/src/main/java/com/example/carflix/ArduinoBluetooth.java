@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,7 @@ public abstract class ArduinoBluetooth extends Thread {
 
 
     private boolean bluetoothSearch() {
+
         if (!bluetoothAdapter.isDiscovering()) {
             if (bluetoothAdapter.isEnabled()) {
                 bluetoothAdapter.startDiscovery();
@@ -52,6 +54,7 @@ public abstract class ArduinoBluetooth extends Thread {
                 context.registerReceiver(onFoundReceiver, filter); //찾았을때 수행할 작업 등록
                 return true;
             } else {
+                Toast.makeText(context, "주변에 차량이 존재하지 않습니다.", Toast.LENGTH_LONG).show();
                 return false; //블루투스가 켜져있지 않다.
             }
         }

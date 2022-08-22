@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 //    "status":
 //}
 public class SmallGroupData implements Serializable {
+    protected String creatorID;
     protected String groupID;
     protected String groupName;
     protected String groupDescription;

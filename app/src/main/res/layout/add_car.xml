@@ -29,19 +29,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10sp"
                 android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/carNameEdit"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:textSize="25sp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="차량이름"
+                    android:textSize="25sp" />
+                <EditText
+                    android:id="@+id/carNameEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:textSize="25sp" />
             </LinearLayout>
 
@@ -50,20 +48,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10sp"
                 android:orientation="horizontal">
-
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="차량 번호"
+                    android:textSize="25sp" />
                 <EditText
                     android:id="@+id/carNumberEdit"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:hint=" 예)11가1234"
                     android:textSize="25sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="차량번호"
-                    android:textSize="25sp" />
             </LinearLayout>
 
             <TextView

@@ -33,12 +33,14 @@ public class ServerData {
                 case "create"://mb, sg, cg, rg, ic : {message:}, cr:{message:, cr_id:}, cc:{message, mb_id:, group_id:, status:}
                     if(category.equals("cr")){
                         Log.d("serverData_"+category+"id", data.getString(category+"_id"));
-                        result = data.getString(category+"_id");break;
+                        result = data.getString(category+"_id");
                     }
                     else if(category.equals("cc")){
                         //그룹을 생성한 사람 id/그룹id/그룹status를 return
                         result = data.toString();
+                        Log.d("serverData_"+category+"_"+purpose, result);
                     }
+                    break;
                 case "group_show":
                 case "group_info":
                     //{"message":" .... "} : 실패

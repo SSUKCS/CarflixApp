@@ -88,7 +88,7 @@ public class CarList extends AppCompatActivity {
         catch(JSONException e){
             Log.e("CarList", e.toString());
         }
-
+        /*
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 data -> {
@@ -120,7 +120,7 @@ public class CarList extends AppCompatActivity {
                         case 9003: break;
                         default:break;
                     }
-                });
+                });*/
         adapter.setItemClickListener(new CarListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
@@ -132,7 +132,7 @@ public class CarList extends AppCompatActivity {
                     intent.putExtra("memberID", memberID);
                     intent.putExtra("carData", carData);
                     intent.putExtra("position", position);
-                    launcher.launch(intent);
+                    startActivity(intent);
                 }
                 else{
                     Toast.makeText(context, "차량 운전중입니다.", Toast.LENGTH_LONG).show();
@@ -217,13 +217,16 @@ public class CarList extends AppCompatActivity {
                     Log.d("carList_addItem", "GROUP_item "+i+" :: "+jsonObject.getString("cr_carname"));
                     //cr_id를 통해 차량 상태를 가져오고
                     //가장 최근 상태에서
-                    // vs_startup_information ==on :사용 중
+                    // vs_startup_information ==on :사용 중인 차량
                     String param = "cr_id="+jsonObject.getString("cr_id");
                     String serverData = new ServerData("GET", "vehicle_status/show", param, null).get();
                     if(!serverData.equals("No vehicle_status Found")){
                         String recentVehicleStatus = new JSONArray(serverData).getJSONObject(0).getString("vs_startup_information");
                         if(recentVehicleStatus.equals("on")){
                             carData.setAvailable(false);
+                        }
+                        else{
+                            carData.setAvailable(true);
                         }
                     }
                     carDataList.add(carData);

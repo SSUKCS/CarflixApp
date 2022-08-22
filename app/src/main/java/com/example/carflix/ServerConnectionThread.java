@@ -65,7 +65,7 @@ public class ServerConnectionThread extends Thread{
                     //request body 전달시 json 형식으로 전달
                     connection.setRequestProperty("Accept", "application/json");
                     connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("Accept-Charset", "UTF-8");
+                    connection.setRequestProperty("Accept-Charset", "UTF-8");//한글은 이걸로 해야한다. 안그러면 에러난다.
                     connection.setRequestProperty("X-Data-Type", "application/json");
                     connection.setRequestProperty("Accept-Language", "ko-KR,ko;q=0.8,en-US;q=0.6,en;q=0.4");
                     connection.setRequestProperty("Content-Transfer-Encoding", "application/json");

@@ -59,14 +59,6 @@ public class GroupList extends AppCompatActivity {
         catch(JSONException e){
             Log.e("GroupList", e.toString());
         }
-
-        try{
-            memberID = savedInstanceState.getString("mb_id");
-            Log.i("GroupList", "saved memberID: "+memberID);
-        }
-        catch(NullPointerException e){
-
-        }
         getSupportActionBar().setTitle("그룹 선택");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
@@ -136,6 +128,7 @@ public class GroupList extends AppCompatActivity {
             case R.id.joinGroup:
                 Toast.makeText(this, "그룹 가입", Toast.LENGTH_LONG).show();
                 intent = new Intent(context, JoinGroup.class);
+                intent.putExtra("memberID", memberID);
                 startActivity(intent);
                 break;
             default:
@@ -161,8 +154,7 @@ public class GroupList extends AppCompatActivity {
     private void addItem(String JSONArrayString, String groupType){
         String errorMessage;
         switch(groupType){
-            case "sg":errorMessage = "No small_group Found";
-            break;
+            case "sg":errorMessage = "No small_group Found";break;
             case "cg":errorMessage = "No ceo_group Found";break;
             case "rg":errorMessage = "No rent_group Found";break;
             default: errorMessage = "INVALID GROUPTYPE";

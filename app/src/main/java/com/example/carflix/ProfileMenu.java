@@ -123,6 +123,21 @@ public class ProfileMenu {
                         editor.commit();
                         quitProgram();
                     case "class com.example.carflix.CarList"://그룹 탈퇴
+                        //사용자가 그룹 생성자일 경우에만 가능
+                        try{
+                            String status = userData.getString("status");
+                            JSONObject requestBody = new JSONObject();
+                            switch(status){
+                                case"small_group": requestBody.put("sg_id", userData.getString("group_id"));break;
+                                case"ceo_group": requestBody.put("cg_id", userData.getString("group_id"));break;
+                                case"rent_group": requestBody.put("rg_id", userData.getString("group_id"));break;
+                            }
+                            new ServerConnectionThread("DELETE", status+"/delete", requestBody).start();
+                        }
+                        catch(JSONException e){
+                            Log.e(baseActivity.getClass()+"ProfileMenu", e.toString());
+                        }
+                        baseActivity.finish();
                         break;
                 }
             }

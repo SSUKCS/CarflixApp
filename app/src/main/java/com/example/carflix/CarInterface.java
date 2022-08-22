@@ -297,33 +297,24 @@ public class CarInterface extends AppCompatActivity {
     }
     @Override
     public void onBackPressed(){
-        if(carData_isAvailable_initialState != carData.isAvailable())
+        /*if(carData_isAvailable_initialState != carData.isAvailable())
         {
             Intent intent = new Intent();
             intent.putExtra("position", Integer.toString(position));
             intent.putExtra("carData_isAvailableChanged", carData.isAvailable());
             intent.putExtra("carStatusChanged", isAvailable.getText());
             setResult(9001, intent);
-        }
+        }*/
         finish();
     }
     public void getPermission(){
-        if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED){
-        }
-        // 권한이 없을 경우 권한을 요구함
-        else {
-            final String requiredPermission[] = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                    android.Manifest.permission.BLUETOOTH_CONNECT,
-                    android.Manifest.permission.BLUETOOTH_SCAN};
-            ActivityCompat.requestPermissions(this, requiredPermission, 1
-            );
-        }
+        final String requiredPermission[] = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                android.Manifest.permission.BLUETOOTH_CONNECT,
+                android.Manifest.permission.BLUETOOTH_SCAN};
+        ActivityCompat.requestPermissions(this, requiredPermission, 1);
+
     }
     private void connectUI(){
         carImg = (ImageView)findViewById(R.id.carImg);

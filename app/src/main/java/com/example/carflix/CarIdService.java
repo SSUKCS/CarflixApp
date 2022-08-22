@@ -143,8 +143,19 @@ public class CarIdService extends Service {
                         onStateUpdate(UNKNOWN_ERROR);
                     }
                 }
-                else
+                else{
                     onStateUpdate(ID_EXIST_ERROR);
+                    try{
+                        ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/create", new JSONObject().put("cr_id", crId));
+                        serverConnectionThread.start();
+                    }
+                    catch(JSONException e){
+                        Log.e(TAG, e.toString());
+                    }
+                    //이땐 아두이노에는 아이디가 없는데 차량 지우기 요청받은 부분인데
+                    //
+                    //이럴경우 그냥 서버로 해당 crid 지우기 요청날리셈
+                }
             }
             else if(curStatus.equals(ID_EXIST)){
                 if(mode == DELETE_MODE){

@@ -42,6 +42,8 @@ public class GenerateCode extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
+        //일반 회원은 코드 생성 불가
+        //그룹 생성자, 매니저만 생성 가능
         super.onCreate(savedInstanceState);
         setContentView(R.layout.generate_code);
         context = getApplicationContext();
