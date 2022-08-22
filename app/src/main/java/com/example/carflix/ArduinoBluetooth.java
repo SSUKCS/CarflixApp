@@ -301,7 +301,6 @@ public abstract class ArduinoBluetooth extends Thread {
                     }
                 }
                 catch (InterruptedException e){
-                    break;
                 }
             }
         }

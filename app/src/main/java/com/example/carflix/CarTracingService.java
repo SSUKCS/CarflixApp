@@ -58,7 +58,6 @@ public class CarTracingService extends Service {
 
     //gps서비스 관련 변수들
 
-    private boolean stopService = false;
     private FusedLocationProviderClient fusedLocationClient;
     private final Location[] location = {new Location(LocationManager.GPS_PROVIDER)};
     private LocationCallback locationCallback;
@@ -118,7 +117,6 @@ public class CarTracingService extends Service {
             while(true) {
                 arduinoInterpreter.listenNext();
                 waitUntilNotify();
-                requestLocationUpdates();
                 /*location 이 잘 update되는지 확인하기 위한 코드
                 if (location[0] != null) {
                     //location update
@@ -166,8 +164,10 @@ public class CarTracingService extends Service {
                     requestBody.put("cr_id", availData.getCrId());
                     ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
                     serverConnectionThread.start();
-                    if(off)
+                    if(off) {
+                        fusedLocationClient.removeLocationUpdates(locationCallback);
                         break;
+                    }
                 }
                 catch(JSONException e){
                     Log.e(TAG, e.toString());
@@ -304,6 +304,7 @@ public class CarTracingService extends Service {
                     location[0] = locationResult.getLastLocation();
                 }
             };
+            requestLocationUpdates();
         }
     }
 
@@ -374,8 +375,8 @@ public class CarTracingService extends Service {
     private void requestLocationUpdates() {
         Log.e(TAG, "locationUpdateStart :: ");
         LocationRequest request = LocationRequest.create();
-        request.setInterval(200)
-                .setFastestInterval(100)
+        request.setInterval(2000)
+                .setFastestInterval(1000)
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
         final int[] permission = {ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)};
@@ -383,7 +384,6 @@ public class CarTracingService extends Service {
             Log.e(TAG, "permission granted, requestLocationUpdates :: ");
             fusedLocationClient.requestLocationUpdates(request, locationCallback, null);
         }
-        if(stopService)fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
     /**
@@ -399,7 +399,6 @@ public class CarTracingService extends Service {
         //gps
         stopForeground(STOP_FOREGROUND_REMOVE);
         Log.e(TAG, "onDestroy :: ");
-        stopService = true;
         if (fusedLocationClient != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             Log.e(TAG, "Location Update Callback Removed");
