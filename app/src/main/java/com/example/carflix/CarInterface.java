@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
@@ -216,10 +217,10 @@ public class CarInterface extends AppCompatActivity {
                 bindServiceIntent.putExtra("mb_id", memberID);
                 bindServiceIntent.putExtra("mac_address", carData.getMac_address());
                 if(trunk_isOpen){
-                    bindServiceIntent.putExtra("mode", CarControlService.DOOR_CLOSE);
+                    bindServiceIntent.putExtra("mode", CarControlService.TRUNK_CLOSE);
                 }
                 else{
-                    bindServiceIntent.putExtra("mode", CarControlService.DOOR_OPEN);
+                    bindServiceIntent.putExtra("mode", CarControlService.TRUNK_OPEN);
                 }
                 trunk_isOpen = !trunk_isOpen;
                 bindService(bindServiceIntent, carControlServiceBindConnection, BIND_AUTO_CREATE);
@@ -241,12 +242,12 @@ public class CarInterface extends AppCompatActivity {
                     isAvailable.setTextColor(Color.parseColor("#9911BB"));
 
                     startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
-                    startServiceIntent.putExtra("user_id",userName);
-                    startServiceIntent.putExtra("carData",carData);
+                    startServiceIntent.putExtra("mb_id", memberID);
+                    startServiceIntent.putExtra("car_name",carData.getCarName());
                     startServiceIntent.putExtra("mac_address", carData.getMac_address());
                     startService(startServiceIntent);
-
-                    bindService(bindServiceIntent, carTracingStateBindConnection, BIND_AUTO_CREATE);
+                    Intent tracingBindService = new Intent(getApplicationContext(), CarTracingService.class);
+                    bindService(tracingBindService, carTracingStateBindConnection, BIND_AUTO_CREATE);
                     //버튼을 보이지 않게 한다.
                     view.setVisibility(View.INVISIBLE);
                 }
@@ -291,6 +292,12 @@ public class CarInterface extends AppCompatActivity {
                         isAvailable.setText("연결 실패");
                         isAvailable.setTextColor(Color.parseColor("#F23920"));
                         break;
+                    case CarControlService.SUCCESSFUL_CONTROL:
+                        unbindService(carControlServiceBindConnection);
+                        break;
+                    case CarControlService.FAILED_CONTROL:
+                        unbindService(carControlServiceBindConnection);
+                        break;
                 }
             }
         });
@@ -307,13 +314,23 @@ public class CarInterface extends AppCompatActivity {
         }*/
         finish();
     }
+    @RequiresApi(api = Build.VERSION_CODES.S)
     public void getPermission(){
-        final String requiredPermission[] = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                android.Manifest.permission.BLUETOOTH_CONNECT,
-                android.Manifest.permission.BLUETOOTH_SCAN};
-        ActivityCompat.requestPermissions(this, requiredPermission, 1);
+        if(!(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED))
+        {
+            String[] permission_list = {
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            };
+            ActivityCompat.requestPermissions(this, permission_list, 1);
+        }
 
     }
     private void connectUI(){

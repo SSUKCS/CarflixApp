@@ -114,8 +114,9 @@ public class CarTracingService extends Service {
         }
         private void sendToServerRepeatly(){
             makeTimer();
-
+            boolean off;
             while(true) {
+                arduinoInterpreter.listenNext();
                 waitUntilNotify();
                 requestLocationUpdates();
                 /*location 이 잘 update되는지 확인하기 위한 코드
@@ -128,6 +129,7 @@ public class CarTracingService extends Service {
                     Log.e(TAG, "locationCallback :: "+locationCallback);
 
                 }*/
+                off = false;
                 String command = "vehicle_status/";
                 JSONObject requestBody = new JSONObject();
                 try{
@@ -154,7 +156,8 @@ public class CarTracingService extends Service {
                             timerTask.cancel();
                             command +="boot_off";
                             requestBody.put("vs_startup_information", "off");
-                            return;
+                            off = true;
+                            break;
                     }
                     //서버에게 시동상태를 전송
                     requestBody.put("member", mbId);
@@ -163,6 +166,8 @@ public class CarTracingService extends Service {
                     requestBody.put("cr_id", availData.getCrId());
                     ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
                     serverConnectionThread.start();
+                    if(off)
+                        break;
                 }
                 catch(JSONException e){
                     Log.e(TAG, e.toString());
@@ -171,19 +176,19 @@ public class CarTracingService extends Service {
                 makeTimer();
             }
         }
-
+        ArduinoInterpreter arduinoInterpreter;
         @Override
         public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
+            this.arduinoInterpreter = arduinoInterpreter;
             arduinoInterpreter.startListening();
             ArduinoData arduinoData = new ArduinoData.Builder()
                     .setReqon(mbId)
                     .build();
             arduinoInterpreter.sendToArduino(arduinoData);
             Log.i(TAG, "run: 시동 요청.");
+            arduinoInterpreter.listenNext();
             waitUntilNotify();
             if(curStatus.equals(GOT_AVAIL)){ //시동요청이 올바른가에 해당
-                //availData.getCrId() : 아두이노로부터 받은 crid
-                //availData.getMbId() : 아두이노로부터 받은 mbid
                 String param = "cr_id="+availData.getCrId()+"&mb_id="+availData.getMbId();
                 //서버에 시동요청이 올바른가 보냄
                 ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", param, null);
@@ -197,21 +202,28 @@ public class CarTracingService extends Service {
                     Log.e(TAG, e.toString());
                 }
                 if(isRequestAvailable.equals("success boot on")) {
-                    //>>>만약 서버로부터 올바르다고 받았다면 vsStartupInformation을 얻음.
-                    String vsStartupInformation = new String("서버로부터얻은것.."); //이부분 얻는코드
-                    try{
-                        vsStartupInformation = serverJsonData.getString("vs_startup_information");
-                    }
-                    catch(JSONException e){
-                        Log.e(TAG, e.toString());
-                    }
+                    //>>>만약 서버로부터 올바르다고 받았다면
                     arduinoData = new ArduinoData.Builder()
-                            .setStart(vsStartupInformation)
+                            .setStart()
                             .build();
                     arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
+                    arduinoInterpreter.listenNext();
                     waitUntilNotify(); //시동상태 전송요청을 받아야 시동이 걸린것임. 기다림.
                     if (curStatus.equals(SUCCESSFUL_CAR_ON)) { //시동상태 전송 요청을 받았다면
                         //***************서버에게 데이터 전송 (헤더 61번에 해당함)
+                        JSONObject requestBody = new JSONObject();
+                        String command = "vehicle_status/boot_status";
+                        try {
+                            requestBody.put("member", mbId);
+                            requestBody.put("vs_latitude", location[0].getLatitude());
+                            requestBody.put("vs_longitude", location[0].getLongitude());
+                            requestBody.put("cr_id", availData.getCrId());
+                            requestBody.put("vs_startup_information", "on");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
+                        serverConnectionThread.start();
                         //시동 걸린 상태로 진입
                         makePendingIntent();
                         onStateUpdate(SUCCESSFUL_CAR_ON);
@@ -221,6 +233,7 @@ public class CarTracingService extends Service {
                                 .setSendOffOk()
                                 .build();
                         arduinoInterpreter.sendToArduino(arduinoData); //아두이노에게 완료 전달
+                        arduinoInterpreter.listenNext();
                         //종료.
                         onStateUpdate(FINISHED);
                     }
@@ -282,9 +295,7 @@ public class CarTracingService extends Service {
             locationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-
                     location[0] = locationResult.getLastLocation();
-
                 }
             };
         }

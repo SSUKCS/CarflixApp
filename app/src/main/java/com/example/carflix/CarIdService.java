@@ -92,11 +92,11 @@ public class CarIdService extends Service {
 
             arduinoInterpreter.sendToArduino(arduinoData);
             Log.i(TAG, "run: CarId가 있는지 보냄.");
+            arduinoInterpreter.listenNext();
             waitUntilNotify();
             if(curStatus.equals(ID_CLEAR)){
                 if(mode == ASSIGN_MODE){
                     onStateUpdate(ID_CLEAR);
-                    //
                     /*
                        서버로 macAddress와 그외여러 값들을 보내고
                        서버로부터 crId를 받는다.
@@ -122,6 +122,7 @@ public class CarIdService extends Service {
                             .setAssignId(crId)
                             .build();
                     arduinoInterpreter.sendToArduino(arduinoData);
+                    arduinoInterpreter.listenNext();
                     waitUntilNotify();
                     if(curStatus.equals(ASSIGN_OK)){
                         //아두이노에서 할당 성공을 알려줌
@@ -198,6 +199,7 @@ public class CarIdService extends Service {
                             .setDeleteId(crId)
                             .build();
                     arduinoInterpreter.sendToArduino(arduinoData);
+                    arduinoInterpreter.listenNext();
                     waitUntilNotify();
                     if(curStatus.equals(DELETE_OK)){
                         //아두이노가 서버로부터 받은 crId와 자신의 crID가 일치한다면

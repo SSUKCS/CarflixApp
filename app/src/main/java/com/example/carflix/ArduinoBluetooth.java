@@ -161,6 +161,7 @@ public abstract class ArduinoBluetooth extends Thread {
             onConnected(arduinoInterpreter, foundMacAdress);
         } else {
             onStateUpdate(FAILED_CONNECTION);
+            Log.i(TAG, "run: 블루투스 연결 실패");
             onConnectionFailed();
         }
     }
@@ -195,7 +196,6 @@ public abstract class ArduinoBluetooth extends Thread {
 
         public void listenNext(){
             mIsReceived = false;
-            receivedData = null;
             myNotify();
         }
 
@@ -227,8 +227,10 @@ public abstract class ArduinoBluetooth extends Thread {
                     toRead = 33;
                     break;
                 case ArduinoData.S_REQSEND_STATE:
+                    toRead = 16;
+                    break;
                 case ArduinoData.S_REQSEND_OFF:
-                    toRead = 50;
+                    toRead = 16;
                     break;
                 case ArduinoData.S_ASSIGN_ID_OK:
                 case ArduinoData.S_DELETE_OK:

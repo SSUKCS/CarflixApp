@@ -36,11 +36,6 @@ public class ArduinoData {
 
     private byte[] data;
 
-    public ArduinoData(){
-        this.headerCode = 0;
-        this.data = null;
-    }
-
     public ArduinoData(byte headerCode) {
         this.headerCode = headerCode;
         this.data = null;
@@ -66,14 +61,14 @@ public class ArduinoData {
         private byte how;
 
         public AvailData(String crId, String mbId) {
-            this.crId = crId;
-            this.mbId = mbId;
+            this.crId = crId.trim();
+            this.mbId = mbId.trim();
             this.how = 0;
         }
 
         public AvailData(String crId, String mbId, byte how) {
-            this.crId = crId;
-            this.mbId = mbId;
+            this.crId = crId.trim();
+            this.mbId = mbId.trim();
             this.how = how;
         }
         public String getCrId() {
@@ -95,11 +90,11 @@ public class ArduinoData {
         return availData;
     }
 
-    String getReqsendState(){
+    String getReqsendStateCrId(){
         return new String(data);
     }
 
-    String getReqsendOff(){
+    String getReqsendOffCrId(){
         return new String(data);
     }
 
@@ -116,6 +111,7 @@ public class ArduinoData {
         return availData;
     }
 
+    //임시용
     byte getRsCarctl(){
         return data[0];
     }
@@ -135,9 +131,8 @@ public class ArduinoData {
             return this;
         }
 
-        Builder setStart(String vsStartupInformation){
+        Builder setStart(){
             this.headerCode = R_START;
-            this.data = Arrays.copyOf(vsStartupInformation.getBytes(), 50);
             return this;
         }
 
@@ -173,6 +168,7 @@ public class ArduinoData {
             return this;
         }
 
+        //임시용
         Builder setRsCarctl(byte b){
             this.headerCode = RS_CARCTL;
             this.data = new byte[1];

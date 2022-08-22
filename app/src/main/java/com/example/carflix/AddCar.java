@@ -93,6 +93,10 @@ public class AddCar extends AppCompatActivity {
                         carIdServiceState.setText("차량과 연결이 실패하였습니다.");
                         carIdServiceState.setTextColor(Color.parseColor("#F23920"));
                         break;
+                    case CarIdService.ASSIGN_OK:
+                        carIdServiceState.setText("아이디 할당 성공!");
+                        unbindService(carIdServiceConnection);
+                        break;
                 }
             }
         });

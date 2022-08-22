@@ -29,7 +29,9 @@ public class ServerData {
         try{
             Log.d("serverData", category+"/"+purpose+" :: "+data.toString());
             switch(purpose){
-                case "boot_on": data.toString();break;
+                case "boot_on":
+                    result = data.toString();
+                    break;
                 case "create"://mb, sg, cg, rg, ic : {message:}, cr:{message:, cr_id:}, cc:{message, mb_id:, group_id:, status:}
                     if(category.equals("cr")){
                         Log.d("serverData_"+category+"id", data.getString(category+"_id"));

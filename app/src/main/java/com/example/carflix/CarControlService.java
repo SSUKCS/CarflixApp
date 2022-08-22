@@ -86,38 +86,46 @@ public class CarControlService extends Service {
                     .setReqcont(mbId, mode)
                     .build();
             arduinoInterpreter.sendToArduino(arduinoData);
+
             Log.i(TAG, "Reqcont-"+mode);
+            arduinoInterpreter.listenNext();
             waitUntilNotify();
-            if(curStatus.equals(GOT_AVAIL)){ //컨트롤요청이 올바른가에 해당 (75번 참고)
+            String command = "cr_id="+availData.getCrId().trim()+"&mb_id="+availData.getMbId().trim()+"&how=";
+            switch (mode){
+                case DOOR_OPEN:
+                    command += "unlock";
+                    break;
+                case DOOR_CLOSE:
+                    command += "lock";
+                    break;
+                case TRUNK_OPEN:
+                    command += "trunk_unlock";
+                    break;
+                case TRUNK_CLOSE:
+                    command += "trunk_lock";
+                    break;
+            }
+            String message=null;
+            try{
+                ServerData sendData = new ServerData("GET", "vehicle_status/lockunlock", command, null);
+                JSONObject serverData = new JSONObject(sendData.get());
+                message = serverData.getString("message");
+            }
+            catch(JSONException e){
+                Log.e(TAG, e.toString());
+            }
 
-                //아두이노로부터 얻은 각종 데이터 75번 참고
-                //availData.getCrId();
-                //availData.getMbId();
-                //availData.getHow();
-                //서버에 시동요청이 올바른가 보냄
-                //13.56.94.107/admin/api/vehicle_status/boot_on.php?cr_id=3&mb_id=4
-                String command = "cr_id="+availData.getCrId()+"&mb_id"+availData.getMbId();
-                String message=null;
-                try{
-                    JSONObject serverData = new JSONObject(new ServerData("GET", "vehicle_status/boot_on", command, null).get());
-                    message = serverData.getString("message");
-                }
-                catch(JSONException e){
-                    Log.e(TAG, e.toString());
-                }
-
-                if(message.equals("success boot on")) {
-                    //>>>만약 서버로부터 올바르다고 받았다면...
-                    arduinoData = new ArduinoData.Builder()
-                            .setCont(mode)
-                            .build();
-                    arduinoInterpreter.sendToArduino(arduinoData); //컨트롤 전송
-                    onStateUpdate(SUCCESSFUL_CONTROL);
-                }
-                else {
-                    //>>>만약 올바르지 않다고 받았다면
-                    onStateUpdate(FAILED_CONTROL);
-                }
+            if(message != null && message.startsWith("success")) {
+                //>>>만약 서버로부터 올바르다고 받았다면...
+                arduinoData = new ArduinoData.Builder()
+                        .setCont(mode)
+                        .build();
+                arduinoInterpreter.sendToArduino(arduinoData); //컨트롤 전송
+                onStateUpdate(SUCCESSFUL_CONTROL);
+            }
+            else {
+                //>>>만약 올바르지 않다고 받았다면
+                onStateUpdate(FAILED_CONTROL);
             }
         }
 
@@ -139,9 +147,10 @@ public class CarControlService extends Service {
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
             super.onReceive(arduinoData, arduinoInterpreter);
             if(arduinoData.getHeaderCode() == ArduinoData.S_REQCONT_AVAIL){ //
-                availData = arduinoData.getReqonAvail();
+                availData = arduinoData.getReqcontAvail();
                 curStatus = GOT_AVAIL;
                 notifyToThread();
+
             }
         }
     }
