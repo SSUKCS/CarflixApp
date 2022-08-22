@@ -115,7 +115,7 @@ public abstract class ArduinoBluetooth extends Thread {
     };
 
     private boolean isWait = false;
-    public synchronized void waitUntilNotify(){
+    private synchronized void waitUntilNotify(){
         isWait = true;
         while(isWait) {
             try {
@@ -127,7 +127,7 @@ public abstract class ArduinoBluetooth extends Thread {
 
     }
 
-    public synchronized void notifyToThread(){
+    private synchronized void notifyToThread(){
         isWait = false;
         notifyAll();
     }
@@ -183,7 +183,7 @@ public abstract class ArduinoBluetooth extends Thread {
         private InputStream inputStream;
         private OutputStream outputStream;
 
-        private boolean mIsReceived = false;
+        private boolean mIsReceived = true;
         private ArduinoData receivedData = null;
 
         public boolean isReceived() {
@@ -196,7 +196,6 @@ public abstract class ArduinoBluetooth extends Thread {
 
         public void listenNext(){
             mIsReceived = false;
-            myNotify();
         }
 
         boolean stopped = false;
@@ -245,7 +244,7 @@ public abstract class ArduinoBluetooth extends Thread {
                 if(inputStream.available() > 0) {
                     readData += inputStream.read(slicedData, readData, toRead - readData);
                     Log.i(TAG, "makeReceivedData: read-l"+ Arrays.toString(slicedData));
-                    Thread.sleep(50);
+                    Thread.sleep(500);
                 }
             }
             receivedData = new ArduinoData(preparedHeaderCode, slicedData);
@@ -293,7 +292,6 @@ public abstract class ArduinoBluetooth extends Thread {
                                         if (makeReceivedData(buffer[0])) { //모든 데이터를 읽고 인스턴스로 저장
                                             mIsReceived = true;
                                             onReceive(receivedData, this);
-                                            myWait();
                                         }
                                         else{
                                             Log.i(TAG, "run: 오류");
@@ -335,7 +333,7 @@ public abstract class ArduinoBluetooth extends Thread {
                 for (i = 0; i < data.length; i++)
                     toSend[ti++] = data[i]; //데이터
             }
-
+            Log.i(TAG, "sendToArduino: send"+arduinoData.getHeaderCode());
             try {
                 outputStream.write(toSend, 0, ti);
                 outputStream.flush();
