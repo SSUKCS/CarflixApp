@@ -234,23 +234,21 @@ public class CarInterface extends AppCompatActivity {
                 Log.d("carInterface", ""+carData.isAvailable());
                 /*
                 biometricPrompt.authenticate(promptInfo);*/
-                if(carData.isAvailable())
-                {
-                    blueToothConnectionState = "블루투스 연결 시작";
-                    carData.setAvailable(false);
-                    isAvailable.setText("운전중");
-                    isAvailable.setTextColor(Color.parseColor("#9911BB"));
 
-                    startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
-                    startServiceIntent.putExtra("mb_id", memberID);
-                    startServiceIntent.putExtra("car_name",carData.getCarName());
-                    startServiceIntent.putExtra("mac_address", carData.getMac_address());
-                    startService(startServiceIntent);
-                    Intent tracingBindService = new Intent(getApplicationContext(), CarTracingService.class);
-                    bindService(tracingBindService, carTracingStateBindConnection, BIND_AUTO_CREATE);
-                    //버튼을 보이지 않게 한다.
-                    view.setVisibility(View.INVISIBLE);
-                }
+                blueToothConnectionState = "블루투스 연결 시작";
+                carData.setAvailable(false);
+                isAvailable.setText("운전중");
+                isAvailable.setTextColor(Color.parseColor("#9911BB"));
+
+                startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
+                startServiceIntent.putExtra("mb_id", memberID);
+                startServiceIntent.putExtra("car_name",carData.getCarName());
+                startServiceIntent.putExtra("mac_address", carData.getMac_address());
+                startService(startServiceIntent);
+                Intent tracingBindService = new Intent(getApplicationContext(), CarTracingService.class);
+                bindService(tracingBindService, carTracingStateBindConnection, BIND_AUTO_CREATE);
+                //버튼을 보이지 않게 한다.
+                view.setVisibility(View.INVISIBLE);
 
                 /*  차량 시동이 꺼진 뒤
                     carData.setAvailable(true);

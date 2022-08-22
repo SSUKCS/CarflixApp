@@ -121,7 +121,6 @@ public abstract class ArduinoBluetooth extends Thread {
                 wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                break;
             }
         }
 
@@ -255,7 +254,6 @@ public abstract class ArduinoBluetooth extends Thread {
                     wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    break;
                 }
             }
         }

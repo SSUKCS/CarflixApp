@@ -72,8 +72,6 @@ public class CEOGroupData extends SmallGroupData {
     public void setGroupDescription(String groupDescription) {super.setGroupDescription(groupDescription);}
     @Override
     public String getStatus() {return super.getStatus();}
-    @Override
-    public void setStatus(String status) {super.setStatus(status);}
 
     public String getCareer() {return career;}
     public void setCareer(String career) {this.career = career;}
