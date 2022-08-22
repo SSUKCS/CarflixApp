@@ -292,6 +292,12 @@ public class CarTracingService extends Service {
                     getApplicationContext(), BluetoothAdapter.getDefaultAdapter()
             );
             //locationCallback 설정
+            //IllegalStateException :: 불법적이거나 부적절한 시간에 메소드가 호출
+            //LocationClient.connect() is asynchronous.
+            // You can't immediately start using the client methods until connection is complete.
+
+            //20220823 line 383 -> here
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
             locationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
@@ -371,7 +377,6 @@ public class CarTracingService extends Service {
         request.setInterval(200)
                 .setFastestInterval(100)
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         final int[] permission = {ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)};
         if (permission[0] == PackageManager.PERMISSION_GRANTED) {
