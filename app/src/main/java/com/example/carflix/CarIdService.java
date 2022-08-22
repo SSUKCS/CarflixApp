@@ -145,16 +145,27 @@ public class CarIdService extends Service {
                 }
                 else{
                     onStateUpdate(ID_EXIST_ERROR);
-                    try{
-                        ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/create", new JSONObject().put("cr_id", crId));
-                        serverConnectionThread.start();
-                    }
-                    catch(JSONException e){
-                        Log.e(TAG, e.toString());
-                    }
                     //이땐 아두이노에는 아이디가 없는데 차량 지우기 요청받은 부분인데
                     //
                     //이럴경우 그냥 서버로 해당 crid 지우기 요청날리셈
+                    //맥주소로 차량 삭제 api
+                    //http://13.56.94.107/admin/api/car/macaddress_delete.php
+                    //{
+                    //    "cr_mac_address":"98:DA:60:03:8B:43"
+                    //}
+                    //성공
+                    //{
+                    //    "message": "car deleted"
+                    //}
+                    try{
+                        JSONObject requestBody = new JSONObject().put("cr_mac_address", macAddress);
+                        ServerConnectionThread serverConnectionThread = new ServerConnectionThread("Delete", "car/macaddress_delete", requestBody);
+                        serverConnectionThread.start();
+                    }
+                    catch(JSONException e){
+                        Log.e("CarIdService", e.toString());
+                    }
+
                 }
             }
             else if(curStatus.equals(ID_EXIST)){

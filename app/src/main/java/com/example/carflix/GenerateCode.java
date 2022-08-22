@@ -67,8 +67,6 @@ public class GenerateCode extends AppCompatActivity {
         }
         groupStatus.setText(status);
 
-        updateCodefromServer();
-
         listEmpty = findViewById(R.id.list_empty);
 
         generateCodeButton = findViewById(R.id.generateCodeButton);
@@ -79,6 +77,13 @@ public class GenerateCode extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateCodefromServer();
+    }
+
     private void generate(){
         String result = null;
         //서버로부터 코드를 받아온다.
@@ -120,6 +125,7 @@ public class GenerateCode extends AppCompatActivity {
 
             for(int i=0;i<len;i++){
                 JSONObject inviteCodeData = jsonArray.getJSONObject(i);
+                Log.d("generateCode_generate()", "inviteCodeData :: "+ inviteCodeData);
                 if(inviteCodeData.getString("group_id").equals(groupID)&&
                         inviteCodeData.getString("status").equals(status)){
                     inviteCodeData.put("group_name", groupName);

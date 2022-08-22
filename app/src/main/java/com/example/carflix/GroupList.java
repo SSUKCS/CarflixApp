@@ -2,6 +2,7 @@ package com.example.carflix;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -141,24 +142,86 @@ public class GroupList extends AppCompatActivity {
         groupDataList.clear();
         new Thread(() -> {
             Log.d("Annonymus thread", "run");
-            String small_groupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
-            String ceo_groupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
-            String rent_groupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
-            addItem(small_groupDataJSONString, "sg");
-            addItem(ceo_groupDataJSONString, "cg");
-            addItem(rent_groupDataJSONString, "rg");
+            String smallGroupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
+            String ceoGroupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
+            String rentGroupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
+            addItem(smallGroupDataJSONString, "small_group");
+            addItemFromSavedData("small_group");
+            addItem(ceoGroupDataJSONString, "ceo_group");
+            addItemFromSavedData("ceo_group");
+            addItem(rentGroupDataJSONString, "rent_group");
+            addItemFromSavedData("rent_group");
         }).run();
         Log.d("carList", "isempty :: "+groupDataList.isEmpty());
         adapter.notifyDataSetChanged();
     }
+    private void addItemFromSavedData(String groupType){
+        //savedInviteGroupData에 저장되어있는 코드를 이용해 아이템 추가
+        /*
+         * savedInviteGroupData  -   small_group:[{"ic_number": "...."}, ....],
+         *                           ceo_group:[{"ic_number": "...."}, ....],
+         *                           rent_group:[{"ic_number": "...."}, ....]
+         */
+        SharedPreferences savedInviteGroupData = getSharedPreferences("savedInviteGroupData", MODE_PRIVATE);
+        String savedGroupJSONArrayString = savedInviteGroupData.getString(groupType, "there's no data");
+        Log.d("GroupList_addItemFromSaveData", "savedGroupJSONArrayString :: "+savedGroupJSONArrayString);
+        if(!savedGroupJSONArrayString.equals("there's no data")){
+            try{
+                String inviteCode;
+
+                JSONArray inviteCodeJSONArray = new JSONArray(savedGroupJSONArrayString);
+                int len = inviteCodeJSONArray.length();
+                for(int i = 0; i< len; i++){
+                    inviteCode = inviteCodeJSONArray.getJSONObject(i).getString("ic_number");
+                    ServerData serverData = new ServerData("POST", "code_car/create", new JSONObject().put("ic_number", inviteCode).put("member", memberID));
+                    JSONObject resultJSON = new JSONObject(serverData.get());
+                    String message = resultJSON.getString("message");
+                    if(message.equals("group invited")){
+                        // 성공: {"message":"group invited","mb_id":"29","group_id":"34","status":"ceo_group"}
+                        String group_id= resultJSON.getString("group_id");
+                        String param="";
+                        switch(groupType){
+                            case"small_group": param = "sg_id="+group_id;break;
+                            case"ceo_group":param = "cg_id="+group_id;break;
+                            case"rent_group":param = "rg_id="+group_id;break;
+                        }
+                        serverData = new ServerData("GET", groupType+"/show", param, null);
+                        //성공 : Connected successfully
+                        JSONObject groupJSONData = new JSONObject(serverData.get());
+                        if(!groupJSONData.get("mb_id").equals("")){
+                            //그룹 데이터 사용 가능
+                            switch(groupType){
+                                case"small_group": groupDataList.add(new SmallGroupData(groupJSONData));;break;
+                                case"ceo_group":groupDataList.add(new CEOGroupData(groupJSONData));;break;
+                                case"rent_group":groupDataList.add(new RentGroupData(groupJSONData));;break;
+                            }
+                        }
+                        else{
+                            //모종의 이유(예: 그룹이 삭제)로 그룹데이터가 사용 불가능
+                            Toast.makeText(getApplicationContext(), "존재하지 않는 그룹입니다.", Toast.LENGTH_LONG);
+                            Log.d("JoinGroup", "그룹이 존재하지 않습니다.");
+                        }
+                    }
+                    else{// 실패: {"message":"group not invited"}
+                        Log.d("GroupList_addItemFromSavedData", message);
+                    }
+                }
+            }
+            catch(JSONException e){
+                Log.e("groupList_addItemFromSavedData", e.toString());
+            }
+        }
+    }
     private void addItem(String JSONArrayString, String groupType){
         String errorMessage;
         switch(groupType){
-            case "sg":errorMessage = "No small_group Found";break;
-            case "cg":errorMessage = "No ceo_group Found";break;
-            case "rg":errorMessage = "No rent_group Found";break;
+            case "sg":
+            case "small_group":errorMessage = "No small_group Found";break;
+            case "cg":
+            case "ceo_group":errorMessage = "No ceo_group Found";break;
+            case "rg":
+            case "rent_group":errorMessage = "No rent_group Found";break;
             default: errorMessage = "INVALID GROUPTYPE";
-            Log.e("groupList_addItem", "ERROR :: INVALID GROUPTYPE");
         }
         if(!JSONArrayString.equals(errorMessage)&&!errorMessage.equals("INVALID GROUPTYPE")){
             try{
@@ -184,10 +247,10 @@ public class GroupList extends AppCompatActivity {
                 }
             }
             catch(JSONException e){
-                Log.e("groupList.addItem", e.toString());
+                Log.e("groupList_addItem", e.toString());
             }
         }
-
+        else Log.e("groupList_addItem", errorMessage);
     }
     @Override protected void onDestroy(){
         Log.i("GroupList", "onDestroy: ");
