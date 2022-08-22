@@ -203,6 +203,11 @@ public class CarTracingService extends Service {
                 }
                 if(isRequestAvailable.equals("success boot on")) {
                     //>>>만약 서버로부터 올바르다고 받았다면
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     arduinoData = new ArduinoData.Builder()
                             .setStart()
                             .build();
@@ -243,14 +248,15 @@ public class CarTracingService extends Service {
                     onStateUpdate(FAILED_CAR_ON);
                 }
             }
-            stopSelf();
+            end();
+
         }
 
         @Override
         public void onConnectionFailed() {
             setState(FAILED_CONNECTION); //기기 연결 실패
             passStateToActivity();
-            stopSelf();
+            end();
         }
 
         @Override
@@ -291,20 +297,6 @@ public class CarTracingService extends Service {
             tracingThread = new TracingBluetooth(
                     getApplicationContext(), BluetoothAdapter.getDefaultAdapter()
             );
-            //locationCallback 설정
-            //IllegalStateException :: 불법적이거나 부적절한 시간에 메소드가 호출
-            //LocationClient.connect() is asynchronous.
-            // You can't immediately start using the client methods until connection is complete.
-
-            //20220823 line 383 -> here
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            locationCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    location[0] = locationResult.getLastLocation();
-                }
-            };
-            requestLocationUpdates();
         }
     }
 
@@ -328,11 +320,16 @@ public class CarTracingService extends Service {
         String bluetoothMacAddress = intent.getStringExtra("mac_address");
         if(bluetoothMacAddress != null)
             tracingThread.setTargetMacAddress(bluetoothMacAddress);
-        if (fusedLocationClient != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-            Log.e(TAG, "Location Update Callback Removed");
-        }
         tracingThread.start();
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                location[0] = locationResult.getLastLocation();
+            }
+        };
+        requestLocationUpdates();
         return START_NOT_STICKY;
     }
 
@@ -386,12 +383,7 @@ public class CarTracingService extends Service {
         }
     }
 
-    /**
-     * 서비스 종료 (포그라운드 서비스 종료)
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    private void end(){
         //블루투스
         if(tracingThread != null){
             tracingThread.endConnection();
@@ -403,5 +395,15 @@ public class CarTracingService extends Service {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             Log.e(TAG, "Location Update Callback Removed");
         }
+        stopSelf();
+    }
+
+    /**
+     * 서비스 종료 (포그라운드 서비스 종료)
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 }

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressLint("MissingPermission")
@@ -212,7 +213,7 @@ public abstract class ArduinoBluetooth extends Thread {
             }
         }
 
-        private boolean makeReceivedData(byte preparedHeaderCode) throws IOException {
+        private boolean makeReceivedData(byte preparedHeaderCode) throws IOException, InterruptedException {
             int toRead;
             switch(preparedHeaderCode){
                 case ArduinoData.RS_CARCTL:
@@ -220,7 +221,7 @@ public abstract class ArduinoBluetooth extends Thread {
                     toRead = 1;
                     break;
                 case ArduinoData.S_REQON_AVAIL:
-                    toRead = 32;
+                    toRead = 33;
                     break;
                 case ArduinoData.S_REQCONT_AVAIL:
                     toRead = 33;
@@ -240,9 +241,13 @@ public abstract class ArduinoBluetooth extends Thread {
             }
             byte[] slicedData = new byte[toRead];
             int readData = 0;
-            while(readData < toRead)
-                readData += inputStream.read(slicedData, readData, toRead-readData);
-
+            while(readData < toRead) {
+                if(inputStream.available() > 0) {
+                    readData += inputStream.read(slicedData, readData, toRead - readData);
+                    Log.i(TAG, "makeReceivedData: read-l"+ Arrays.toString(slicedData));
+                    Thread.sleep(50);
+                }
+            }
             receivedData = new ArduinoData(preparedHeaderCode, slicedData);
             return true;
         }
@@ -289,6 +294,14 @@ public abstract class ArduinoBluetooth extends Thread {
                                             mIsReceived = true;
                                             onReceive(receivedData, this);
                                             myWait();
+                                        }
+                                        else{
+                                            Log.i(TAG, "run: 오류");
+                                            Thread.sleep(300);
+                                            sendToArduino(new ArduinoData.Builder()
+                                                    .setResend()
+                                                    .build()
+                                            );
                                         }
                                     }
                                 }
