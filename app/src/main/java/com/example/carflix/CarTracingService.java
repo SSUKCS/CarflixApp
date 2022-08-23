@@ -332,6 +332,7 @@ public class CarTracingService extends Service {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             Log.e(TAG, "Location Update Callback Removed");
         }
+        
         tracingThread.start();
         return START_NOT_STICKY;
     }

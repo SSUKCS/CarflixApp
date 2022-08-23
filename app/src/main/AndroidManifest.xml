@@ -34,6 +34,7 @@
         <activity android:name=".GroupList"/>
         <activity android:name =".GenerateGroup"/>
         <activity android:name=".JoinGroup"/>
+        <activity android:name=".ChangeProfile"/>
         <activity android:name=".CarList"/>
         <activity android:name=".CarLookupInfo"/>
         <activity android:name=".AddCar"/>

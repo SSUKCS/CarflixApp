@@ -47,7 +47,7 @@ public class CarList extends AppCompatActivity {
 
     private int nowDriving = -1;
 
-    int carImg_default = R.drawable.carimage_default;
+    Integer carImg_default = R.drawable.carimage_default;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -69,7 +69,7 @@ public class CarList extends AppCompatActivity {
             Log.e("CarList_OnCreate", e.toString());
         }
 
-        carDataList = new ArrayList<CarData>();
+        carDataList = new ArrayList<>();
         updateListfromServer();
 
         adapter = new CarListAdapter(context, carDataList);
@@ -85,50 +85,12 @@ public class CarList extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //프로파일 메뉴
-        try{
-            profileMenu = new ProfileMenu(this);
-            JSONObject userData = new JSONObject(getIntent().getStringExtra("userData"));
-            userData.put("group_id", groupID);
-            userData.put("group_name", groupName);
-            userData.put("status", status);
-            profileMenu.settingProfile(userData);
+        profileMenu = new ProfileMenu(this);
+        profileMenu.settingProfile(userData, groupData);
+        if(getIntent().getStringExtra("inviteCode")!=null){
+            profileMenu.setInviteCode(getIntent().getStringExtra("inviteCode"));
         }
-        catch(JSONException e){
-            Log.e("CarList", e.toString());
-        }
-        /*
-        ActivityResultLauncher<Intent> launcher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                data -> {
-                    Log.d("carList", "data : " + data);
-                    switch (data.getResultCode())
-                    {
-                        //carInterface->carList
-                        case 9001:
-                        Intent intent = data.getData();
 
-                        boolean isAvailableChanged = intent.getBooleanExtra("carData_isAvailableChanged", true);
-                        int position = Integer.parseInt(intent.getStringExtra("position"));
-                        if(isAvailableChanged)nowDriving = DEFAULT;
-                        else nowDriving = position;
-                        String carStatus = intent.getStringExtra("carStatusChanged");
-
-                        Log.d("carList", "isAvailableChanged : " + isAvailableChanged);
-                        Log.d("carList", "position : " + position);
-                        Log.d("carList", "carStatusChanged : " + carStatus);
-
-                        carDataList.get(position).setAvailable(isAvailableChanged);
-                        carDataList.get(position).setStatus(carStatus);
-                        adapter.notifyItemChanged(position);break;
-
-                        //carLookupInfo->carList
-                        case 9002: break;
-
-                        //addCar -> carList;
-                        case 9003: break;
-                        default:break;
-                    }
-                });*/
         adapter.setItemClickListener(new CarListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
@@ -164,6 +126,10 @@ public class CarList extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
     @Override
+    protected void onDestroy(){
+        super.onDestroy();
+    }
+    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_car_list, menu);
         return super.onCreateOptionsMenu(menu);
@@ -176,7 +142,11 @@ public class CarList extends AppCompatActivity {
             case android.R.id.home:
                 if(!profileMenu.isMenuOpen()) {
                     profileMenu.openRightMenu();
-                }break;
+                }
+                else{
+                    profileMenu.closeRightMenu();
+                }
+                break;
             case R.id.addCar:
                 Toast.makeText(this, "차량 추가", Toast.LENGTH_LONG).show();
                 intent = new Intent(getApplicationContext(), AddCar.class);
@@ -185,11 +155,6 @@ public class CarList extends AppCompatActivity {
                 intent.putExtra("status", status);
                 startActivity(intent);
                 break;
-                /*
-            case R.id.generateCode:
-                Toast.makeText(this, "코드 생성", Toast.LENGTH_LONG).show();
-
-                break;*/
             default:
                 break;
         }

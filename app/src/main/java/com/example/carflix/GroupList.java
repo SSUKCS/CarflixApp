@@ -16,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -29,7 +31,8 @@ public class GroupList extends AppCompatActivity {
     private Context context;
 
     private String memberID;
-    JSONObject userData;
+    private JSONObject userData;
+    private Map<Integer, String> inviteCodeMap;
 
     private ArrayList groupDataList;
     private GroupListAdapter adapter;
@@ -49,23 +52,13 @@ public class GroupList extends AppCompatActivity {
         groupListView.setLayoutManager(layoutManager);
 
         memberID = getIntent().getStringExtra("mb_id");
-        ServerData serverData = new ServerData("GET", "member/show", "mb_id="+memberID, null);
-        try{
-            userData = new JSONObject(serverData.get());
-
-            //프로파일 메뉴
-            profileMenu = new ProfileMenu(this);
-            profileMenu.settingProfile(userData);
-        }
-        catch(JSONException e){
-            Log.e("GroupList", e.toString());
-        }
         getSupportActionBar().setTitle("그룹 선택");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         groupDataList = new ArrayList<>();
+        inviteCodeMap = new HashMap<>();
         adapter = new GroupListAdapter(context, groupDataList);
         groupListView.setAdapter(adapter);
 
@@ -93,6 +86,10 @@ public class GroupList extends AppCompatActivity {
                         intent.putExtra("groupData", groupData);
                         break;
                 }
+                if(inviteCodeMap.containsKey(position)){
+                    Log.d("GroupList", "InviteCode :: "+ inviteCodeMap.get(position));
+                    intent.putExtra("inviteCode", inviteCodeMap.get(position));
+                }
                 intent.putExtra("memberID", memberID);
                 intent.putExtra("userData", userData.toString());
                 intent.putExtra("status", status);
@@ -105,8 +102,10 @@ public class GroupList extends AppCompatActivity {
     protected void onResume() {
         Log.i("GroupList", "onResume: ");
         super.onResume();
+
         //서버로부터 데이터 입력
-        updateListfromServer();
+        updateUserDataFromServer();
+        updateListFromServer();
         if(groupDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
         else listEmpty.setVisibility(View.INVISIBLE);
 
@@ -146,14 +145,27 @@ public class GroupList extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    private void updateUserDataFromServer(){
+        ServerData serverData = new ServerData("GET", "member/show", "mb_id="+memberID, null);
+        try{
+            userData = new JSONObject(serverData.get());
 
-    private void updateListfromServer(){
+            //프로파일 메뉴
+            profileMenu = new ProfileMenu(this);
+            profileMenu.settingProfile(userData);
+        }
+        catch(JSONException e){
+            Log.e("GroupList", e.toString());
+        }
+    }
+    private void updateListFromServer(){
         groupDataList.clear();
         new Thread(() -> {
             Log.d("Annonymus thread", "run");
             String smallGroupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
             String ceoGroupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
             String rentGroupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
+
             addItem(smallGroupDataJSONString, "small_group");
             addItemFromSavedData("small_group");
             addItem(ceoGroupDataJSONString, "ceo_group");
@@ -188,6 +200,7 @@ public class GroupList extends AppCompatActivity {
         Log.d("GroupList_addItemFromSaveData", "savedGroupJSONArrayString :: "+savedGroupJSONArrayString);
         if(!savedGroupJSONArrayString.equals(getString(R.string.groupDataKey_noValue))){
             try{
+                Integer index;
                 String inviteCode;
 
                 JSONArray inviteCodeJSONArray = new JSONArray(savedGroupJSONArrayString);
@@ -216,17 +229,20 @@ public class GroupList extends AppCompatActivity {
                                 case"ceo_group":groupDataList.add(new CEOGroupData(groupJSONData));;break;
                                 case"rent_group":groupDataList.add(new RentGroupData(groupJSONData));;break;
                             }
+                            index = groupDataList.size()-1;
+                            inviteCodeMap.put(index, inviteCode);
                         }
                         else{
                             //모종의 이유(예: 그룹이 삭제)로 그룹데이터가 사용 불가능
                             Toast.makeText(getApplicationContext(), "존재하지 않는 그룹입니다.", Toast.LENGTH_LONG);
-                            Log.d("JoinGroup", "그룹이 존재하지 않습니다.");
+                            Log.d("GroupList_addItemFromSaveData", "그룹이 존재하지 않습니다.");
                         }
                     }
                     else{// 실패: {"message":"group not invited"}
                         Log.d("GroupList_addItemFromSavedData", message);
                     }
                 }
+                Log.d("GroupList_addItemFromSaveData", "inviteCodeMap.size() :: "+ inviteCodeMap.size());
             }
             catch(JSONException e){
                 Log.e("groupList_addItemFromSavedData", e.toString());
@@ -279,7 +295,9 @@ public class GroupList extends AppCompatActivity {
     }
     @Override public void onBackPressed() {
         Log.i("GroupList", "onBackPressed: ");
+
         if(profileMenu.isMenuOpen()){
+            Log.d("GroupList", "close");
             profileMenu.closeRightMenu();
         }
         else{

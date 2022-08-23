@@ -96,16 +96,37 @@
                 android:layout_height="0dp"
                 android:layout_weight = "0.2">
             </LinearLayout>
-            <Button
-                android:id="@+id/trunk"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:gravity = "center"
-                android:backgroundTint="#446688"
-                android:drawableLeft="@drawable/image_trunk_resize"
-                android:text="트렁크"
-                android:textSize="40sp"></Button>
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/trunkOpen"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity = "center"
+                    android:backgroundTint="#446688"
+                    android:drawableLeft="@drawable/image_trunk_resize"
+                    android:text="트렁크\n열기"
+                    android:textSize="25sp"></Button>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight = "0.2">
+                </LinearLayout>
+                <Button
+                    android:id="@+id/trunkClose"
+                    android:layout_width="0sp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity = "center"
+                    android:backgroundTint="#446688"
+                    android:drawableLeft="@drawable/image_trunk_resize"
+                    android:text="트렁크\n닫기"
+                    android:textSize="25sp"></Button>
+            </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

@@ -55,7 +55,7 @@ public class JoinGroup extends AppCompatActivity {
                         //성공 : Connected successfully
                         resultJSON = new JSONObject(serverData.get());
                         if(!resultJSON.get("mb_id").equals("")){
-                            saveGroupData(status, inviteCode);
+                            saveGroupData(status , inviteCode);
                         }
                         else{
                             //모종의 이유(예: 그룹이 삭제)로 그룹데이터가 사용 불가능
