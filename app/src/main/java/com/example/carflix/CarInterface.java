@@ -283,11 +283,13 @@ public class CarInterface extends AppCompatActivity {
                         isAvailable.setText("운전중");
                         isAvailable.setTextColor(Color.parseColor("#9911BB"));
                         unbindService(carControlServiceBindConnection);
+                        dialog.dismiss();
                         break;
                     case CarControlService.FAILED_CONTROL:
                         isAvailable.setText("운전 불가능");
                         isAvailable.setTextColor(Color.parseColor("#FF5544"));
                         unbindService(carControlServiceBindConnection);
+                        dialog.dismiss();
                         break;
                 }
             }
@@ -317,9 +319,11 @@ public class CarInterface extends AppCompatActivity {
                         break;
                     case CarControlService.SUCCESSFUL_CONTROL:
                         unbindService(carControlServiceBindConnection);
+                        dialog.dismiss();
                         break;
                     case CarControlService.FAILED_CONTROL:
                         unbindService(carControlServiceBindConnection);
+                        dialog.dismiss();
                         break;
                 }
             }
