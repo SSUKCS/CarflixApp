@@ -81,10 +81,12 @@ public class CarIdService extends Service {
             setState(state);
             passStateToActivity();
         }
-        private String curStatus = "x";
+
         private String crId;
+        private String macAddress;
         @Override
         public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
+            this.macAddress = macAddress;
             arduinoInterpreter.startListening();
             ArduinoData arduinoData = new ArduinoData.Builder()
                     .setReqbc()
@@ -93,139 +95,6 @@ public class CarIdService extends Service {
             arduinoInterpreter.sendToArduino(arduinoData);
             Log.i(TAG, "run: CarId가 있는지 보냄.");
             arduinoInterpreter.listenNext();
-            waitUntilNotify();
-            if(curStatus.equals(ID_CLEAR)){
-                if(mode == ASSIGN_MODE){
-                    onStateUpdate(ID_CLEAR);
-                    /*
-                       서버로 macAddress와 그외여러 값들을 보내고
-                       서버로부터 crId를 받는다.
-                     */
-                    try{
-                        JSONObject carInfo = new JSONObject();
-                        carInfo.put("mb_id", mbId);
-                        carInfo.put("group_id", groupId);
-                        carInfo.put("status", groupStatus);
-                        carInfo.put("cr_number_classification", numberClassification);
-                        carInfo.put("cr_registeration_number", registerationNum);
-                        carInfo.put("cr_carName", carName);
-                        carInfo.put("cr_mac_address", macAddress);
-
-                        ServerData serverData = new ServerData("POST", "car/create", carInfo);
-                        crId = serverData.get();
-                    }
-                    catch(JSONException e){
-                        Log.e(TAG, e.toString());
-                    }
-                    //
-                    arduinoData = new ArduinoData.Builder()
-                            .setAssignId(crId)
-                            .build();
-                    arduinoInterpreter.sendToArduino(arduinoData);
-                    arduinoInterpreter.listenNext();
-                    waitUntilNotify();
-                    if(curStatus.equals(ASSIGN_OK)){
-                        //아두이노에서 할당 성공을 알려줌
-                        //차량에 crId를 성공한 경우이다.
-                        //이때에는 최종적으로 서버에 해당 crId를 등록해야한다.
-                        onStateUpdate(ASSIGN_OK);
-
-                    }
-                    else {
-                        //차량에 crId를 등록실패한 경우이다.
-                        //해당 crId는 무효처리되며 서버에서도 지워야한다.
-                        try{
-                            ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/create", new JSONObject().put("cr_id", crId));
-                            serverConnectionThread.start();
-                        }
-                        catch(JSONException e){
-                            Log.e(TAG, e.toString());
-                        }
-                        onStateUpdate(UNKNOWN_ERROR);
-                    }
-                }
-                else{
-                    onStateUpdate(ID_EXIST_ERROR);
-                    //이땐 아두이노에는 아이디가 없는데 차량 지우기 요청받은 부분인데
-                    //
-                    //이럴경우 그냥 서버로 해당 crid 지우기 요청날리셈
-                    //맥주소로 차량 삭제 api
-                    //http://13.56.94.107/admin/api/car/macaddress_delete.php
-                    //{
-                    //    "cr_mac_address":"98:DA:60:03:8B:43"
-                    //}
-                    //성공
-                    //{
-                    //    "message": "car deleted"
-                    //}
-                    try{
-                        JSONObject requestBody = new JSONObject().put("cr_mac_address", macAddress);
-                        ServerConnectionThread serverConnectionThread = new ServerConnectionThread("Delete", "car/macaddress_delete", requestBody);
-                        serverConnectionThread.start();
-                    }
-                    catch(JSONException e){
-                        Log.e("CarIdService", e.toString());
-                    }
-
-                }
-            }
-            else if(curStatus.equals(ID_EXIST)){
-                if(mode == DELETE_MODE){
-                    onStateUpdate(ID_EXIST);
-                    //
-                    /*
-                       서버로 헤더번호 71번의 차량등록 해제 요청을 한 뒤
-                       서버로부터 crId를 받는다.
-                     */
-                    JSONObject requestBody = new JSONObject();
-                    try{
-                        requestBody.put("mb_id", mbId);
-                        requestBody.put("cr_mac_address", macAddress);
-                    }
-                    catch(JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    ServerData serverData = new ServerData("DELETE", "registration_delete_request", null);
-                    if(!serverData.get().equals("car delete request fail")) {
-                        try{
-                            crId = new JSONObject(serverData.get()).getString("cr_id");
-                        }
-                        catch(JSONException e){
-                            Log.e(TAG, e.toString());
-                        }
-                    }
-                    //
-                    arduinoData = new ArduinoData.Builder()
-                            .setDeleteId(crId)
-                            .build();
-                    arduinoInterpreter.sendToArduino(arduinoData);
-                    arduinoInterpreter.listenNext();
-                    waitUntilNotify();
-                    if(curStatus.equals(DELETE_OK)){
-                        //아두이노가 서버로부터 받은 crId와 자신의 crID가 일치한다면
-                        //crId를 지운것이다.
-                        //이때 서버에서 해당 crId의 차량정보가 삭제된다.
-                        onStateUpdate(DELETE_OK);
-                        try{
-                            ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/create", new JSONObject().put("cr_id", crId));
-                            serverConnectionThread.start();
-                        }
-                        catch(JSONException e){
-                            Log.e(TAG, e.toString());
-                        }
-
-                    }
-                    else if(curStatus.equals(DELETE_FAILED)){
-                        //아두이노가 지우기에 실패한 경우이다.
-                        //서버에서 해당 crId의 정보가 삭제되지 않는다.(작업이 무효처리된다.)
-                        onStateUpdate(DELETE_FAILED);
-                    }
-                    else //지우기 실패한 경우이며 위와 동일한 작업을 한다.
-                        onStateUpdate(UNKNOWN_ERROR);
-                }
-                else
-                    onStateUpdate(ID_NOT_EXIST_ERROR);
-            }
         }
 
         @Override
@@ -244,23 +113,84 @@ public class CarIdService extends Service {
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
             super.onReceive(arduinoData, arduinoInterpreter);
             if(arduinoData.getHeaderCode() == ArduinoData.S_SUCBC){
-                if(arduinoData.getSucbc() == ArduinoData.EXIST_CR_ID)
-                    curStatus = ID_EXIST;
-                else
-                    curStatus = ID_CLEAR;
-                notifyToThread();
+                if(arduinoData.getSucbc() == ArduinoData.EXIST_CR_ID) {
+                     if(mode == DELETE_MODE) {
+                         onStateUpdate(ID_EXIST);
+                         JSONObject requestBody = new JSONObject();
+                         try {
+                             requestBody.put("mb_id", mbId);
+                             requestBody.put("cr_mac_address", macAddress);
+                         } catch (JSONException e) {
+                             Log.e(TAG, e.toString());
+                         }
+                         ServerData serverData = new ServerData("DELETE", "registration_delete_request", null);
+                         if (!serverData.get().equals("car delete request fail")) {
+                             try {
+                                 crId = new JSONObject(serverData.get()).getString("cr_id");
+                             } catch (JSONException e) {
+                                 Log.e(TAG, e.toString());
+                             }
+                         }
+                         arduinoData = new ArduinoData.Builder()
+                                 .setDeleteId(crId)
+                                 .build();
+                         arduinoInterpreter.sendToArduino(arduinoData);
+                         arduinoInterpreter.listenNext();
+                     }
+                }
+                else { //차에 아이디가 없다
+                    if(mode == ASSIGN_MODE){
+                        onStateUpdate(ID_CLEAR);
+                        try{
+                            JSONObject carInfo = new JSONObject();
+                            carInfo.put("mb_id", mbId);
+                            carInfo.put("group_id", groupId);
+                            carInfo.put("status", groupStatus);
+                            carInfo.put("cr_number_classification", numberClassification);
+                            carInfo.put("cr_registeration_number", registerationNum);
+                            carInfo.put("cr_carName", carName);
+                            carInfo.put("cr_mac_address", macAddress);
+
+                            ServerData serverData = new ServerData("POST", "car/create", carInfo);
+                            crId = serverData.get();
+                        }
+                        catch(JSONException e){
+                            Log.e(TAG, e.toString());
+                        }
+                        arduinoData = new ArduinoData.Builder()
+                                .setAssignId(crId)
+                                .build();
+                        arduinoInterpreter.sendToArduino(arduinoData);
+                        arduinoInterpreter.listenNext();
+                    }
+                    else{
+                        try{
+                            JSONObject requestBody = new JSONObject().put("cr_mac_address", macAddress);
+                            ServerConnectionThread serverConnectionThread = new ServerConnectionThread("Delete", "car/macaddress_delete", requestBody);
+                            serverConnectionThread.start();
+                        }
+                        catch(JSONException e){
+                            Log.e("CarIdService", e.toString());
+                        }
+                        onStateUpdate(DELETE_OK);
+                    }
+                }
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_ASSIGN_ID_OK) {
-                curStatus = ASSIGN_OK;
-                notifyToThread();
+                onStateUpdate(ASSIGN_OK);
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_DELETE_OK){
-                curStatus = DELETE_OK;
-                notifyToThread();
+                try{
+                    ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/create", new JSONObject().put("cr_id", crId));
+                    serverConnectionThread.start();
+                }
+                catch(JSONException e){
+                    Log.e(TAG, e.toString());
+                }
+                onStateUpdate(DELETE_OK);
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_DELETE_FAILED){
-                curStatus = DELETE_FAILED;
-                notifyToThread();
+                onStateUpdate(DELETE_FAILED);
             }
         }
     }

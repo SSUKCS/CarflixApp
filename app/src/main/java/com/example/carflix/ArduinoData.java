@@ -20,6 +20,7 @@ public class ArduinoData {
     public static final byte S_DELETE_FAILED = 80;
     public static final byte S_REQCONT_AVAIL = 75;
     public static final byte R_OFF_OK = 81;
+    public static final byte R_RESEND = 21;
 
     public static final byte DOOR_OPEN = 1;
     public static final byte DOOR_CLOSE = 2;
@@ -85,7 +86,7 @@ public class ArduinoData {
     AvailData getReqonAvail(){
         AvailData availData = new AvailData(
             new String(Arrays.copyOfRange(data,0,16)),
-            new String(Arrays.copyOfRange(data, 16, data.length))
+            new String(Arrays.copyOfRange(data, 16, 32))
         );
         return availData;
     }
@@ -178,6 +179,12 @@ public class ArduinoData {
 
         Builder setSendOffOk(){
             this.headerCode = R_OFF_OK;
+            this.data = null;
+            return this;
+        }
+
+        Builder setResend(){
+            this.headerCode = R_RESEND;
             this.data = null;
             return this;
         }

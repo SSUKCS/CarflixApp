@@ -81,59 +81,19 @@ public class CarControlService extends Service {
 
         @Override
         public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
-            arduinoInterpreter.startListening();
             ArduinoData arduinoData = new ArduinoData.Builder()
                     .setReqcont(mbId, mode)
                     .build();
             arduinoInterpreter.sendToArduino(arduinoData);
-
-            Log.i(TAG, "Reqcont-"+mode);
+            Log.i(TAG, "Request control-"+mode);
+            arduinoInterpreter.startListening();
             arduinoInterpreter.listenNext();
-            waitUntilNotify();
-            String command = "cr_id="+availData.getCrId().trim()+"&mb_id="+availData.getMbId().trim()+"&how=";
-            switch (mode){
-                case DOOR_OPEN:
-                    command += "unlock";
-                    break;
-                case DOOR_CLOSE:
-                    command += "lock";
-                    break;
-                case TRUNK_OPEN:
-                    command += "trunk_unlock";
-                    break;
-                case TRUNK_CLOSE:
-                    command += "trunk_lock";
-                    break;
-            }
-            String message=null;
-            try{
-                ServerData sendData = new ServerData("GET", "vehicle_status/lockunlock", command, null);
-                JSONObject serverData = new JSONObject(sendData.get());
-                message = serverData.getString("message");
-            }
-            catch(JSONException e){
-                Log.e(TAG, e.toString());
-            }
-
-            if(message != null && message.startsWith("success")) {
-                //>>>만약 서버로부터 올바르다고 받았다면...
-                arduinoData = new ArduinoData.Builder()
-                        .setCont(mode)
-                        .build();
-                arduinoInterpreter.sendToArduino(arduinoData); //컨트롤 전송
-                onStateUpdate(SUCCESSFUL_CONTROL);
-            }
-            else {
-                //>>>만약 올바르지 않다고 받았다면
-                onStateUpdate(FAILED_CONTROL);
-            }
         }
 
         @Override
         public void onConnectionFailed() {
             setState(FAILED_CONNECTION); //기기 연결 실패
             passStateToActivity();
-            stopSelf();
         }
 
         @Override
@@ -141,16 +101,49 @@ public class CarControlService extends Service {
             Toast.makeText(getApplicationContext(), "블루투스가 켜져있지 않습니다.",
                     Toast.LENGTH_SHORT).show();
         }
-        private ArduinoData.AvailData availData;
-        private String curStatus = "x";
+
         @Override
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
             super.onReceive(arduinoData, arduinoInterpreter);
             if(arduinoData.getHeaderCode() == ArduinoData.S_REQCONT_AVAIL){ //
-                availData = arduinoData.getReqcontAvail();
-                curStatus = GOT_AVAIL;
-                notifyToThread();
+                ArduinoData.AvailData availData = arduinoData.getReqcontAvail();
+                String command = "cr_id="+ availData.getCrId().trim()+"&mb_id="+ availData.getMbId().trim()+"&how=";
+                switch (mode){
+                    case DOOR_OPEN:
+                        command += "unlock";
+                        break;
+                    case DOOR_CLOSE:
+                        command += "lock";
+                        break;
+                    case TRUNK_OPEN:
+                        command += "trunk_unlock";
+                        break;
+                    case TRUNK_CLOSE:
+                        command += "trunk_lock";
+                        break;
+                }
+                String message=null;
+                try{
+                    ServerData sendData = new ServerData("GET", "vehicle_status/lockunlock", command, null);
+                    JSONObject serverData = new JSONObject(sendData.get());
+                    message = serverData.getString("message");
+                }
+                catch(JSONException e){
+                    Log.e(TAG, e.toString());
+                }
 
+                if(message != null && message.startsWith("success")) {
+                    //>>>만약 서버로부터 올바르다고 받았다면...
+                    arduinoData = new ArduinoData.Builder()
+                            .setCont(mode)
+                            .build();
+                    arduinoInterpreter.sendToArduino(arduinoData); //컨트롤 전송
+                    onStateUpdate(SUCCESSFUL_CONTROL);
+                }
+                else {
+                    //>>>만약 올바르지 않다고 받았다면
+                    onStateUpdate(FAILED_CONTROL);
+                }
             }
         }
     }

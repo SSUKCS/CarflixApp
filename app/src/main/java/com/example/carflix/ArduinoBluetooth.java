@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressLint("MissingPermission")
@@ -114,7 +115,7 @@ public abstract class ArduinoBluetooth extends Thread {
     };
 
     private boolean isWait = false;
-    public synchronized void waitUntilNotify(){
+    private synchronized void waitUntilNotify(){
         isWait = true;
         while(isWait) {
             try {
@@ -126,7 +127,7 @@ public abstract class ArduinoBluetooth extends Thread {
 
     }
 
-    public synchronized void notifyToThread(){
+    private synchronized void notifyToThread(){
         isWait = false;
         notifyAll();
     }
@@ -182,7 +183,7 @@ public abstract class ArduinoBluetooth extends Thread {
         private InputStream inputStream;
         private OutputStream outputStream;
 
-        private boolean mIsReceived = false;
+        private boolean mIsReceived = true;
         private ArduinoData receivedData = null;
 
         public boolean isReceived() {
@@ -195,7 +196,6 @@ public abstract class ArduinoBluetooth extends Thread {
 
         public void listenNext(){
             mIsReceived = false;
-            myNotify();
         }
 
         boolean stopped = false;
@@ -212,7 +212,7 @@ public abstract class ArduinoBluetooth extends Thread {
             }
         }
 
-        private boolean makeReceivedData(byte preparedHeaderCode) throws IOException {
+        private boolean makeReceivedData(byte preparedHeaderCode) throws IOException, InterruptedException {
             int toRead;
             switch(preparedHeaderCode){
                 case ArduinoData.RS_CARCTL:
@@ -220,7 +220,7 @@ public abstract class ArduinoBluetooth extends Thread {
                     toRead = 1;
                     break;
                 case ArduinoData.S_REQON_AVAIL:
-                    toRead = 32;
+                    toRead = 33;
                     break;
                 case ArduinoData.S_REQCONT_AVAIL:
                     toRead = 33;
@@ -240,9 +240,13 @@ public abstract class ArduinoBluetooth extends Thread {
             }
             byte[] slicedData = new byte[toRead];
             int readData = 0;
-            while(readData < toRead)
-                readData += inputStream.read(slicedData, readData, toRead-readData);
-
+            while(readData < toRead) {
+                if(inputStream.available() > 0) {
+                    readData += inputStream.read(slicedData, readData, toRead - readData);
+                    Log.i(TAG, "makeReceivedData: read-l"+ Arrays.toString(slicedData));
+                    Thread.sleep(500);
+                }
+            }
             receivedData = new ArduinoData(preparedHeaderCode, slicedData);
             return true;
         }
@@ -288,7 +292,14 @@ public abstract class ArduinoBluetooth extends Thread {
                                         if (makeReceivedData(buffer[0])) { //모든 데이터를 읽고 인스턴스로 저장
                                             mIsReceived = true;
                                             onReceive(receivedData, this);
-                                            myWait();
+                                        }
+                                        else{
+                                            Log.i(TAG, "run: 오류");
+                                            Thread.sleep(300);
+                                            sendToArduino(new ArduinoData.Builder()
+                                                    .setResend()
+                                                    .build()
+                                            );
                                         }
                                     }
                                 }
@@ -322,7 +333,7 @@ public abstract class ArduinoBluetooth extends Thread {
                 for (i = 0; i < data.length; i++)
                     toSend[ti++] = data[i]; //데이터
             }
-
+            Log.i(TAG, "sendToArduino: send"+arduinoData.getHeaderCode());
             try {
                 outputStream.write(toSend, 0, ti);
                 outputStream.flush();

@@ -98,84 +98,52 @@ public class CarTracingService extends Service {
         TimerTask timerTask;
         Timer expiringTimer;
         String eachStatus = "none";
+
+
+
         private void makeTimer(){
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
-
-                    eachStatus = TIME_OVER;
-                    cancel();
-                    notifyToThread();
+                    sendToServer(TIME_OVER);
                 }
             };
             expiringTimer = new Timer();
             expiringTimer.schedule(timerTask, sendingTerm, sendingTerm);
         }
-        private void sendToServerRepeatly(){
-            makeTimer();
-            boolean off;
-            while(true) {
-                arduinoInterpreter.listenNext();
-                waitUntilNotify();
-                /*location 이 잘 update되는지 확인하기 위한 코드
-                if (location[0] != null) {
-                    //location update
-                    Log.d(TAG, "location update " + location[0]);
-                    Log.d(TAG, "location Latitude " + location[0].getLatitude());
-                    Log.d(TAG, "location Longitude " + location[0].getLongitude());
-                    Log.d(TAG, "Speed :: " + location[0].getSpeed() * 3.6);
-                    Log.e(TAG, "locationCallback :: "+locationCallback);
-
-                }*/
-                off = false;
-                String command = "vehicle_status/";
-                JSONObject requestBody = new JSONObject();
-                try{
-                    //서버에게 시동상태를 전송하는 코드
-                    /*requestbody 형태
-                        {
-                        "vs_startup_information" : "on"/"off"/"connection_fault"(아두이노로부터 정보가 오지 않음),
-                        "member" : ,
-                        "vs_latitude" :,
-                        "vs_longitude" :,
-                        "cr_id"CrID:
-                        }*/
-                    switch (eachStatus) {
-                        case TIME_OVER://아두이노로부터 응답을 받지 않았다는 데이터("connection_fault")를 전송
-                            command +="connection_status";
-                            requestBody.put("vs_startup_information", "connection_fault");
-                            break;
-                        case GOT_REQ://아두이노로부터 응답을 받았다는 데이터("on")를 전송
-                            timerTask.cancel();
-                            command +="boot_status";
-                            requestBody.put("vs_startup_information", "on");
-                            break;
-                        case GOT_OFF://아두이노로부터 시동꺼짐을 받았다는 데이터("off")를 전송
-                            timerTask.cancel();
-                            command +="boot_off";
-                            requestBody.put("vs_startup_information", "off");
-                            off = true;
-                            break;
-                    }
-                    //서버에게 시동상태를 전송
-                    requestBody.put("member", mbId);
-                    requestBody.put("vs_latitude", location[0].getLatitude());
-                    requestBody.put("vs_longitude", location[0].getLongitude());
-                    requestBody.put("cr_id", availData.getCrId());
-                    ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
-                    serverConnectionThread.start();
-                    if(off) {
-                        fusedLocationClient.removeLocationUpdates(locationCallback);
+        private void sendToServer(String eachStatus) {
+            String command = "vehicle_status/";
+            JSONObject requestBody = new JSONObject();
+            try {
+                switch (eachStatus) {
+                    case TIME_OVER://아두이노로부터 응답을 받지 않았다는 데이터("connection_fault")를 전송
+                        command += "connection_status";
+                        requestBody.put("vs_startup_information", "connection_fault");
                         break;
-                    }
+                    case GOT_REQ://아두이노로부터 응답을 받았다는 데이터("on")를 전송
+                        timerTask.cancel();
+                        command += "boot_status";
+                        requestBody.put("vs_startup_information", "on");
+                        break;
+                    case GOT_OFF://아두이노로부터 시동꺼짐을 받았다는 데이터("off")를 전송
+                        timerTask.cancel();
+                        command += "boot_off";
+                        requestBody.put("vs_startup_information", "off");
+                        break;
                 }
-                catch(JSONException e){
-                    Log.e(TAG, e.toString());
-                }
-                eachStatus = "none";
-                makeTimer();
+                //서버에게 시동상태를 전송
+                requestBody.put("member", mbId);
+                requestBody.put("vs_latitude", location[0].getLatitude());
+                requestBody.put("vs_longitude", location[0].getLongitude());
+                requestBody.put("cr_id", availData.getCrId());
+                ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
+                serverConnectionThread.start();
+
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
             }
         }
+
         ArduinoInterpreter arduinoInterpreter;
         @Override
         public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
@@ -187,8 +155,28 @@ public class CarTracingService extends Service {
             arduinoInterpreter.sendToArduino(arduinoData);
             Log.i(TAG, "run: 시동 요청.");
             arduinoInterpreter.listenNext();
-            waitUntilNotify();
-            if(curStatus.equals(GOT_AVAIL)){ //시동요청이 올바른가에 해당
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            setState(FAILED_CONNECTION); //기기 연결 실패
+            passStateToActivity();
+            end();
+        }
+
+        @Override
+        public void onBluetoothNotOn() {
+            Toast.makeText(getApplicationContext(), "블루투스가 켜져있지 않습니다.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        private ArduinoData.AvailData availData;
+        private String curStatus = "x";
+        @Override
+        public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
+            super.onReceive(arduinoData, arduinoInterpreter);
+            if(arduinoData.getHeaderCode() == ArduinoData.S_REQON_AVAIL){ //
+                curStatus = GOT_AVAIL;
+                availData = arduinoData.getReqonAvail();
                 String param = "cr_id="+availData.getCrId()+"&mb_id="+availData.getMbId();
                 //서버에 시동요청이 올바른가 보냄
                 ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", param, null);
@@ -208,78 +196,40 @@ public class CarTracingService extends Service {
                             .build();
                     arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
                     arduinoInterpreter.listenNext();
-                    waitUntilNotify(); //시동상태 전송요청을 받아야 시동이 걸린것임. 기다림.
-                    if (curStatus.equals(SUCCESSFUL_CAR_ON)) { //시동상태 전송 요청을 받았다면
-                        //***************서버에게 데이터 전송 (헤더 61번에 해당함)
-                        JSONObject requestBody = new JSONObject();
-                        String command = "vehicle_status/boot_status";
-                        try {
-                            requestBody.put("member", mbId);
-                            requestBody.put("vs_latitude", location[0].getLatitude());
-                            requestBody.put("vs_longitude", location[0].getLongitude());
-                            requestBody.put("cr_id", availData.getCrId());
-                            requestBody.put("vs_startup_information", "on");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
-                        serverConnectionThread.start();
-                        //시동 걸린 상태로 진입
-                        makePendingIntent();
-                        onStateUpdate(SUCCESSFUL_CAR_ON);
-                        sendToServerRepeatly(); //반복적으로 5초마다 전송하는 메서드
-                        //시동꺼짐 정보를 서버로 전송하고 시동상태 해제
-                        arduinoData = new ArduinoData.Builder()
-                                .setSendOffOk()
-                                .build();
-                        arduinoInterpreter.sendToArduino(arduinoData); //아두이노에게 완료 전달
-                        arduinoInterpreter.listenNext();
-                        //종료.
-                        onStateUpdate(FINISHED);
-                    }
                 }
-                else {
-                    //>>>만약 올바르지 않다고 받았다면
+                else{
                     onStateUpdate(FAILED_CAR_ON);
+                    end();
                 }
-            }
-            stopSelf();
-        }
-
-        @Override
-        public void onConnectionFailed() {
-            setState(FAILED_CONNECTION); //기기 연결 실패
-            passStateToActivity();
-            stopSelf();
-        }
-
-        @Override
-        public void onBluetoothNotOn() {
-            Toast.makeText(getApplicationContext(), "블루투스가 켜져있지 않습니다.",
-                    Toast.LENGTH_SHORT).show();
-        }
-        private ArduinoData.AvailData availData;
-        private String curStatus = "x";
-        @Override
-        public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
-            super.onReceive(arduinoData, arduinoInterpreter);
-            if(arduinoData.getHeaderCode() == ArduinoData.S_REQON_AVAIL){ //
-                availData = arduinoData.getReqonAvail();
-                curStatus = GOT_AVAIL;
-                notifyToThread();
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_STATE){
                 if(curStatus.equals(GOT_AVAIL)){
-                    curStatus = SUCCESSFUL_CAR_ON;
+                    sendToServer(GOT_REQ);
+                    //시동 걸린 상태로 진입
+                    makePendingIntent();
+                    onStateUpdate(SUCCESSFUL_CAR_ON);
+                    makeTimer();
+                    arduinoInterpreter.listenNext();
+                    curStatus = "x";
                 }
-                else{
-                    eachStatus = GOT_REQ;
+                else {
+                    timerTask.cancel();
+                    sendToServer(GOT_REQ);
+                    makeTimer();
                 }
-                notifyToThread();
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_OFF){
-                eachStatus = GOT_OFF;
-                notifyToThread();
+                timerTask.cancel();
+                sendToServer(GOT_OFF);
+                arduinoData = new ArduinoData.Builder()
+                        .setSendOffOk()
+                        .build();
+                arduinoInterpreter.sendToArduino(arduinoData); //아두이노에게 완료 전달
+                arduinoInterpreter.listenNext();
+                fusedLocationClient.removeLocationUpdates(locationCallback);
+                //종료.
+                onStateUpdate(FINISHED);
+                end();
             }
         }
     }
@@ -291,20 +241,6 @@ public class CarTracingService extends Service {
             tracingThread = new TracingBluetooth(
                     getApplicationContext(), BluetoothAdapter.getDefaultAdapter()
             );
-            //locationCallback 설정
-            //IllegalStateException :: 불법적이거나 부적절한 시간에 메소드가 호출
-            //LocationClient.connect() is asynchronous.
-            // You can't immediately start using the client methods until connection is complete.
-
-            //20220823 line 383 -> here
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            locationCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    location[0] = locationResult.getLastLocation();
-                }
-            };
-            requestLocationUpdates();
         }
     }
 
@@ -328,12 +264,16 @@ public class CarTracingService extends Service {
         String bluetoothMacAddress = intent.getStringExtra("mac_address");
         if(bluetoothMacAddress != null)
             tracingThread.setTargetMacAddress(bluetoothMacAddress);
-        if (fusedLocationClient != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-            Log.e(TAG, "Location Update Callback Removed");
-        }
-        
         tracingThread.start();
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                location[0] = locationResult.getLastLocation();
+            }
+        };
+        requestLocationUpdates();
         return START_NOT_STICKY;
     }
 
@@ -387,12 +327,7 @@ public class CarTracingService extends Service {
         }
     }
 
-    /**
-     * 서비스 종료 (포그라운드 서비스 종료)
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    private void end(){
         //블루투스
         if(tracingThread != null){
             tracingThread.endConnection();
@@ -404,5 +339,15 @@ public class CarTracingService extends Service {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             Log.e(TAG, "Location Update Callback Removed");
         }
+        stopSelf();
+    }
+
+    /**
+     * 서비스 종료 (포그라운드 서비스 종료)
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 }
