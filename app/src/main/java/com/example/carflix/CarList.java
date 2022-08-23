@@ -1,8 +1,13 @@
 package com.example.carflix;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,13 +23,22 @@ import org.json.JSONObject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.Executor;
+
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
+import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
 public class CarList extends AppCompatActivity {
     private final static int DEFAULT = -1;
@@ -32,6 +46,10 @@ public class CarList extends AppCompatActivity {
     private Context context;
 
     private ProfileMenu profileMenu;
+
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
 
     private ArrayList<CarData> carDataList;
     private CarListAdapter adapter;
@@ -53,6 +71,36 @@ public class CarList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_list);
         context = getApplicationContext();
+
+        /*
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(CarList.this, executor,
+                new BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                        super.onAuthenticationError(errorCode, errString);
+                        Toast.makeText(getApplicationContext(),R.string.auth_error_message, Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                        Toast.makeText(getApplicationContext(), R.string.auth_success_message, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        super.onAuthenticationFailed();
+                        Toast.makeText(getApplicationContext(), R.string.auth_fail_message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("지문 인증")
+                .setSubtitle("기기에 등록된 지문을 이용하여 지문을 인증해주세요.")
+                .setNegativeButtonText("취소")
+                .setAllowedAuthenticators(BIOMETRIC_STRONG)
+                .build();
+                */
+
         carListView = findViewById(R.id.carListView);
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
         carListView.setLayoutManager(new LinearLayoutManager(this));
@@ -94,6 +142,9 @@ public class CarList extends AppCompatActivity {
         adapter.setItemClickListener(new CarListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
+                /*DEVICE_CREDENTIAL 및 BIOMETRIC_STRONG | DEVICE_CREDENTIAL 인증자 유형 조합은
+        Android 10(API 수준 29) 이하에서 지원되지 않는다*/
+                //biometricPrompt.authenticate(promptInfo);
                 //carInterface로 이동
                 if(nowDriving == DEFAULT || nowDriving==position){
                     Log.d("CarList_serItemClickListener_onItemClick: ", "nowDriving"+nowDriving);
@@ -210,5 +261,20 @@ public class CarList extends AppCompatActivity {
             }
         }
 
+    }
+    private void getPermission(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {   // Marshmallow부터 지원 가능 체크
+            FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+            if (fingerprintManager.isHardwareDetected() == false) { //Manifest에 Fingerprint 퍼미션을 추가해야 사용이 가능함.
+                Toast.makeText(this, "지문인식을 사용할수 없는 기기입니다.", Toast.LENGTH_LONG).show();
+            } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "지문 사용을 여부를 허용해 주세요.", Toast.LENGTH_LONG).show();
+            } else if (fingerprintManager.hasEnrolledFingerprints() == false) {
+                Toast.makeText(this, "등록된 지문정보가 없습니다.", Toast.LENGTH_LONG).show();
+            } else {    //  생체 인증 사용가능
+                Toast.makeText(this, "지문인식을 해주세요.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }

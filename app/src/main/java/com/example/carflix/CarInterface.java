@@ -55,10 +55,6 @@ public class CarInterface extends AppCompatActivity {
 
     LoadingDialog dialog;
 
-    private Executor executor;
-    private BiometricPrompt biometricPrompt;
-    private BiometricPrompt.PromptInfo promptInfo;
-
     private CarTracingService carTracingService;
     private final CarTracingService.StateUpdateCallBack carTracingStateUpdateCallBack = this::carTracingStateUpdateCallBack;
     private final ServiceConnection carTracingStateBindConnection = new ServiceConnection() {
@@ -141,48 +137,7 @@ public class CarInterface extends AppCompatActivity {
         carImg.setImageResource(carData.getcarImg());
         carName.setText(carData.getCarName());
         isAvailable.setText(carData.getStatus());
-        /*DEVICE_CREDENTIAL 및 BIOMETRIC_STRONG | DEVICE_CREDENTIAL 인증자 유형 조합은
-        Android 10(API 수준 29) 이하에서 지원되지 않는다*/
-        /*if(Build.VERSION.SDK_INT>29)
-        {
-            executor = ContextCompat.getMainExecutor(this);
-            biometricPrompt = new BiometricPrompt(this,
-                    executor, new BiometricPrompt.AuthenticationCallback() {
-                @Override
-                public void onAuthenticationError(int errorCode,
-                                                  @NonNull CharSequence errString) {
-                    super.onAuthenticationError(errorCode, errString);
-                    Toast.makeText(getApplicationContext(),
-                                    R.string.auth_error_message, Toast.LENGTH_SHORT)
-                            .show();
-                }
 
-                @Override
-                public void onAuthenticationSucceeded(
-                        @NonNull BiometricPrompt.AuthenticationResult result) {
-                    super.onAuthenticationSucceeded(result);
-                    Toast.makeText(getApplicationContext(),
-                            R.string.auth_success_message, Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onAuthenticationFailed() {
-                    super.onAuthenticationFailed();
-                    Toast.makeText(getApplicationContext(), R.string.auth_fail_message,
-                                    Toast.LENGTH_SHORT)
-                            .show();
-                }
-            });
-            promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("지문 인증")
-                    .setSubtitle("기기에 등록된 지문을 이용하여 지문을 인증해주세요.")
-                    .setNegativeButtonText("취소")
-                    .setAllowedAuthenticators(DEVICE_CREDENTIAL|BIOMETRIC_STRONG)
-                    .build();
-        }
-        else if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M){
-
-        }*/
 
         //차량 문을 연다
         doorOpen.setOnClickListener(new View.OnClickListener() {
