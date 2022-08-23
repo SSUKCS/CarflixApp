@@ -37,8 +37,6 @@ import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRON
 
 
 public class CarInterface extends AppCompatActivity {
-    String blueToothConnectionState;
-
     int position;
     private Context context;
 
@@ -55,7 +53,8 @@ public class CarInterface extends AppCompatActivity {
     String memberID;
     CarData carData;
 
-    boolean carData_isAvailable_initialState;
+    LoadingDialog dialog;
+
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
@@ -105,6 +104,7 @@ public class CarInterface extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_interface);
+        dialog = new LoadingDialog(this);
         getPermission();
 
         if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -140,7 +140,6 @@ public class CarInterface extends AppCompatActivity {
 
         carImg.setImageResource(carData.getcarImg());
         carName.setText(carData.getCarName());
-        carData_isAvailable_initialState = carData.isAvailable();
         isAvailable.setText(carData.getStatus());
         /*DEVICE_CREDENTIAL 및 BIOMETRIC_STRONG | DEVICE_CREDENTIAL 인증자 유형 조합은
         Android 10(API 수준 29) 이하에서 지원되지 않는다*/
@@ -189,6 +188,7 @@ public class CarInterface extends AppCompatActivity {
         doorOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog.show();
                 bindServiceIntent = new Intent(context, CarControlService.class);
                 bindServiceIntent.putExtra("mb_id", memberID);
                 bindServiceIntent.putExtra("mac_address", carData.getMac_address());
@@ -201,6 +201,7 @@ public class CarInterface extends AppCompatActivity {
         doorClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog.show();
                 bindServiceIntent = new Intent(context, CarControlService.class);
                 bindServiceIntent.putExtra("mb_id", memberID);
                 bindServiceIntent.putExtra("mac_address", carData.getMac_address());
@@ -213,6 +214,7 @@ public class CarInterface extends AppCompatActivity {
         trunkOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog.show();
                 bindServiceIntent = new Intent(context, CarControlService.class);
                 bindServiceIntent.putExtra("mb_id", memberID);
                 bindServiceIntent.putExtra("mac_address", carData.getMac_address());
@@ -224,6 +226,7 @@ public class CarInterface extends AppCompatActivity {
         trunkClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog.show();
                 bindServiceIntent = new Intent(context, CarControlService.class);
                 bindServiceIntent.putExtra("mb_id", memberID);
                 bindServiceIntent.putExtra("mac_address", carData.getMac_address());
@@ -236,11 +239,10 @@ public class CarInterface extends AppCompatActivity {
         startCar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("carInterface", ""+carData.isAvailable());
+                dialog.show();
                 /*
                 biometricPrompt.authenticate(promptInfo);*/
 
-                blueToothConnectionState = "블루투스 연결 시작";
                 carData.setAvailable(false);
 
                 startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
@@ -261,30 +263,30 @@ public class CarInterface extends AppCompatActivity {
             public void run() {
                 switch(state){
                     case ArduinoBluetooth.SEARCHING:
-                        blueToothConnectionState="기기 탐색중";
-                        isAvailable.setText("기기 탐색중...");
+                        dialog.setText("기기 탐색중...");
                         isAvailable.setTextColor(Color.parseColor("#5DC19B"));
 
                         break;
                     case ArduinoBluetooth.FOUND_DEVICE:
-                        blueToothConnectionState="기기 연결중";
-                        isAvailable.setText("기기 연결중....");
+                        dialog.setText("기기 연결중....");
                         isAvailable.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                        blueToothConnectionState="연결 성공";
-                        isAvailable.setText("연결 성공");
-                        isAvailable.setTextColor(Color.parseColor("#4488FF"));
+                        dialog.setText("연결 성공");
+                        dialog.setTextColor(Color.parseColor("#4488FF"));
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
-                        blueToothConnectionState="연결 실패";
-                        isAvailable.setText("연결 실패");
-                        isAvailable.setTextColor(Color.parseColor("#F23920"));
+                        dialog.setText("연결 실패");
+                        dialog.setTextColor(Color.parseColor("#F23920"));
                         break;
                     case CarControlService.SUCCESSFUL_CONTROL:
+                        isAvailable.setText("운전중");
+                        isAvailable.setTextColor(Color.parseColor("#9911BB"));
                         unbindService(carControlServiceBindConnection);
                         break;
                     case CarControlService.FAILED_CONTROL:
+                        isAvailable.setText("운전 불가능");
+                        isAvailable.setTextColor(Color.parseColor("#FF5544"));
                         unbindService(carControlServiceBindConnection);
                         break;
                 }
@@ -298,25 +300,20 @@ public class CarInterface extends AppCompatActivity {
             public void run() {
                 switch(state){
                     case ArduinoBluetooth.SEARCHING:
-                        blueToothConnectionState="기기 탐색중";
-                        isAvailable.setText("기기 탐색중....");
-                        isAvailable.setTextColor(Color.parseColor("#5DC19B"));
-
+                        dialog.setText("기기 탐색중....");
+                        dialog.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.FOUND_DEVICE:
-                        blueToothConnectionState="기기 연결중";
-                        isAvailable.setText("기기 연결중...");
-                        isAvailable.setTextColor(Color.parseColor("#5DC19B"));
+                        dialog.setText("기기 연결중...");
+                        dialog.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                        blueToothConnectionState="연결 성공";
-                        isAvailable.setText("연결 성공");
-                        isAvailable.setTextColor(Color.parseColor("#4488FF"));
+                        dialog.setText("연결 성공");
+                        dialog.setTextColor(Color.parseColor("#4488FF"));
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
-                        blueToothConnectionState="연결 실패";
-                        isAvailable.setText("연결 실패");
-                        isAvailable.setTextColor(Color.parseColor("#F23920"));
+                        dialog.setText("연결 실패");
+                        dialog.setTextColor(Color.parseColor("#F23920"));
                         break;
                     case CarControlService.SUCCESSFUL_CONTROL:
                         unbindService(carControlServiceBindConnection);
