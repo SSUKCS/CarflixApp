@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -68,7 +69,6 @@ public class ProfileMenu {
     private View usageView;
     private View outView;
     private View deleteCarView;
-    private View settingsView;
 
     private Animation menuOpenAnim;
     private Animation menuCloseAnim;
@@ -224,21 +224,18 @@ public class ProfileMenu {
                                     }
 
                                     Log.d(baseActivity.getClass()+"ProfileMenu_delete_savedInviteGroupData", "BEFORE :: "+savedGroupJSONArrayString);
-                                    String targetString = "{\"ic_number\":\""+inviteCode+"\"}";
-                                    Integer index = savedGroupJSONArrayString.indexOf(targetString);
-                                    if(index>=0){
-                                        Log.d(baseActivity.getClass()+"ProfileMenu", "index :: "+index);
-
-                                        if(index == 1){//맨 앞에 있는 경우
-                                            if(savedGroupJSONArrayString.length()==targetString.length()+2)
-                                                savedGroupJSONArrayString = savedGroupJSONArrayString.replace(targetString,"");
-                                            else
-                                                savedGroupJSONArrayString = savedGroupJSONArrayString.replace(targetString+",","");
-                                        }
-                                        else{
-                                            savedGroupJSONArrayString = savedGroupJSONArrayString.replace(","+targetString,"");
+                                    JSONArray savedGroupJsonArray = new JSONArray(savedGroupJSONArrayString);
+                                    Integer len = savedGroupJsonArray.length();
+                                    for(int i=0;i<len;i++){
+                                        JSONObject savedGroupData = savedGroupJsonArray.getJSONObject(i);
+                                        Log.d("ProfileManu", "string1 :: "+savedGroupData.toString());
+                                        Log.d("ProfileManu", "string2 :: "+groupData.toString());
+                                        if(savedGroupData.getString("group_id").equals(groupData.getString("groupID"))){
+                                            savedGroupJsonArray.remove(i);
+                                            break;
                                         }
                                     }
+                                    savedGroupJSONArrayString = savedGroupJsonArray.toString();
                                     Log.d(baseActivity.getClass()+"ProfileMenu_delete_savedInviteGroupData", "AFTER :: "+savedGroupJSONArrayString);
                                     editor = savedInviteGroupData.edit();
                                     String status = groupData.getString("status");
@@ -278,11 +275,6 @@ public class ProfileMenu {
                 }
             });
         }
-        settingsView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-            }
-        });
     }
     private void quitProgram(){
         baseActivity.moveTaskToBack(true);
@@ -320,7 +312,6 @@ public class ProfileMenu {
         }
         usageView = baseActivity.findViewById(R.id.usageView);
         outView = baseActivity.findViewById(R.id.outView);
-        settingsView = baseActivity.findViewById(R.id.settings);
         setMenuOption();
     }
     public void settingProfile(JSONObject userData){
@@ -368,10 +359,12 @@ public class ProfileMenu {
             if(isGroupCreator){
                 //사용자 == 생성자 => 그룹 삭제 가능
                 ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 삭제");
+                baseActivity.findViewById(R.id.usageView).setVisibility(View.VISIBLE);
                 baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.VISIBLE);
             }
             else{
-                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.INVISIBLE);
+                baseActivity.findViewById(R.id.usageView).setVisibility(View.GONE);
+                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
             }
         }
         catch(JSONException e){

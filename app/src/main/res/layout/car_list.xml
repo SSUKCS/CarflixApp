@@ -129,22 +129,5 @@
                 android:text="차량 삭제"
                 android:textColor="#FFF"/>
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/settings"
-            style="@style/RightScreenButtonStyle"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="20dp"
-            android:layout_gravity="bottom">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/settings_icon"/>
-            <TextView
-                android:layout_marginLeft="13dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="설정"
-                android:textColor="#FFF"/>
-        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

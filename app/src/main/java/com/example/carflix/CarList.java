@@ -1,12 +1,18 @@
 package com.example.carflix;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
@@ -15,6 +21,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
@@ -55,8 +62,10 @@ public class CarList extends AppCompatActivity {
     private CarListAdapter adapter;
     private RecyclerView carListView;
     private TextView listEmpty;
+    private TextView snackBarTextView;
 
     private String memberID;
+    private String creatorID;
     private String groupID;
     private String groupName;
     private JSONObject userData;
@@ -65,6 +74,60 @@ public class CarList extends AppCompatActivity {
 
     private int nowDriving = -1;
 
+    LoadingDialog dialog;
+
+    private CarIdService carIdService;
+    private CarIdService.CarIdServiceCallback CarIdServiceCallback = this::CarIdStateUpdateCallback;
+    private final ServiceConnection carIdServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.i("CarInterface_carControlServiceBindConnection", "onServiceConnected: connected");
+            CarIdService.CarServiceBinder carServiceBinder = (CarIdService.CarServiceBinder) iBinder;
+            carIdService = carServiceBinder.getService();
+            carIdService.registerCallback(CarIdServiceCallback);
+            CarIdStateUpdateCallback(carIdService.getState());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.i("CarInterface_CarInterface_carControlServiceBindConnection", "onServiceDisconnected: disconnected");
+            carIdService = null;
+        }
+    };
+    private void CarIdStateUpdateCallback(String state){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch(state){
+                    case ArduinoBluetooth.SEARCHING:
+                        dialog.show();
+                        dialog.setText("기기 탐색중....");
+                        dialog.setTextColor(Color.parseColor("#5DC19B"));
+                        break;
+                    case ArduinoBluetooth.FOUND_DEVICE:
+                        dialog.show();
+                        dialog.setText("기기 연결중...");
+                        dialog.setTextColor(Color.parseColor("#5DC19B"));
+                        break;
+                    case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
+                        dialog.show();
+                        dialog.setText("연결 성공.");
+                        dialog.setTextColor(Color.parseColor("#9911BB"));
+                        break;
+                    case ArduinoBluetooth.FAILED_CONNECTION:
+                        dialog.setText("차량과 연결이 실패하였습니다.");
+                        dialog.setTextColor(Color.parseColor("#F23920"));
+                        dialog.dismiss();
+                        break;
+                    case CarIdService.ASSIGN_OK:
+                        dialog.setText("성공적으로 제거되었습니다.");
+                        unbindService(carIdServiceConnection);
+                        dialog.dismiss();
+                        break;
+                }
+            }
+        });
+    }
     Integer carImg_default = R.drawable.carimage_default;
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -72,6 +135,9 @@ public class CarList extends AppCompatActivity {
         setContentView(R.layout.car_list);
         context = getApplicationContext();
 
+        dialog = new LoadingDialog(this);
+
+        //생체인식 관련
         executor = ContextCompat.getMainExecutor(this);
         biometricPrompt = new BiometricPrompt(CarList.this, executor,
                 new BiometricPrompt.AuthenticationCallback() {
@@ -108,6 +174,8 @@ public class CarList extends AppCompatActivity {
         try{
             userData = new JSONObject(getIntent().getStringExtra("userData"));
             groupData = new JSONObject(getIntent().getStringExtra("groupData"));
+            creatorID = groupData.getString("creatorID");
+            Log.d("CarList", "memberID :: "+memberID+" , creatorID :: "+creatorID);
             groupID = groupData.getString("groupID");
             groupName = groupData.getString("groupName");
         }
@@ -116,7 +184,7 @@ public class CarList extends AppCompatActivity {
         }
 
         carDataList = new ArrayList<>();
-        updateListbyServer();
+        updateListFromServer();
 
         adapter = new CarListAdapter(context, carDataList);
         carListView.setAdapter(adapter);
@@ -125,6 +193,7 @@ public class CarList extends AppCompatActivity {
         if(carDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
         else listEmpty.setVisibility(View.INVISIBLE);
 
+        //액션바
         getSupportActionBar().setTitle(groupName);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
@@ -134,7 +203,8 @@ public class CarList extends AppCompatActivity {
         profileMenu = new ProfileMenu(this);
         profileMenu.settingProfile(userData, groupData);
         if(getIntent().getStringExtra("inviteCode")!=null){
-            profileMenu.setInviteCode(getIntent().getStringExtra("inviteCode"));
+            String inviteCode = getIntent().getStringExtra("inviteCode");
+            profileMenu.setInviteCode(inviteCode);
         }
 
         adapter.setItemClickListener(new CarListAdapter.itemClickListener() {
@@ -158,20 +228,7 @@ public class CarList extends AppCompatActivity {
                 }
             }
             public void onDeleteCarButtonClick(View v, int position){
-                String cr_id = carDataList.get(position).getCarID();
-                try{
-                    JSONObject requestBody = new JSONObject().put("cr_id", cr_id);
-                    ServerConnectionThread serverConnectionThread =
-                            new ServerConnectionThread("DELETE", "car/delete", requestBody);
-                    serverConnectionThread.start();
-                }
-                catch(JSONException e){
-                    Log.e("CarList_onDeleteCarButtonClick", e.toString());
-                }
-                updateListbyServer();
-                adapter.notifyDataSetChanged();
-
-
+                showDeleteMessage(position);
             }
             @Override
             public void onLookupInfoClick(View v, int position) {
@@ -186,7 +243,7 @@ public class CarList extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateListbyServer();
+        updateListFromServer();
         adapter.notifyDataSetChanged();
     }
     @Override
@@ -196,6 +253,8 @@ public class CarList extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_car_list, menu);
+        MenuItem addCarButton = menu.findItem(R.id.addCar);
+        addCarButton.setVisible(memberID.equals(creatorID));
         return super.onCreateOptionsMenu(menu);
     }
     @Override
@@ -235,13 +294,59 @@ public class CarList extends AppCompatActivity {
     }
     public void setMode(boolean mode){
         adapter.setDeleteMode(mode);
-        updateListbyServer();
+        updateListFromServer();
         adapter.notifyDataSetChanged();
     }
-    private void updateListbyServer(){
+    public void showDeleteMessage(int position){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("차량을 삭제하시겠습니까?");
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String numberClassification = carDataList.get(position).getClassification();
+                String registerationNum = carDataList.get(position).getRegisterationNumber();
+                String carName = carDataList.get(position).getCarName();
+
+                try{//1. 차량에서 데이터 삭제
+                    Intent bindServiceIntent = new Intent(getApplicationContext(), CarIdService.class);
+                    bindServiceIntent.putExtra("mb_id", memberID);
+                    bindServiceIntent.putExtra("group_id", groupID);
+                    bindServiceIntent.putExtra("status", status);
+                    bindServiceIntent.putExtra("numberClassification", numberClassification);
+                    bindServiceIntent.putExtra("registerationNum", registerationNum);
+                    bindServiceIntent.putExtra("carName", carName);
+                    bindServiceIntent.putExtra("mode", CarIdService.DELETE_MODE);
+                    bindService(bindServiceIntent, carIdServiceConnection, BIND_AUTO_CREATE);
+
+                    //2. 서버에서 데이터 삭제
+                    String cr_id = carDataList.get(position).getCarID();
+                    JSONObject requestBody = new JSONObject().put("cr_id", cr_id);
+                    ServerConnectionThread serverConnectionThread =
+                            new ServerConnectionThread("DELETE", "car/delete", requestBody);
+                    serverConnectionThread.start();
+                }
+                catch(JSONException e){
+                    Log.e("CarList_onDeleteCarButtonClick", e.toString());
+                }
+                updateListFromServer();
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+    private void updateListFromServer(){
         carDataList.clear();
-        String params = "mb_id="+memberID+"&group_id="+groupID+"&status="+status;
-        Log.d("carList_updateListfromServer", "params :: "+ params);
+        String params = "mb_id="+creatorID+"&group_id="+groupID+"&status="+status;;
         String carDataListJSONString = new ServerData("GET", "car/group_show", params, null).get();
         addItem(carDataListJSONString);
     }

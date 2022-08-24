@@ -32,13 +32,14 @@ public class GroupList extends AppCompatActivity {
 
     private String memberID;
     private JSONObject userData;
-    private Map<Integer, String> inviteCodeMap;
 
     private ArrayList groupDataList;
     private GroupListAdapter adapter;
     private RecyclerView groupListView;
     private TextView listEmpty;
     private ProfileMenu profileMenu;
+
+    private Map<Integer, String> inviteCodeMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -86,13 +87,12 @@ public class GroupList extends AppCompatActivity {
                         intent.putExtra("groupData", groupData);
                         break;
                 }
-                if(inviteCodeMap.containsKey(position)){
-                    Log.d("GroupList", "InviteCode :: "+ inviteCodeMap.get(position));
-                    intent.putExtra("inviteCode", inviteCodeMap.get(position));
-                }
                 intent.putExtra("memberID", memberID);
                 intent.putExtra("userData", userData.toString());
                 intent.putExtra("status", status);
+                if(inviteCodeMap.get(position)!=null){
+                    intent.putExtra("inviteCode", inviteCodeMap.get(position));
+                }
 
                 startActivity(intent);
             }
@@ -102,13 +102,12 @@ public class GroupList extends AppCompatActivity {
     protected void onResume() {
         Log.i("GroupList", "onResume: ");
         super.onResume();
-
         //서버로부터 데이터 입력
         updateUserDataFromServer();
         updateListFromServer();
+
         if(groupDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
         else listEmpty.setVisibility(View.INVISIBLE);
-
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -146,32 +145,35 @@ public class GroupList extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     private void updateUserDataFromServer(){
-        ServerData serverData = new ServerData("GET", "member/show", "mb_id="+memberID, null);
-        try{
-            userData = new JSONObject(serverData.get());
-
-            //프로파일 메뉴
-            profileMenu = new ProfileMenu(this);
-            profileMenu.settingProfile(userData);
-        }
-        catch(JSONException e){
-            Log.e("GroupList", e.toString());
-        }
+        profileMenu = new ProfileMenu(this);
+        new Thread(){
+            public void run(){
+                ServerData serverData = new ServerData("GET", "member/show", "mb_id="+memberID, null);
+                try{
+                    userData = new JSONObject(serverData.get());
+                    //프로파일 메뉴
+                    profileMenu.settingProfile(userData);
+                }
+                catch(JSONException e){
+                    Log.e("GroupList", e.toString());
+                }
+            }
+        }.run();
     }
     private void updateListFromServer(){
         groupDataList.clear();
-        new Thread(() -> {
-            Log.d("Annonymus thread", "run");
-            String smallGroupDataJSONString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
-            String ceoGroupDataJSONString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
-            String rentGroupDataJSONString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("Annonymus thread", "run");
 
-            addItem(smallGroupDataJSONString, "small_group");
-            addItemFromSavedData("small_group");
-            addItem(ceoGroupDataJSONString, "ceo_group");
-            addItemFromSavedData("ceo_group");
-            addItem(rentGroupDataJSONString, "rent_group");
-            addItemFromSavedData("rent_group");
+                GroupList.this.addItemFromServer("small_group");
+                GroupList.this.addItemFromSavedData("small_group");
+                GroupList.this.addItemFromServer("ceo_group");
+                GroupList.this.addItemFromSavedData("ceo_group");
+                GroupList.this.addItemFromServer("rent_group");
+                GroupList.this.addItemFromSavedData("rent_group");
+            }
         }).run();
         Log.d("carList", "isempty :: "+groupDataList.isEmpty());
         adapter.notifyDataSetChanged();
@@ -179,9 +181,9 @@ public class GroupList extends AppCompatActivity {
     private void addItemFromSavedData(String groupType){
         //savedInviteGroupData에 저장되어있는 코드를 이용해 아이템 추가
         /*
-         * savedInviteGroupData  -   small_group:[{"ic_number": "...."}, ....],
-         *                           ceo_group:[{"ic_number": "...."}, ....],
-         *                           rent_group:[{"ic_number": "...."}, ....]
+         * savedInviteGroupData  -   small_group:[{"mb_id":"....","group_id":"....","status":"...."}, ....],
+         *                           ceo_group:[{"mb_id":"....","group_id":"....","status":"...."}, ....],
+         *                           rent_group:[{"mb_id":"....","group_id":"....","status":"...."}, ....]
          */
         SharedPreferences savedInviteGroupData= getSharedPreferences(getString(R.string.invite_Group_Data), MODE_PRIVATE);
         String savedGroupJSONArrayString ="";
@@ -200,64 +202,59 @@ public class GroupList extends AppCompatActivity {
         Log.d("GroupList_addItemFromSaveData", "savedGroupJSONArrayString :: "+savedGroupJSONArrayString);
         if(!savedGroupJSONArrayString.equals(getString(R.string.groupDataKey_noValue))){
             try{
-                Integer index;
-                String inviteCode;
-
                 JSONArray inviteCodeJSONArray = new JSONArray(savedGroupJSONArrayString);
                 int len = inviteCodeJSONArray.length();
+                // {"mb_id":"29","group_id":"34","status":"ceo_group"}
                 for(int i = 0; i< len; i++){
-                    inviteCode = inviteCodeJSONArray.getJSONObject(i).getString("ic_number");
-                    ServerData serverData = new ServerData("POST", "code_car/create", new JSONObject().put("ic_number", inviteCode).put("member", memberID));
-                    JSONObject resultJSON = new JSONObject(serverData.get());
-                    String message = resultJSON.getString("message");
-                    if(message.equals("group invited")){
-                        // 성공: {"message":"group invited","mb_id":"29","group_id":"34","status":"ceo_group"}
-                        String group_id= resultJSON.getString("group_id");
-                        String param="";
+                    String group_id= inviteCodeJSONArray.getJSONObject(i).getString("group_id");
+                    String inviteCode = inviteCodeJSONArray.getJSONObject(i).getString("ic_number");
+                    Log.d("GroupList_addItemFromSavedData", inviteCode);
+                    String param="";
+                    switch(groupType){
+                        case"small_group": param = "sg_id="+group_id;break;
+                        case"ceo_group":param = "cg_id="+group_id;break;
+                        case"rent_group":param = "rg_id="+group_id;break;
+                    }
+                    ServerData serverData = new ServerData("GET", groupType+"/show", param, null);
+                    //성공 : Connected successfully
+                    JSONObject groupJSONData = new JSONObject(serverData.get());
+                    if(!groupJSONData.get("mb_id").equals("")){
+                        //그룹 데이터 사용 가능
                         switch(groupType){
-                            case"small_group": param = "sg_id="+group_id;break;
-                            case"ceo_group":param = "cg_id="+group_id;break;
-                            case"rent_group":param = "rg_id="+group_id;break;
+                            case"small_group": groupDataList.add(new SmallGroupData(groupJSONData));;break;
+                            case"ceo_group":groupDataList.add(new CEOGroupData(groupJSONData));;break;
+                            case"rent_group":groupDataList.add(new RentGroupData(groupJSONData));;break;
                         }
-                        serverData = new ServerData("GET", groupType+"/show", param, null);
-                        //성공 : Connected successfully
-                        JSONObject groupJSONData = new JSONObject(serverData.get());
-                        if(!groupJSONData.get("mb_id").equals("")){
-                            //그룹 데이터 사용 가능
-                            switch(groupType){
-                                case"small_group": groupDataList.add(new SmallGroupData(groupJSONData));;break;
-                                case"ceo_group":groupDataList.add(new CEOGroupData(groupJSONData));;break;
-                                case"rent_group":groupDataList.add(new RentGroupData(groupJSONData));;break;
-                            }
-                            index = groupDataList.size()-1;
-                            inviteCodeMap.put(index, inviteCode);
-                        }
+                        Integer index = groupDataList.size()-1;
+                        inviteCodeMap.put(index, inviteCode);
+                    }
                         else{
                             //모종의 이유(예: 그룹이 삭제)로 그룹데이터가 사용 불가능
                             Toast.makeText(getApplicationContext(), "존재하지 않는 그룹입니다.", Toast.LENGTH_LONG);
                             Log.d("GroupList_addItemFromSaveData", "그룹이 존재하지 않습니다.");
                         }
-                    }
-                    else{// 실패: {"message":"group not invited"}
-                        Log.d("GroupList_addItemFromSavedData", message);
-                    }
                 }
-                Log.d("GroupList_addItemFromSaveData", "inviteCodeMap.size() :: "+ inviteCodeMap.size());
             }
             catch(JSONException e){
                 Log.e("groupList_addItemFromSavedData", e.toString());
             }
         }
     }
-    private void addItem(String JSONArrayString, String groupType){
-        String errorMessage;
+    private void addItemFromServer(String groupType){
+        String JSONArrayString = "", errorMessage = "";
         switch(groupType){
             case "sg":
-            case "small_group":errorMessage = "No small_group Found";break;
+            case "small_group":
+                JSONArrayString = new ServerData("GET", "small_group/group_info", "mb_id="+memberID, null).get();
+                errorMessage = "No small_group Found";break;
             case "cg":
-            case "ceo_group":errorMessage = "No ceo_group Found";break;
+            case "ceo_group":
+                JSONArrayString = new ServerData("GET", "ceo_group/group_info", "mb_id="+memberID, null).get();
+                errorMessage = "No ceo_group Found";break;
             case "rg":
-            case "rent_group":errorMessage = "No rent_group Found";break;
+            case "rent_group":
+                JSONArrayString = new ServerData("GET", "rent_group/group_info", "mb_id="+memberID, null).get();
+                errorMessage = "No rent_group Found";break;
             default: errorMessage = "INVALID GROUPTYPE";
         }
         if(!JSONArrayString.equals(errorMessage)&&!errorMessage.equals("INVALID GROUPTYPE")){
