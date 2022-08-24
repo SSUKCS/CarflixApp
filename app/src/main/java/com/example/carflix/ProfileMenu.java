@@ -152,12 +152,13 @@ public class ProfileMenu {
         outView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                SharedPreferences.Editor editor;
                 switch(baseActivity.getClass().toString()){
                     case "class com.example.carflix.GroupList"://로그아웃
                         //1.저장되어있는 id/비밀번호 초기화
                         Context context = baseActivity.getApplicationContext();
                         SharedPreferences autoLogin = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = autoLogin.edit();
+                        editor = autoLogin.edit();
                         editor.putString(context.getString(R.string.savedIDKey), context.getString(R.string.savedIDKey_noValue));
                         editor.putString(context.getString(R.string.savedPWKey), context.getString(R.string.savedPWKey_noValue));
                         editor.commit();
@@ -167,12 +168,12 @@ public class ProfileMenu {
                         if(isGroupCreator&&inviteCode.equals("No Invite Code")){
                             //사용자가 그룹 생성자일 경우에만 가능
                             try{
-                                String status = userData.getString("status");
+                                String status = groupData.getString("status");
                                 JSONObject requestBody = new JSONObject();
                                 switch(status){
-                                    case"small_group": requestBody.put("sg_id", userData.getString("group_id"));break;
-                                    case"ceo_group": requestBody.put("cg_id", userData.getString("group_id"));break;
-                                    case"rent_group": requestBody.put("rg_id", userData.getString("group_id"));break;
+                                    case"small_group": requestBody.put("sg_id", groupData.getString("groupID"));break;
+                                    case"ceo_group": requestBody.put("cg_id", groupData.getString("groupID"));break;
+                                    case"rent_group": requestBody.put("rg_id", groupData.getString("groupID"));break;
                                 }
                                 ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", status+"/delete", requestBody);
                                 serverConnectionThread.start();
@@ -180,6 +181,7 @@ public class ProfileMenu {
                             catch(JSONException e){
                                 Log.e(baseActivity.getClass()+"ProfileMenu", e.toString());
                             }
+                            closeRightMenu();
                             baseActivity.finish();
                         }
                         else{
@@ -221,23 +223,36 @@ public class ProfileMenu {
                                     }
 
                                     Log.d(baseActivity.getClass()+"ProfileMenu_delete_savedInviteGroupData", "BEFORE :: "+savedGroupJSONArrayString);
-                                    //저장되어 있는 값이 존재
-                                    if(savedGroupJSONArrayString.contains(inviteCode)){
-                                        Integer index = savedGroupJSONArrayString.indexOf("{\"ic_number\":\""+inviteCode+"\"}");
+                                    String targetString = "{\"ic_number\":\""+inviteCode+"\"}";
+                                    Integer index = savedGroupJSONArrayString.indexOf(targetString);
+                                    if(index>=0){
                                         Log.d(baseActivity.getClass()+"ProfileMenu", "index :: "+index);
 
                                         if(index == 1){//맨 앞에 있는 경우
-                                            String targetString = "{\"ic_number\":\""+inviteCode+"\"}";
                                             if(savedGroupJSONArrayString.length()==targetString.length()+2)
-                                                savedGroupJSONArrayString.replace("{\"ic_number\":\""+inviteCode+"\"}","");
+                                                savedGroupJSONArrayString = savedGroupJSONArrayString.replace(targetString,"");
                                             else
-                                                savedGroupJSONArrayString.replace("{\"ic_number\":\""+inviteCode+"\"},","");
+                                                savedGroupJSONArrayString = savedGroupJSONArrayString.replace(targetString+",","");
                                         }
                                         else{
-                                            savedGroupJSONArrayString.replace(",{\"ic_number\":\""+inviteCode+"\"}","");
+                                            savedGroupJSONArrayString = savedGroupJSONArrayString.replace(","+targetString,"");
                                         }
                                     }
                                     Log.d(baseActivity.getClass()+"ProfileMenu_delete_savedInviteGroupData", "AFTER :: "+savedGroupJSONArrayString);
+                                    editor = savedInviteGroupData.edit();
+                                    String status = groupData.getString("status");
+                                    switch(status){
+                                        case"small_group":
+                                            editor.putString(baseActivity.getString(R.string.smallGroupKey), savedGroupJSONArrayString);
+                                            break;
+                                        case"ceo_group":
+                                            editor.putString(baseActivity.getString(R.string.ceoGroupKey), savedGroupJSONArrayString);
+                                            break;
+                                        case"rent_group":
+                                            editor.putString(baseActivity.getString(R.string.rentGroupKey), savedGroupJSONArrayString);
+                                            break;
+                                    }
+                                    editor.apply();
                                 }
                                 catch(JSONException e){
                                     Log.e(baseActivity.getClass()+"ProfileMenu_delete_savedInviteGroupData", e.toString());
@@ -246,6 +261,8 @@ public class ProfileMenu {
                             else{
                                 Log.d(baseActivity.getClass()+"ProfileMenu_delete_savedInviteGroupData", "server failed to delete data");
                             }
+                            closeRightMenu();
+                            baseActivity.finish();
                         }
                         break;
                 }

@@ -220,7 +220,6 @@ public class CarInterface extends AppCompatActivity {
                     case ArduinoBluetooth.SEARCHING:
                         dialog.setText("기기 탐색중...");
                         isAvailable.setTextColor(Color.parseColor("#5DC19B"));
-
                         break;
                     case ArduinoBluetooth.FOUND_DEVICE:
                         dialog.setText("기기 연결중....");
@@ -229,10 +228,12 @@ public class CarInterface extends AppCompatActivity {
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
                         dialog.setText("연결 성공");
                         dialog.setTextColor(Color.parseColor("#4488FF"));
+                        dialog.dismiss();
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
                         dialog.setText("연결 실패");
                         dialog.setTextColor(Color.parseColor("#F23920"));
+                        dialog.dismiss();
                         break;
                     case CarControlService.SUCCESSFUL_CONTROL:
                         isAvailable.setText("운전중");
@@ -267,10 +268,12 @@ public class CarInterface extends AppCompatActivity {
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
                         dialog.setText("연결 성공");
                         dialog.setTextColor(Color.parseColor("#4488FF"));
+                        dialog.dismiss();
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
                         dialog.setText("연결 실패");
                         dialog.setTextColor(Color.parseColor("#F23920"));
+                        dialog.dismiss();
                         break;
                     case CarControlService.SUCCESSFUL_CONTROL:
                         unbindService(carControlServiceBindConnection);
@@ -285,8 +288,14 @@ public class CarInterface extends AppCompatActivity {
         });
     }
     @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if(dialog.isShowing())
+            dialog.dismiss();
+    }
+    @Override
     public void onBackPressed(){
-
+        dialog.dismiss();
         finish();
     }
     public void getPermission(){

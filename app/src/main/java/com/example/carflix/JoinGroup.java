@@ -107,6 +107,7 @@ public class JoinGroup extends AppCompatActivity {
 
                 savedGroupJSONArray.put(new JSONObject().put("ic_number", inviteCode));
                 Log.d("JoinGroup_saveGroupData", "AFTER :: "+savedGroupJSONArray);
+                //SharedPreferences에 저장
                 SharedPreferences.Editor editor = savedInviteGroupData.edit();
                 switch(status){
                     case"small_group":
