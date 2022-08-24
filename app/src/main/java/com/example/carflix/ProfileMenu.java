@@ -67,6 +67,7 @@ public class ProfileMenu {
 
     private View usageView;
     private View outView;
+    private View deleteCarView;
     private View settingsView;
 
     private Animation menuOpenAnim;
@@ -202,13 +203,13 @@ public class ProfileMenu {
                             }
                             if(message.equals("group deleted")){
                                 //2. shardpreference에 저장되어있는 invitecode 삭제
-                                SharedPreferences savedInviteGroupData = baseActivity.getSharedPreferences(baseActivity.getString(R.string.invite_Group_Data), baseActivity.MODE_PRIVATE);
-                                String savedGroupJSONArrayString = "";
                                 /*
                                  * savedInviteGroupData  -   small_group:[{"ic_number": "...."}, ....],
                                  *                           ceo_group:[{"ic_number": "...."}, ....],
                                  *                           rent_group:[{"ic_number": "...."}, ....]
                                  */
+                                SharedPreferences savedInviteGroupData = baseActivity.getSharedPreferences(baseActivity.getString(R.string.invite_Group_Data), baseActivity.MODE_PRIVATE);
+                                String savedGroupJSONArrayString = "";
                                 try{
                                     switch(groupData.getString("status")){
                                         case"small_group":
@@ -268,6 +269,12 @@ public class ProfileMenu {
                 }
             }
         });
+        deleteCarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         settingsView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -298,7 +305,7 @@ public class ProfileMenu {
                 ((ImageView)baseActivity.findViewById(R.id.usageImg)).setImageResource(R.drawable.ic_round_person_24);
                 ((TextView)baseActivity.findViewById(R.id.outText)).setText("로그아웃");
                 ((ImageView)baseActivity.findViewById(R.id.outImg)).setImageResource(R.drawable.image_logout_resize);
-
+                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
                 break;
             case "class com.example.carflix.CarList":
                 ((TextView)baseActivity.findViewById(R.id.usageText)).setText("초대코드 생성");
@@ -306,10 +313,10 @@ public class ProfileMenu {
                 //만약 그룹 생성자일 경우 "그룹 삭제"로 text설정
                 ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 탈퇴");
                 ((ImageView)baseActivity.findViewById(R.id.outImg)).setImageResource(R.drawable.ic_group_off);
-
+                deleteCarView = baseActivity.findViewById(R.id.deleteCarView);
+                deleteCarView.setVisibility(View.VISIBLE);
                 break;
         }
-
         usageView = baseActivity.findViewById(R.id.usageView);
         outView = baseActivity.findViewById(R.id.outView);
         settingsView = baseActivity.findViewById(R.id.settings);

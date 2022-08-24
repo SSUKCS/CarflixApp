@@ -97,7 +97,6 @@
                 android:layout_marginLeft="13dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="초대 목록"
                 android:textColor="#FFF"/>
         </LinearLayout>
         <LinearLayout
@@ -113,7 +112,21 @@
                 android:layout_marginLeft="13dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="친구"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/deleteCarView"
+            style="@style/RightScreenButtonStyle">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_car_delete"
+                app:tint="#FFFFFFFF"/>
+            <TextView
+                android:layout_marginLeft="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="차량 삭제"
                 android:textColor="#FFF"/>
         </LinearLayout>
         <LinearLayout
