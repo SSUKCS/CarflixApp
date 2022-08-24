@@ -348,6 +348,6 @@ public class CarTracingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        tracingThread = null;
     }
 }
