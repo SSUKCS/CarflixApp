@@ -170,6 +170,8 @@ public class CarList extends AppCompatActivity {
                 }
                 updateListbyServer();
                 adapter.notifyDataSetChanged();
+
+
             }
             @Override
             public void onLookupInfoClick(View v, int position) {
@@ -233,6 +235,7 @@ public class CarList extends AppCompatActivity {
     }
     public void setMode(boolean mode){
         adapter.setDeleteMode(mode);
+        updateListbyServer();
         adapter.notifyDataSetChanged();
     }
     private void updateListbyServer(){

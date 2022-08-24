@@ -138,9 +138,9 @@ public class ProfileMenu {
                         Log.d(baseActivityClass, "USERDATA :: "+ userData.toString());
                         try{
                             intent.putExtra("memberID", userData.getString("mb_id"));
-                            intent.putExtra("groupID", userData.getString("group_id"));
-                            intent.putExtra("groupName", userData.getString("group_name"));
-                            intent.putExtra("status", userData.getString("status"));
+                            intent.putExtra("groupID", groupData.getString("groupID"));
+                            intent.putExtra("groupName", groupData.getString("groupName"));
+                            intent.putExtra("status", groupData.getString("status"));
                             baseActivity.startActivity(intent);
                         }
                         catch(JSONException e){
