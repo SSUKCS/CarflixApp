@@ -35,6 +35,8 @@ public class AddCar extends AppCompatActivity {
     TextView carIdServiceState;
     Button addCarButton;
 
+    LoadingDialog dialog;
+
     private String memberID;
     private String groupID;
     private String status;
@@ -64,6 +66,7 @@ public class AddCar extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_car);
+        dialog = new LoadingDialog(this);
         getPermission();
 
         memberID = getIntent().getStringExtra("memberID");
@@ -78,24 +81,30 @@ public class AddCar extends AppCompatActivity {
             public void run() {
                 switch(state){
                     case ArduinoBluetooth.SEARCHING:
-                        carIdServiceState.setText("기기 탐색중....");
-                        carIdServiceState.setTextColor(Color.parseColor("#5DC19B"));
+                        dialog.show();
+                        dialog.setText("기기 탐색중....");
+                        dialog.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.FOUND_DEVICE:
-                        carIdServiceState.setText("기기 연결중...");
-                        carIdServiceState.setTextColor(Color.parseColor("#5DC19B"));
+                        dialog.show();
+                        dialog.setText("기기 연결중...");
+                        dialog.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                        carIdServiceState.setText("연결 성공.");
-                        carIdServiceState.setTextColor(Color.parseColor("#9911BB"));
+                        dialog.show();
+                        dialog.setText("연결 성공.");
+                        dialog.setTextColor(Color.parseColor("#9911BB"));
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
-                        carIdServiceState.setText("차량과 연결이 실패하였습니다.");
-                        carIdServiceState.setTextColor(Color.parseColor("#F23920"));
+                        dialog.setText("차량과 연결이 실패하였습니다.");
+                        dialog.setTextColor(Color.parseColor("#F23920"));
+                        dialog.dismiss();
                         break;
                     case CarIdService.ASSIGN_OK:
-                        carIdServiceState.setText("아이디 할당 성공!");
+                        dialog.show();
+                        dialog.setText("아이디 할당 성공!");
                         unbindService(carIdServiceConnection);
+                        dialog.dismiss();
                         break;
                 }
             }
@@ -119,7 +128,7 @@ public class AddCar extends AppCompatActivity {
                 //예) 12 가 1234 or 12가 1234 or 12 가1234 or 12가1234
                 boolean debug_mode_l = true;
                 if(debug_mode_l ||
-                        (!editTextIsEmpty()&&Pattern.matches("^\\d{2,3}[가-힣]\\d{4}$", carNumber))){
+                        (!editTextIsEmpty()&&Pattern.matches("^\\d{2,3}\\s*[가-힣]\\s*\\d{4}$", carNumber))){
                     int len = carNumber.length();
                     //블루투스 페어링이 가능한 차량 탐색
                     //등록할 차량의 macAddress를 가져온다.
@@ -148,7 +157,6 @@ public class AddCar extends AppCompatActivity {
     public void getPermission(){
         if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED){
         }
