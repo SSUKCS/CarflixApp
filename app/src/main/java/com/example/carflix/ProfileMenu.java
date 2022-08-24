@@ -269,12 +269,15 @@ public class ProfileMenu {
                 }
             }
         });
-        deleteCarView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
+        if(baseActivity.getClass().toString().equals("class com.example.carflix.CarList")){
+            deleteCarView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((CarList)baseActivity).setMode(true);
+                    closeRightMenu();
+                }
+            });
+        }
         settingsView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -305,7 +308,6 @@ public class ProfileMenu {
                 ((ImageView)baseActivity.findViewById(R.id.usageImg)).setImageResource(R.drawable.ic_round_person_24);
                 ((TextView)baseActivity.findViewById(R.id.outText)).setText("로그아웃");
                 ((ImageView)baseActivity.findViewById(R.id.outImg)).setImageResource(R.drawable.image_logout_resize);
-                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
                 break;
             case "class com.example.carflix.CarList":
                 ((TextView)baseActivity.findViewById(R.id.usageText)).setText("초대코드 생성");
@@ -314,7 +316,6 @@ public class ProfileMenu {
                 ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 탈퇴");
                 ((ImageView)baseActivity.findViewById(R.id.outImg)).setImageResource(R.drawable.ic_group_off);
                 deleteCarView = baseActivity.findViewById(R.id.deleteCarView);
-                deleteCarView.setVisibility(View.VISIBLE);
                 break;
         }
         usageView = baseActivity.findViewById(R.id.usageView);
@@ -367,6 +368,10 @@ public class ProfileMenu {
             if(isGroupCreator){
                 //사용자 == 생성자 => 그룹 삭제 가능
                 ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 삭제");
+                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.VISIBLE);
+            }
+            else{
+                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.INVISIBLE);
             }
         }
         catch(JSONException e){

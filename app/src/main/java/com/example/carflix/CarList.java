@@ -116,7 +116,7 @@ public class CarList extends AppCompatActivity {
         }
 
         carDataList = new ArrayList<>();
-        updateListfromServer();
+        updateListbyServer();
 
         adapter = new CarListAdapter(context, carDataList);
         carListView.setAdapter(adapter);
@@ -157,7 +157,20 @@ public class CarList extends AppCompatActivity {
                     Toast.makeText(context, "차량 운전중입니다.", Toast.LENGTH_LONG).show();
                 }
             }
-
+            public void onDeleteCarButtonClick(View v, int position){
+                String cr_id = carDataList.get(position).getCarID();
+                try{
+                    JSONObject requestBody = new JSONObject().put("cr_id", cr_id);
+                    ServerConnectionThread serverConnectionThread =
+                            new ServerConnectionThread("DELETE", "car/delete", requestBody);
+                    serverConnectionThread.start();
+                }
+                catch(JSONException e){
+                    Log.e("CarList_onDeleteCarButtonClick", e.toString());
+                }
+                updateListbyServer();
+                adapter.notifyDataSetChanged();
+            }
             @Override
             public void onLookupInfoClick(View v, int position) {
                 //lookupInfo로 이동
@@ -171,7 +184,7 @@ public class CarList extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateListfromServer();
+        updateListbyServer();
         adapter.notifyDataSetChanged();
     }
     @Override
@@ -218,7 +231,11 @@ public class CarList extends AppCompatActivity {
             finish();
         }
     }
-    private void updateListfromServer(){
+    public void setMode(boolean mode){
+        adapter.setDeleteMode(mode);
+        adapter.notifyDataSetChanged();
+    }
+    private void updateListbyServer(){
         carDataList.clear();
         String params = "mb_id="+memberID+"&group_id="+groupID+"&status="+status;
         Log.d("carList_updateListfromServer", "params :: "+ params);

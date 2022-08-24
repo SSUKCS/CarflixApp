@@ -19,14 +19,17 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
     private String TAG = "carListAdapter";
     private Context context;
     private ArrayList<CarData> dataList;//데이터를 담을 리스트
+    private boolean isDeleteMode;
 
     public CarListAdapter(Context context, ArrayList<CarData> dataList){
         this.context = context;
         this.dataList = dataList;
+        isDeleteMode = false;
     }
     //클릭 리스너 인터페이스
     public interface itemClickListener{
         void onItemClick(View v, int position);
+        void onDeleteCarButtonClick(View v, int position);
         void onLookupInfoClick(View v, int position);
     }
     //리스너 객체 참조 변수
@@ -50,6 +53,12 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
         holder.carImg.setImageResource(carData.getcarImg());
         holder.carName.setText(carData.getCarName());
         holder.isAvailable.setText(carData.getStatus());
+        if(isDeleteMode){
+            holder.deleteCarButton.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.deleteCarButton.setVisibility(View.INVISIBLE);
+        }
         switch(carData.getStatus())
         {
             case"운전 가능":holder.isAvailable.setTextColor(Color.parseColor("#4488FF"));break;
@@ -57,6 +66,9 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
             case"운전중":holder.isAvailable.setTextColor(Color.parseColor("#9911BB"));break;
         }
     }
+    public void setDeleteMode(boolean mode){
+        isDeleteMode = mode;
+    };
     //화면에 보여줄 데이터의 갯수를 반환
     @Override
     public int getItemCount(){
@@ -67,6 +79,7 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
         ImageView carImg;
         TextView carName;
         TextView isAvailable;
+        View deleteCarButton;
         Button btn_LookupInfo;
 
         public ViewHolder(@NonNull View itemView){
@@ -74,6 +87,7 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
             carImg = itemView.findViewById(R.id.carImg);
             carName = itemView.findViewById(R.id.carName);
             isAvailable = itemView.findViewById(R.id.isAvailable);
+            deleteCarButton = itemView.findViewById(R.id.deleteCarButton);
             btn_LookupInfo = itemView.findViewById(R.id.lookupInfo);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +97,17 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
                     if (position != RecyclerView.NO_POSITION) {
                         if (listener != null) {
                             listener.onItemClick(view, position);
+                        }
+                    }
+                }
+            });
+            deleteCarButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        if (listener != null) {
+                            listener.onDeleteCarButtonClick(view, position);
                         }
                     }
                 }
