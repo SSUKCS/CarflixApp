@@ -72,7 +72,6 @@ public class CarList extends AppCompatActivity {
         setContentView(R.layout.car_list);
         context = getApplicationContext();
 
-        /*
         executor = ContextCompat.getMainExecutor(this);
         biometricPrompt = new BiometricPrompt(CarList.this, executor,
                 new BiometricPrompt.AuthenticationCallback() {
@@ -99,7 +98,6 @@ public class CarList extends AppCompatActivity {
                 .setNegativeButtonText("취소")
                 .setAllowedAuthenticators(BIOMETRIC_STRONG)
                 .build();
-                */
 
         carListView = findViewById(R.id.carListView);
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
@@ -144,7 +142,7 @@ public class CarList extends AppCompatActivity {
             public void onItemClick(View v, int position) {
                 /*DEVICE_CREDENTIAL 및 BIOMETRIC_STRONG | DEVICE_CREDENTIAL 인증자 유형 조합은
         Android 10(API 수준 29) 이하에서 지원되지 않는다*/
-                //biometricPrompt.authenticate(promptInfo);
+                biometricPrompt.authenticate(promptInfo);
                 //carInterface로 이동
                 if(nowDriving == DEFAULT || nowDriving==position){
                     Log.d("CarList_serItemClickListener_onItemClick: ", "nowDriving"+nowDriving);

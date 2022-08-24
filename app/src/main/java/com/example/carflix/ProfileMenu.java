@@ -74,7 +74,7 @@ public class ProfileMenu {
     private Animation onDarkAnim;
     private Animation offDarkAnim;
 
-    boolean menuOpen = false;
+    boolean menuOpen;
 
     private JSONObject userData;
     private JSONObject groupData;
@@ -164,7 +164,6 @@ public class ProfileMenu {
                         quitProgram();
                         break;
                     case "class com.example.carflix.CarList"://그룹 탈퇴
-                        Log.d("ProfileMenu", "Group Out");
                         if(isGroupCreator&&inviteCode.equals("No Invite Code")){
                             //사용자가 그룹 생성자일 경우에만 가능
                             try{
@@ -228,7 +227,11 @@ public class ProfileMenu {
                                         Log.d(baseActivity.getClass()+"ProfileMenu", "index :: "+index);
 
                                         if(index == 1){//맨 앞에 있는 경우
-                                            savedGroupJSONArrayString.replace("{\"ic_number\":\""+inviteCode+"\"},","");
+                                            String targetString = "{\"ic_number\":\""+inviteCode+"\"}";
+                                            if(savedGroupJSONArrayString.length()==targetString.length()+2)
+                                                savedGroupJSONArrayString.replace("{\"ic_number\":\""+inviteCode+"\"}","");
+                                            else
+                                                savedGroupJSONArrayString.replace("{\"ic_number\":\""+inviteCode+"\"},","");
                                         }
                                         else{
                                             savedGroupJSONArrayString.replace(",{\"ic_number\":\""+inviteCode+"\"}","");
@@ -265,6 +268,8 @@ public class ProfileMenu {
         darkBackground = baseActivity.findViewById(R.id.dark_background);
         setTouchEventWhenSlide();
         setAnimation();
+
+        menuOpen = false;
 
         userImage = baseActivity.findViewById(R.id.userImage);
         userName = baseActivity.findViewById(R.id.userName);

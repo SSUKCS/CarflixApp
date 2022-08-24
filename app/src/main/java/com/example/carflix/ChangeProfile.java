@@ -176,8 +176,7 @@ public class ChangeProfile extends AppCompatActivity{
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String email = emailEdit.getText().toString().trim();
-                if(email.matches(emailRegex))checkEmailisOK=true;
-                else checkEmailisOK = false;
+                checkEmailisOK= email.matches(emailRegex);
             }
 
             @Override
