@@ -308,27 +308,16 @@ public class CarList extends AppCompatActivity {
                 String registerationNum = carDataList.get(position).getRegisterationNumber();
                 String carName = carDataList.get(position).getCarName();
 
-                try{//1. 차량에서 데이터 삭제
-                    Intent bindServiceIntent = new Intent(getApplicationContext(), CarIdService.class);
-                    bindServiceIntent.putExtra("mb_id", memberID);
-                    bindServiceIntent.putExtra("group_id", groupID);
-                    bindServiceIntent.putExtra("status", status);
-                    bindServiceIntent.putExtra("numberClassification", numberClassification);
-                    bindServiceIntent.putExtra("registerationNum", registerationNum);
-                    bindServiceIntent.putExtra("carName", carName);
-                    bindServiceIntent.putExtra("mode", CarIdService.DELETE_MODE);
-                    bindService(bindServiceIntent, carIdServiceConnection, BIND_AUTO_CREATE);
+                Intent bindServiceIntent = new Intent(getApplicationContext(), CarIdService.class);
+                bindServiceIntent.putExtra("mb_id", memberID);
+                bindServiceIntent.putExtra("group_id", groupID);
+                bindServiceIntent.putExtra("status", status);
+                bindServiceIntent.putExtra("numberClassification", numberClassification);
+                bindServiceIntent.putExtra("registerationNum", registerationNum);
+                bindServiceIntent.putExtra("carName", carName);
+                bindServiceIntent.putExtra("mode", CarIdService.DELETE_MODE);
+                bindService(bindServiceIntent, carIdServiceConnection, BIND_AUTO_CREATE);
 
-                    //2. 서버에서 데이터 삭제
-                    String cr_id = carDataList.get(position).getCarID();
-                    JSONObject requestBody = new JSONObject().put("cr_id", cr_id);
-                    ServerConnectionThread serverConnectionThread =
-                            new ServerConnectionThread("DELETE", "car/delete", requestBody);
-                    serverConnectionThread.start();
-                }
-                catch(JSONException e){
-                    Log.e("CarList_onDeleteCarButtonClick", e.toString());
-                }
                 updateListFromServer();
                 adapter.notifyDataSetChanged();
             }

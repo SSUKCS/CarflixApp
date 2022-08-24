@@ -181,7 +181,7 @@ public class CarIdService extends Service {
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_DELETE_OK){
                 try{
-                    ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/create", new JSONObject().put("cr_id", crId));
+                    ServerConnectionThread serverConnectionThread = new ServerConnectionThread("DELETE", "car/delete", new JSONObject().put("cr_id", crId));
                     serverConnectionThread.start();
                 }
                 catch(JSONException e){
