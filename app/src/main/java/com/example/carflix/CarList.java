@@ -224,7 +224,7 @@ public class CarList extends AppCompatActivity {
                                         dialog.dismiss();
                                         final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
                                         enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                                                BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
+                                                BIOMETRIC_STRONG);
                                         launcher.launch(enrollIntent);
                                     }
                                 })
@@ -383,7 +383,7 @@ public class CarList extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
                                 enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                                        BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
+                                        BIOMETRIC_STRONG);
                                 launcher.launch(enrollIntent);
                             }
                         })
