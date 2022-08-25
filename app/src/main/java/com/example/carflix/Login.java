@@ -103,10 +103,16 @@ public class Login extends AppCompatActivity{
                 }
                 else
                 {
-                    Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 입력해 주세요.", Toast.LENGTH_LONG).show();
+                    failedLogin.setText("아이디와 비밀번호를 입력해 주세요.");
+                    failedLogin.setTextColor(Color.parseColor("#3DD184"));
                 }
             }
         });
+    }
+    @Override
+    protected void onResume(){
+        super.onResume();
+        inputPW.setText("");
     }
     private boolean savedIDPWExist(SharedPreferences autoLogin){
         //저장되어있는 userid와 password가 있는경우 true 반환

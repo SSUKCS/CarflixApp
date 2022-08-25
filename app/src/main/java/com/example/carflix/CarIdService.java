@@ -123,7 +123,7 @@ public class CarIdService extends Service {
                          } catch (JSONException e) {
                              Log.e(TAG, e.toString());
                          }
-                         ServerData serverData = new ServerData("DELETE", "registration_delete_request", null);
+                         ServerData serverData = new ServerData("DELETE", "car/registration_delete_request", null);
                          if (!serverData.get().equals("car delete request fail")) {
                              try {
                                  crId = new JSONObject(serverData.get()).getString("cr_id");

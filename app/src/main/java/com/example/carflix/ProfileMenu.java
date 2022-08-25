@@ -277,8 +277,8 @@ public class ProfileMenu {
         }
     }
     private void quitProgram(){
-        baseActivity.moveTaskToBack(true);
-        baseActivity.finish();
+        closeRightMenu();
+        baseActivity.finishAndRemoveTask();
     }
 
     public ProfileMenu(Activity activity) {

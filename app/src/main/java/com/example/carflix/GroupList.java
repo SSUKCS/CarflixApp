@@ -102,6 +102,9 @@ public class GroupList extends AppCompatActivity {
     protected void onResume() {
         Log.i("GroupList", "onResume: ");
         super.onResume();
+        if(profileMenu != null){
+            profileMenu.closeRightMenu();
+        }
         //서버로부터 데이터 입력
         updateUserDataFromServer();
         updateListFromServer();
