@@ -172,56 +172,6 @@
             android:layout_weight="0.4"></LinearLayout>
 
         <LinearLayout
-            android:id="@+id/gender"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3"
-                android:autoSizeMaxTextSize="100dp"
-                android:autoSizeMinTextSize="10dp"
-                android:autoSizeTextType="uniform"
-                android:text="성별"
-                android:textStyle="bold"></TextView>
-
-            <RadioGroup
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="4"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/gender_male"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:autoSizeMaxTextSize="100dp"
-                    android:autoSizeMinTextSize="10dp"
-                    android:autoSizeTextType="uniform"
-                    android:text="남성"></RadioButton>
-
-                <RadioButton
-                    android:id="@+id/gender_female"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:autoSizeMaxTextSize="100dp"
-                    android:autoSizeMinTextSize="10dp"
-                    android:autoSizeTextType="uniform"
-                    android:text="여성"></RadioButton>
-            </RadioGroup>
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.4"></LinearLayout>
-
-        <LinearLayout
             android:id="@+id/joinMember"
             android:layout_width="match_parent"
             android:layout_height="0dp"

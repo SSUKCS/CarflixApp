@@ -320,9 +320,11 @@ public class ProfileMenu {
         try{
             String userImageBase64 = userData.getString("mb_image");
             Log.d("settingProfile", "mb_image :: "+userImageBase64);
+            //,(22글자) 제거
+            userImageBase64 = userImageBase64.substring("data:image/jpg;base64".length());
             if(!userImageBase64.equals("")){
 
-                byte[] image = Base64.decode(userImageBase64, 0);
+                byte[] image = Base64.decode(userImageBase64, Base64.DEFAULT);
 
                 //byte[] 데이터  stream 데이터로 변환 후 bitmapFactory로 이미지 생성
                 ByteArrayInputStream inStream = new ByteArrayInputStream(image);

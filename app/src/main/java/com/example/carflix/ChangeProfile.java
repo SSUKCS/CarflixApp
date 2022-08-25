@@ -33,6 +33,7 @@ public class ChangeProfile extends AppCompatActivity{
 
     EditText passwordEdit;
     EditText checkPasswordEdit;
+    private String password;
 
     EditText nickNameEdit;
     private String nickNameHint;
@@ -40,9 +41,6 @@ public class ChangeProfile extends AppCompatActivity{
     private String emailHint;
     EditText phoneEdit;
     private String phoneHint;
-
-    RadioButton gender_male;
-    RadioButton gender_female;
     
     Button joinButton;
 
@@ -59,6 +57,7 @@ public class ChangeProfile extends AppCompatActivity{
         setContentView(R.layout.change_profile);
         try{
             userData = new JSONObject(getIntent().getStringExtra("userData"));
+            password = userData.getString("mb_password");
             nickNameHint = userData.getString("mb_nickname");
             emailHint = userData.getString("mb_email");
             phoneHint = userData.getString("mb_phone");
@@ -101,21 +100,15 @@ public class ChangeProfile extends AppCompatActivity{
                     String changedEmail = emailEdit.getText().toString();
                     String changedPhone = phoneEdit.getText().toString();
                     String changedNickName = nickNameEdit.getText().toString();
-                    int userImg = R.drawable.userimage1_default;
 
-                    if(gender_male.isChecked()){
-                        userImg = R.drawable.userimage3_default;
-                    }
-                    if(gender_female.isChecked()){
-                        userImg = R.drawable.userimage2_default;
-                    }
                     //이미지를 base64로 변환(bitmap -> base64)
+                    /*
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
                     Bitmap bitmap = BitmapFactory.decodeResource(getResources(), userImg);
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                     byte[] byteArray = outputStream.toByteArray();
-                    String base64EncodingImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                    String base64EncodingImage = Base64.encodeToString(byteArray, Base64.DEFAULT);*/
 
                     JSONObject userInfo = new JSONObject();
                     try{
@@ -133,7 +126,6 @@ public class ChangeProfile extends AppCompatActivity{
                         userInfo.put("mb_email", changedEmail);
                         userInfo.put("mb_phone", changedPhone);
                         userInfo.put("mb_nickname", changedNickName);
-                        userInfo.put("mb_image", base64EncodingImage);
                         userInfo.put("mb_is_admin", userData.get("mb_is_admin"));
                         userInfo.put("mb_register_car", userData.get("mb_register_car"));
                         userInfo.put("mb_id",userData.get("mb_id"));
@@ -160,17 +152,23 @@ public class ChangeProfile extends AppCompatActivity{
     private void connectUI()
     {
         passwordEdit = (EditText) findViewById(R.id.passwordEdit);
+        passwordEdit.setText(password);
         checkPasswordEdit = (EditText) findViewById(R.id.checkPasswordEdit);
+        checkPasswordEdit.setText(password);
 
         nickNameEdit = (EditText) findViewById(R.id.nickNameEdit);
+        nickNameEdit.setText(nickNameHint);
         nickNameEdit.setHint(nickNameHint);
+
         emailEdit = (EditText) findViewById(R.id.emailEdit);
+        emailEdit.setText(emailHint);
         emailEdit.setHint(emailHint);
         emailEdit.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                String email = emailEdit.getText().toString().trim();
+                checkEmailisOK= email.matches(emailRegex);
             }
 
             @Override
@@ -186,11 +184,9 @@ public class ChangeProfile extends AppCompatActivity{
         });
 
         phoneEdit = (EditText) findViewById(R.id.phoneEdit);
+        phoneEdit.setText(phoneHint);
         phoneEdit.setHint(phoneHint);
         phoneEdit.addTextChangedListener(new PhoneNumberFormattingTextWatcher("KR"));
-
-        gender_male = (RadioButton) findViewById(R.id.gender_male);
-        gender_female = (RadioButton) findViewById(R.id.gender_female);
 
         joinButton = (Button) findViewById(R.id.joinButton);
     }
