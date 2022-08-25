@@ -9,11 +9,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 
 import android.os.Bundle;
 import android.os.IBinder;
 
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,13 +32,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
@@ -50,6 +61,7 @@ public class CarList extends AppCompatActivity {
     private ProfileMenu profileMenu;
 
     KeyguardManager keyguardManager;
+    BiometricManager biometricManager;
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
@@ -69,8 +81,9 @@ public class CarList extends AppCompatActivity {
     private String status;
 
     private int nowDriving = -1;
-
+    private int selectPosition;
     LoadingDialog dialog;
+    Integer carImg_default = R.drawable.carimage_default;
 
     private CarIdService carIdService;
     private CarIdService.CarIdServiceCallback CarIdServiceCallback = this::CarIdStateUpdateCallback;
@@ -124,7 +137,23 @@ public class CarList extends AppCompatActivity {
             }
         });
     }
-    Integer carImg_default = R.drawable.carimage_default;
+
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK) {
+                        //생체 인증 가능 여부확인 다시 호출
+                        authenticate();
+                    } else {
+                        //"registerForActivityResult - NOT RESULT_OK"
+                        Log.e("ActivityResultLauncher", "NOT RESULT_OK");
+                        Toast.makeText(getApplicationContext(),R.string.auth_error_message, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+    );
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -176,6 +205,7 @@ public class CarList extends AppCompatActivity {
         }
         //생체인식 관련
         keyguardManager = (KeyguardManager)getSystemService(KEYGUARD_SERVICE);
+        biometricManager = BiometricManager.from(getApplicationContext());
         executor = ContextCompat.getMainExecutor(this);
         biometricPrompt = new BiometricPrompt(CarList.this, executor,
                 new BiometricPrompt.AuthenticationCallback() {
@@ -188,8 +218,19 @@ public class CarList extends AppCompatActivity {
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
                         Toast.makeText(getApplicationContext(), R.string.auth_success_message, Toast.LENGTH_SHORT).show();
+                        if(nowDriving == DEFAULT || nowDriving==selectPosition){
+                            Log.d("CarList_serItemClickListener_onItemClick: ", "nowDriving"+nowDriving);
+                            Intent intent = new Intent(getApplicationContext(), CarInterface.class);
+                            CarData carData = carDataList.get(selectPosition);
+                            intent.putExtra("memberID", memberID);
+                            intent.putExtra("carData", carData);
+                            intent.putExtra("position", selectPosition);
+                            startActivity(intent);
+                        }
+                        else{
+                            Toast.makeText(context, "차량 운전중입니다.", Toast.LENGTH_LONG).show();
+                        }
                     }
-
                     @Override
                     public void onAuthenticationFailed() {
                         super.onAuthenticationFailed();
@@ -197,38 +238,15 @@ public class CarList extends AppCompatActivity {
                     }
                 });
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("지문 인증")
-                .setSubtitle("기기에 등록된 지문을 이용하여 지문을 인증해주세요.")
+                .setTitle("본인 인증")
                 .setNegativeButtonText("취소")
                 .build();
 
         adapter.setItemClickListener(new CarListAdapter.itemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-
-                if (keyguardManager.isDeviceSecure()){
-                    //저장되어있는 지문정보나 PIN, 패턴, 비밀번호가 존재하는지 확인
-                    promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                            .setTitle("지문 인증")
-                            .setSubtitle("기기에 등록된 지문을 이용하여 지문을 인증해주세요.")
-                            .setNegativeButtonText("취소")
-                            .setAllowedAuthenticators(BIOMETRIC_WEAK)
-                            .build();
-                    biometricPrompt.authenticate(promptInfo);
-                }
-                //carInterface로 이동
-                if(nowDriving == DEFAULT || nowDriving==position){
-                    Log.d("CarList_serItemClickListener_onItemClick: ", "nowDriving"+nowDriving);
-                    Intent intent = new Intent(getApplicationContext(), CarInterface.class);
-                    CarData carData = carDataList.get(position);
-                    intent.putExtra("memberID", memberID);
-                    intent.putExtra("carData", carData);
-                    intent.putExtra("position", position);
-                    startActivity(intent);
-                }
-                else{
-                    Toast.makeText(context, "차량 운전중입니다.", Toast.LENGTH_LONG).show();
-                }
+                selectPosition = position;
+                authenticate();
             }
             public void onDeleteCarButtonClick(View v, int position){
                 showDeleteMessage(position);
@@ -287,7 +305,6 @@ public class CarList extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
     public void onBackPressed(){
         if(profileMenu.isMenuOpen()){
             profileMenu.closeRightMenu();
@@ -301,7 +318,64 @@ public class CarList extends AppCompatActivity {
         updateListFromServer();
         adapter.notifyDataSetChanged();
     }
-    public void showDeleteMessage(int position){
+    private void authenticate(){
+        switch (biometricManager.canAuthenticate(BIOMETRIC_STRONG | DEVICE_CREDENTIAL)) {
+            case BiometricManager.BIOMETRIC_SUCCESS://"생체 인증 가능."
+                Log.d("CarList_authenticate", "BIOMETRIC_SUCCESS");
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE://"기기에서 생체 인증 지원을 안해주는 경우."
+                Log.d("CarList_authenticate", "BIOMETRIC_ERROR_NO_HARDWARE");
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE://현재 생체인증을 사용할 수 없는 경우.
+                Log.d("CarList_authenticate", "BIOMETRIC_ERROR_HW_UNAVAILABLE");
+                promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                        .setTitle("본인 인증")
+                        .setNegativeButtonText("취소")
+                        .setAllowedAuthenticators(DEVICE_CREDENTIAL)
+                        .build();
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED://생체 인증 정보가 등록되어 있지 않는 경우
+                // Prompts the user to create credentials that your app accepts.
+                Log.d("CarList_authenticate", "BIOMETRIC_ERROR_NONE_ENROLLED");
+                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+                AlertDialog alertDialog = builder.setTitle("지문 등록이 필요합니다.")
+                        .setMessage("지문등록 설정 화면으로 이동하시겠습니까?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+                                enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                                        BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
+                                launcher.launch(enrollIntent);
+                            }
+                        })
+                        .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .setNeutralButton("다른 방식으로 인증하기", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                                        .setTitle("본인 인증")
+                                        .setNegativeButtonText("취소")
+                                        .setAllowedAuthenticators(DEVICE_CREDENTIAL)
+                                        .build();
+                            }
+                        })
+                        .create();
+                alertDialog.show();
+                break;
+        }
+        if (keyguardManager.isDeviceSecure()){
+            //저장되어있는 지문정보나 PIN, 패턴, 비밀번호가 존재하는지 확인
+            biometricPrompt.authenticate(promptInfo);
+        }
+    }
+    private void showDeleteMessage(int position){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("차량을 삭제하시겠습니까?");
         builder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -330,7 +404,7 @@ public class CarList extends AppCompatActivity {
         builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                dialog.dismiss();
             }
         });
 
