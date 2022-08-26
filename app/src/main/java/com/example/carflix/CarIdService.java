@@ -105,8 +105,13 @@ public class CarIdService extends Service {
 
         @Override
         public void onBluetoothNotOn() {
+            /*
+                Thread내에서 Toast 발생 불가. 필요시 handler나 runOnUIThread를 구현하여 사용할 것.
             Toast.makeText(getApplicationContext(), "블루투스가 켜져있지 않습니다.",
                     Toast.LENGTH_SHORT).show();
+             */
+            setState(FAILED_CONNECTION); //기기 연결 실패
+            passStateToActivity();
         }
 
         @Override
@@ -123,7 +128,7 @@ public class CarIdService extends Service {
                          } catch (JSONException e) {
                              Log.e(TAG, e.toString());
                          }
-                         ServerData serverData = new ServerData("DELETE", "car/registration_delete_request", null);
+                         ServerData serverData = new ServerData("DELETE", "car/registration_delete_request", requestBody);
                          if (!serverData.get().equals("car delete request fail")) {
                              try {
                                  crId = new JSONObject(serverData.get()).getString("cr_id");

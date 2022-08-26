@@ -18,6 +18,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.UUID;
 
+import androidx.annotation.UiThread;
+
 @SuppressLint("MissingPermission")
 public abstract class ArduinoBluetooth extends Thread {
     public ArduinoBluetooth(Context context, BluetoothAdapter bluetoothAdapter) {
@@ -55,7 +57,11 @@ public abstract class ArduinoBluetooth extends Thread {
                 context.registerReceiver(onFoundReceiver, filter); //찾았을때 수행할 작업 등록
                 return true;
             } else {
-                Toast.makeText(context, "주변에 차량이 존재하지 않습니다.", Toast.LENGTH_LONG).show();
+
+                /*
+                Thread내에서 Toast 발생 불가. 필요시 handler나 runOnUIThread를 구현하여 사용할 것.
+                Toast.makeText(context.getApplicationContext(), "주변에 차량이 존재하지 않습니다.", Toast.LENGTH_LONG).show();
+                */
                 return false; //블루투스가 켜져있지 않다.
             }
         }

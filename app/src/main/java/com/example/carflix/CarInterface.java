@@ -101,26 +101,8 @@ public class CarInterface extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_interface);
         dialog = new LoadingDialog(this);
+        //W/Activity: Can request only one set of permissions at a time
         getPermission();
-
-        if (BluetoothAdapter.getDefaultAdapter()!=null&&BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                Toast.makeText(context, "블루투스 권한을 허용해주세요.", Toast.LENGTH_LONG).show();
-                finish();
-            }
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            //startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT, savedInstanceState); is deprecated
-            ActivityResultLauncher<Intent> startActivityForResult =
-                    registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                        if(result.getResultCode()!=RESULT_OK){
-                            Toast.makeText(context, "블루투스 권한을 허용해주세요.", Toast.LENGTH_LONG).show();
-                            finish();
-                        }
-                    });
-            startActivityForResult.launch(enableBtIntent);
-        }
         connectUI();
 
         context = getApplicationContext();
@@ -298,24 +280,6 @@ public class CarInterface extends AppCompatActivity {
         dialog.dismiss();
         finish();
     }
-    public void getPermission(){
-        //Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        if(!(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED))
-        {
-            String[] permission_list = {
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            };
-            ActivityCompat.requestPermissions(this, permission_list, 1);
-        }
-    }
     private void connectUI(){
         carImg = (ImageView)findViewById(R.id.carImg);
         carName = (TextView)findViewById(R.id.carName);
@@ -326,5 +290,26 @@ public class CarInterface extends AppCompatActivity {
         trunkOpen = (Button)findViewById(R.id.trunkOpen);
         trunkClose = (Button)findViewById(R.id.trunkClose);
         startCar = (Button)findViewById(R.id.startCar);
+    }
+    private void getPermission(){
+        if(!(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)==PackageManager.PERMISSION_GRANTED))
+        {
+            // 권한이 없을 경우 권한을 요구함
+            String[] permission_list = {
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            };
+            ActivityCompat.requestPermissions(this, permission_list, 1);
+        }
+        else{
+            finish();
+        }
     }
 }

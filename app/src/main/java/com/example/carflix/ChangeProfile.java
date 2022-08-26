@@ -49,7 +49,7 @@ public class ChangeProfile extends AppCompatActivity{
     private boolean allEditTextisNotnull=false;
     private boolean checkPasswordisOK=false;
     private String emailRegex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-    private boolean checkEmailisOK=false;
+    private boolean checkEmailisOK=true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
@@ -167,8 +167,7 @@ public class ChangeProfile extends AppCompatActivity{
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                String email = emailEdit.getText().toString().trim();
-                checkEmailisOK= email.matches(emailRegex);
+
             }
 
             @Override

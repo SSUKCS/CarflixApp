@@ -16,6 +16,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -323,7 +324,7 @@ public class CarTracingService extends Service {
         final int[] permission = {ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)};
         if (permission[0] == PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "permission granted, requestLocationUpdates :: ");
-            fusedLocationClient.requestLocationUpdates(request, locationCallback, null);
+            fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper());
         }
     }
 

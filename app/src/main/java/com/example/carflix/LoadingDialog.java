@@ -22,4 +22,9 @@ class LoadingDialog extends Dialog
     public void setTextColor(int color){
         loadingText.setTextColor(color);
     }
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        if(this.isShowing())this.cancel();
+    }
 }

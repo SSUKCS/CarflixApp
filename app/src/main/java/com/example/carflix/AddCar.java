@@ -81,27 +81,29 @@ public class AddCar extends AppCompatActivity {
             public void run() {
                 switch(state){
                     case ArduinoBluetooth.SEARCHING:
+                        Log.d("ArduinoBluetooth", ArduinoBluetooth.SEARCHING);
                         dialog.show();
                         dialog.setText("기기 탐색중....");
                         dialog.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.FOUND_DEVICE:
-                        dialog.show();
+                        Log.d("ArduinoBluetooth", ArduinoBluetooth.FOUND_DEVICE);
                         dialog.setText("기기 연결중...");
                         dialog.setTextColor(Color.parseColor("#5DC19B"));
                         break;
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                        dialog.show();
+                        Log.d("ArduinoBluetooth", ArduinoBluetooth.SUCCESSFUL_CONNECTION);
                         dialog.setText("연결 성공.");
                         dialog.setTextColor(Color.parseColor("#9911BB"));
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
+                        Log.d("ArduinoBluetooth", ArduinoBluetooth.FAILED_CONNECTION);
                         dialog.setText("차량과 연결이 실패하였습니다.");
                         dialog.setTextColor(Color.parseColor("#F23920"));
                         dialog.dismiss();
                         break;
                     case CarIdService.ASSIGN_OK:
-                        dialog.show();
+                        Log.d("ArduinoBluetooth", CarIdService.ASSIGN_OK);
                         dialog.setText("아이디 할당 성공!");
                         unbindService(carIdServiceConnection);
                         dialog.dismiss();
@@ -169,5 +171,11 @@ public class AddCar extends AppCompatActivity {
             };
             ActivityCompat.requestPermissions(this, permission_list, 1);
         }
+    }
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Log.d("AddCar", "dialog.isShowing()"+dialog.isShowing());
+        if(dialog.isShowing())dialog.cancel();
     }
 }

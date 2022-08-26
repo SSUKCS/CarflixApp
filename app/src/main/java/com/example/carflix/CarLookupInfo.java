@@ -2,14 +2,13 @@ package com.example.carflix;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,45 +17,101 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap movementRecordMap;
 
-    private String driverName;
+    private ImageView userImage;
+    private TextView userInfoText;
+
+    private String carID;
     private String carName;
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // 서비스에서 보내온 인텐트 내부의 데이터 획득
-            String message = intent.getStringExtra("message");
-            Log.d("receiver", "Got message: " + message);
-        }
-    };
+    private boolean stopRunning = false;
+    Thread thread;
+    Handler handler;
+    private static int i=0, len=0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_lookupinfo);
+        connectUI();
 
+        carID = getIntent().getStringExtra("carID");
         carName = getIntent().getStringExtra("carName");
+
 
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //주기적으로(1분) 서버에 요청, 위치를 update
+        //120개 return
+        ServerData serverData = new ServerData("GET", "vehicle_status/show", "cr_id="+carID,null);
+        String result = serverData.get();
+        if(!result.equals("No vehicle_status Found")){
+
+        }
+        handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+        thread = new Thread(){
+            public void run(){
+                while (!stopRunning) {
+                    ServerData serverData = new ServerData("GET", "vehicle_status/show", "cr_id="+carID,null);
+                    String result = serverData.get();
+                    if(!result.equals("No vehicle_status Found")){
+                        Message message = handler.obtainMessage();
+                        Bundle bundle = new Bundle();
+                        try{
+                            JSONArray jsonArray = new JSONArray(result);
+                            len = jsonArray.length();
+                            if(len!=0){
+                                for(i=0;i<len;i++){
+                                    JSONObject vehicleStatus = jsonArray.getJSONObject(i);
+                                    bundle.putString("userName"+i, vehicleStatus.getString("member"));
+                                    bundle.putString("status"+i, vehicleStatus.getString("vs_startup_information"));
+                                    bundle.putString("date"+i, vehicleStatus.getString("vs_regdate"));
+                                    bundle.putString("latitude"+i, vehicleStatus.getString("vs_latitude"));
+                                    bundle.putString("longitude"+i, vehicleStatus.getString("vs_longitude"));
+                                }
+                            }
+                        }
+                        catch(JSONException e){
+                            Log.e("CarLookupInfo", "thread_JSONException :: "+e.toString());
+                        }
+                        message.setData(bundle);
+                        handler.sendMessage(message);
+                    }
+                    try {
+                        Thread.sleep(60000);//1000*60
+                    } catch (InterruptedException e) {
+                        Log.e("CarLookupInfo", "thread_InterruptedException :: "+e.toString());
+                    }
+                }
+            }
+        };
+        thread.start();
     }
     @Override
     protected void onResume() {
         super.onResume();
-        // action 이름이 "locationService_location&speed"으로 정의된 인텐트를 수신
-        // observer의 이름은 mMessageReceiver이다.
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                mMessageReceiver, new IntentFilter("locationService_location&speed"));
+        stopRunning = false;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(
-                mMessageReceiver);
+        stopRunning = true;
+
     }
     // NULL이 아닌 GoogleMap 객체를 파라미터로 제공해 줄 수 있을 때 호출
     @Override
@@ -68,10 +123,20 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(SEOUL);
         markerOptions.title(carName);
-        markerOptions.snippet("한국 수도");
+        markerOptions.snippet("현재 위치 : ");
 
         movementRecordMap.addMarker(markerOptions);
 
         movementRecordMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SEOUL, 10));
+    }
+
+    private void connectUI(){
+        userImage = findViewById(R.id.userImage);
+        userInfoText = findViewById(R.id.userInfoText);
+    }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        stopRunning = true;
     }
 }

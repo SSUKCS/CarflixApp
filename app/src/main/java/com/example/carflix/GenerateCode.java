@@ -134,8 +134,14 @@ public class GenerateCode extends AppCompatActivity {
                 }
             }
             Log.d("generateCode", "SIZE :: "+inviteCodeList.size());
-            inviteCode = inviteCodeList.get(0).getCode();
+            if(inviteCodeList.size()!=0) {
+                inviteCode = inviteCodeList.get(0).getCode();
+            }
+            else{
+                inviteCode = "코드를 생성해 주세요.";
+            }
             inviteCodeText.setText(inviteCode);
+
         }
         catch(JSONException e){
             Log.e("generateCode_updateListfromServer()", e.toString());

@@ -366,6 +366,11 @@ public class ProfileMenu {
             }
             else{
                 baseActivity.findViewById(R.id.usageView).setVisibility(View.GONE);
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                param.topMargin = 15;
+                baseActivity.findViewById(R.id.outView).setLayoutParams(param);;
                 baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
             }
         }

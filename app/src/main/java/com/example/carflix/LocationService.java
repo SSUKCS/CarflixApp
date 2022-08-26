@@ -79,8 +79,7 @@ public class LocationService extends Service {
 
                         ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", "vehicle_status/boot_status", requestBody);
                         serverConnectionThread.start();
-                    }
-                    catch(JSONException e){
+                    } catch(JSONException e){
                         Log.e(TAG, e.toString());
                     }
                     if (NotificationManager != null && fusedLocationClient != null && !stopService) {

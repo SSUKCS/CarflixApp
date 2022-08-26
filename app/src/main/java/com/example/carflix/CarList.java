@@ -1,6 +1,7 @@
 package com.example.carflix;
 
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.ComponentName;
@@ -9,15 +10,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 
 import android.os.Bundle;
 import android.os.IBinder;
 
-import android.provider.MediaStore;
 import android.provider.Settings;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,12 +39,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
 
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
@@ -59,31 +58,27 @@ public class CarList extends AppCompatActivity {
 
     KeyguardManager keyguardManager;
     BiometricManager biometricManager;
-    private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
 
     private ArrayList<CarData> carDataList;
     private CarListAdapter adapter;
-    private RecyclerView carListView;
-    private TextView listEmpty;
-    private TextView snackBarTextView;
 
+
+    private JSONObject userData;
+    private JSONObject groupData;
     private String memberID;
     private String creatorID;
     private String groupID;
     private String groupName;
-    private JSONObject userData;
-    private JSONObject groupData;
     private String status;
 
-    private int nowDriving = -1;
+    private final int nowDriving = -1;
     private int selectPosition;
     LoadingDialog dialog;
-    Integer carImg_default = R.drawable.carimage_default;
 
     private CarIdService carIdService;
-    private CarIdService.CarIdServiceCallback CarIdServiceCallback = this::CarIdStateUpdateCallback;
+    private final CarIdService.CarIdServiceCallback CarIdServiceCallback = this::CarIdStateUpdateCallback;
     private final ServiceConnection carIdServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -101,53 +96,47 @@ public class CarList extends AppCompatActivity {
         }
     };
     private void CarIdStateUpdateCallback(String state){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                switch(state){
-                    case ArduinoBluetooth.SEARCHING:
-                        dialog.show();
-                        dialog.setText("기기 탐색중....");
-                        dialog.setTextColor(Color.parseColor("#5DC19B"));
-                        break;
-                    case ArduinoBluetooth.FOUND_DEVICE:
-                        dialog.show();
-                        dialog.setText("기기 연결중...");
-                        dialog.setTextColor(Color.parseColor("#5DC19B"));
-                        break;
-                    case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                        dialog.show();
-                        dialog.setText("연결 성공.");
-                        dialog.setTextColor(Color.parseColor("#9911BB"));
-                        break;
-                    case ArduinoBluetooth.FAILED_CONNECTION:
-                        dialog.setText("차량과 연결이 실패하였습니다.");
-                        dialog.setTextColor(Color.parseColor("#F23920"));
-                        dialog.dismiss();
-                        break;
-                    case CarIdService.ASSIGN_OK:
-                        dialog.setText("성공적으로 제거되었습니다.");
-                        unbindService(carIdServiceConnection);
-                        dialog.dismiss();
-                        break;
-                }
+        runOnUiThread(() -> {
+            switch(state){
+                case ArduinoBluetooth.SEARCHING:
+                    dialog.show();
+                    dialog.setText("기기 탐색중....");
+                    dialog.setTextColor(Color.parseColor("#5DC19B"));
+                    break;
+                case ArduinoBluetooth.FOUND_DEVICE:
+                    dialog.show();
+                    dialog.setText("기기 연결중...");
+                    dialog.setTextColor(Color.parseColor("#5DC19B"));
+                    break;
+                case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
+                    dialog.show();
+                    dialog.setText("연결 성공.");
+                    dialog.setTextColor(Color.parseColor("#9911BB"));
+                    break;
+                case ArduinoBluetooth.FAILED_CONNECTION:
+                    dialog.setText("차량과 연결이 실패하였습니다.");
+                    dialog.setTextColor(Color.parseColor("#F23920"));
+                    dialog.dismiss();
+                    break;
+                case CarIdService.ASSIGN_OK:
+                    dialog.setText("성공적으로 제거되었습니다.");
+                    unbindService(carIdServiceConnection);
+                    dialog.dismiss();
+                    break;
             }
         });
     }
 
     ActivityResultLauncher<Intent> launcher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == RESULT_OK) {
-                        //생체 인증 가능 여부확인 다시 호출
-                        authenticate();
-                    } else {
-                        //"registerForActivityResult - NOT RESULT_OK"
-                        Log.e("ActivityResultLauncher", "NOT RESULT_OK");
-                        Toast.makeText(getApplicationContext(),R.string.auth_error_message, Toast.LENGTH_SHORT).show();
-                    }
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    //생체 인증 가능 여부확인 다시 호출
+                    authenticate();
+                } else {
+                    //"registerForActivityResult - NOT RESULT_OK"
+                    Log.e("ActivityResultLauncher", "NOT RESULT_OK");
+                    Toast.makeText(getApplicationContext(),R.string.auth_error_message, Toast.LENGTH_SHORT).show();
                 }
             }
     );
@@ -159,7 +148,7 @@ public class CarList extends AppCompatActivity {
 
         dialog = new LoadingDialog(this);
 
-        carListView = findViewById(R.id.carListView);
+        RecyclerView carListView = findViewById(R.id.carListView);
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
         carListView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -167,9 +156,9 @@ public class CarList extends AppCompatActivity {
         status = getIntent().getStringExtra("status");
         try{
             userData = new JSONObject(getIntent().getStringExtra("userData"));
+
             groupData = new JSONObject(getIntent().getStringExtra("groupData"));
             creatorID = groupData.getString("creatorID");
-            Log.d("CarList", "memberID :: "+memberID+" , creatorID :: "+creatorID);
             groupID = groupData.getString("groupID");
             groupName = groupData.getString("groupName");
         }
@@ -183,8 +172,8 @@ public class CarList extends AppCompatActivity {
         adapter = new CarListAdapter(context, carDataList);
         carListView.setAdapter(adapter);
 
-        listEmpty = findViewById(R.id.list_empty);
-        if(carDataList.isEmpty())listEmpty.setVisibility(View.VISIBLE);
+        TextView listEmpty = findViewById(R.id.list_empty);
+        if(carDataList.isEmpty()) listEmpty.setVisibility(View.VISIBLE);
         else listEmpty.setVisibility(View.INVISIBLE);
 
         //액션바
@@ -203,8 +192,7 @@ public class CarList extends AppCompatActivity {
         //생체인식 관련
         keyguardManager = (KeyguardManager)getSystemService(KEYGUARD_SERVICE);
         biometricManager = BiometricManager.from(getApplicationContext());
-        executor = ContextCompat.getMainExecutor(this);
-        biometricPrompt = new BiometricPrompt(CarList.this, executor,
+        biometricPrompt = new BiometricPrompt(CarList.this, ContextCompat.getMainExecutor(this),
                 new BiometricPrompt.AuthenticationCallback() {
                     @Override
                     public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
@@ -288,6 +276,7 @@ public class CarList extends AppCompatActivity {
                 //lookupInfo로 이동
                 Intent intent = new Intent(getApplicationContext(), CarLookupInfo.class);
                 intent.putExtra("carName", carDataList.get(position).getCarName());
+                intent.putExtra("carID", carDataList.get(position).getCarID());
                 startActivity(intent);
             }
         });
@@ -350,6 +339,7 @@ public class CarList extends AppCompatActivity {
         updateListFromServer();
         adapter.notifyDataSetChanged();
     }
+
     private void authenticate(){
         switch (biometricManager.canAuthenticate(BIOMETRIC_STRONG | DEVICE_CREDENTIAL)) {
             case BiometricManager.BIOMETRIC_SUCCESS://"생체 인증 가능."
