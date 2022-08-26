@@ -317,8 +317,8 @@ public class CarTracingService extends Service {
     private void requestLocationUpdates() {
         Log.e(TAG, "locationUpdateStart :: ");
         LocationRequest request = LocationRequest.create();
-        request.setInterval(2000)
-                .setFastestInterval(1000)
+        request.setInterval(10000)//sendingTerm*2
+                .setFastestInterval(5000)//sendingTerm
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
         final int[] permission = {ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)};

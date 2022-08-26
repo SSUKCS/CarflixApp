@@ -321,7 +321,7 @@ public class ProfileMenu {
             String userImageBase64 = userData.getString("mb_image");
             Log.d("settingProfile", "mb_image :: "+userImageBase64);
             //,(22글자) 제거
-            userImageBase64 = userImageBase64.substring("data:image/jpg;base64".length());
+            userImageBase64 = userImageBase64.substring("data:image\\/;base64".length());
             if(!userImageBase64.equals("")){
 
                 byte[] image = Base64.decode(userImageBase64, Base64.DEFAULT);

@@ -61,7 +61,7 @@ public class ServerData {
                     break;
                 case "registration_delete_request":
                     Log.d("serverData_message", data.getString("message"));
-                    if(data.getString("message").equals("Successfully Login!")){
+                    if(data.getString("message").equals("car delete request success")){
                         result = data.toString();
                     }
                     else{
