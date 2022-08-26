@@ -126,16 +126,20 @@ public class CarIdService extends Service {
                              requestBody.put("mb_id", mbId);
                              requestBody.put("cr_mac_address", macAddress);
                          } catch (JSONException e) {
-                             Log.e(TAG, e.toString());
+                             Log.e(TAG+"_make_requestbody", e.toString());
                          }
                          ServerData serverData = new ServerData("DELETE", "car/registration_delete_request", requestBody);
-                         if (!serverData.get().equals("car delete request fail")) {
-                             try {
-                                 crId = new JSONObject(serverData.get()).getString("cr_id");
-                             } catch (JSONException e) {
-                                 Log.e(TAG, e.toString());
+
+                         try {
+                             JSONObject data = new JSONObject(serverData.get());
+                             String message = data.getString("message");
+                             if(message.equals("car delete request success")){
+                                 crId = data.getString("cr_id");
                              }
+                         } catch (JSONException e) {
+                             Log.e(TAG+"_get_crId", e.toString());
                          }
+
                          arduinoData = new ArduinoData.Builder()
                                  .setDeleteId(crId)
                                  .build();

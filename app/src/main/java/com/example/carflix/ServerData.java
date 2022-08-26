@@ -56,17 +56,10 @@ public class ServerData {
                         result = data.getJSONArray("data").toString();
                     }break;
                 case "login_v3":
+                case "registration_delete_request":
                     Log.d("serverData_message", data.getString("message"));
                     result = data.toString();
                     break;
-                case "registration_delete_request":
-                    Log.d("serverData_message", data.getString("message"));
-                    if(data.getString("message").equals("car delete request success")){
-                        result = data.toString();
-                    }
-                    else{
-                        result = data.getString("message");
-                    }break;
                 case "show":
                     if(category.equals("ic")||category.equals("vs")){
                         //{"message":" .... "} : 실패

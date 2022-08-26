@@ -199,42 +199,46 @@ public class CarList extends AppCompatActivity {
                         super.onAuthenticationError(errorCode, errString);
                         Log.d("BiometricPrompt.AuthenticationCallback()", "onAuthenticationError");
                         //Toast.makeText(getApplicationContext(),R.string.auth_error_message, Toast.LENGTH_SHORT).show();
-                        AlertDialog.Builder builder = new AlertDialog.Builder(CarList.this);
-                        AlertDialog alertDialog = builder.setTitle("지문 등록이 필요합니다.")
-                                .setMessage("지문등록 설정 화면으로 이동하시겠습니까?")
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setPositiveButton("네", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                        final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
-                                        enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                                                BIOMETRIC_STRONG);
-                                        launcher.launch(enrollIntent);
-                                    }
-                                })
-                                .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                })
-                                .setNeutralButton("다른 방식으로 인증하기", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                        promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                                                .setTitle("본인 인증")
-                                                .setAllowedAuthenticators(DEVICE_CREDENTIAL)
-                                                .build();
-                                        if (keyguardManager.isDeviceSecure()){
-                                            //저장되어있는 지문정보나 PIN, 패턴, 비밀번호가 존재하는지 확인
-                                            biometricPrompt.authenticate(promptInfo);
-                                        }
-                                    }
-                                })
-                                .create();
-                        alertDialog.show();
+                        switch(errorCode){
+                            case 11:
+                                AlertDialog.Builder builder = new AlertDialog.Builder(CarList.this);
+                                AlertDialog alertDialog = builder.setTitle("지문 등록이 필요합니다.")
+                                        .setMessage("지문등록 설정 화면으로 이동하시겠습니까?")
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                                final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+                                                enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                                                        BIOMETRIC_STRONG);
+                                                launcher.launch(enrollIntent);
+                                            }
+                                        })
+                                        .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.cancel();
+                                            }
+                                        })
+                                        .setNeutralButton("다른 방식으로 인증하기", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                                promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                                                        .setTitle("본인 인증")
+                                                        .setAllowedAuthenticators(DEVICE_CREDENTIAL)
+                                                        .build();
+                                                if (keyguardManager.isDeviceSecure()){
+                                                    //저장되어있는 지문정보나 PIN, 패턴, 비밀번호가 존재하는지 확인
+                                                    biometricPrompt.authenticate(promptInfo);
+                                                }
+                                            }
+                                        })
+                                        .create();
+                                alertDialog.show();
+                                break;
+                        }
                     }
                     @Override
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
