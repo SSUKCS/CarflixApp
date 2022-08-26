@@ -10,7 +10,7 @@ public class ArduinoData {
     public static final byte R_ASSIGN_ID = 68;
     public static final byte R_DELETE_ID = 72;
     public static final byte R_REQCONT = 74;
-    public static final byte R_CONT = 76;
+    public static final byte R_CONT = 3;
     public static final byte S_REQON_AVAIL = 58;
     public static final byte S_REQSEND_STATE = 60;
     public static final byte S_REQSEND_OFF = 63;

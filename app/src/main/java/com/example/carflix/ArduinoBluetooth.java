@@ -175,6 +175,7 @@ public abstract class ArduinoBluetooth extends Thread {
     public void endConnection(){
         if(arduinoInterpreter != null){
             arduinoInterpreter.terminate();
+            arduinoInterpreter = null;
         }
         if(isAlive())
             interrupt();
@@ -232,11 +233,7 @@ public abstract class ArduinoBluetooth extends Thread {
                     toRead = 33;
                     break;
                 case ArduinoData.S_REQSEND_STATE:
-                    toRead = 16;
-                    break;
                 case ArduinoData.S_REQSEND_OFF:
-                    toRead = 16;
-                    break;
                 case ArduinoData.S_ASSIGN_ID_OK:
                 case ArduinoData.S_DELETE_OK:
                     receivedData = new ArduinoData(preparedHeaderCode);
@@ -318,6 +315,8 @@ public abstract class ArduinoBluetooth extends Thread {
                     }
                 }
                 catch (InterruptedException e){
+                    if(stopped)
+                        break;
                 }
             }
         }

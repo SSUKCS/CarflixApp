@@ -98,9 +98,6 @@ public class CarTracingService extends Service {
 
         TimerTask timerTask;
         Timer expiringTimer;
-        String eachStatus = "none";
-
-
 
         private void makeTimer(){
             timerTask = new TimerTask() {
@@ -118,27 +115,31 @@ public class CarTracingService extends Service {
             try {
                 switch (eachStatus) {
                     case TIME_OVER://아두이노로부터 응답을 받지 않았다는 데이터("connection_fault")를 전송
+                        Log.i(TAG, "sendToServer: 시간초과");
                         command += "connection_status";
                         requestBody.put("vs_startup_information", "connection_fault");
                         break;
                     case GOT_REQ://아두이노로부터 응답을 받았다는 데이터("on")를 전송
-                        timerTask.cancel();
+                        Log.i(TAG, "sendToServer: on 받았음.");
                         command += "boot_status";
                         requestBody.put("vs_startup_information", "on");
                         break;
                     case GOT_OFF://아두이노로부터 시동꺼짐을 받았다는 데이터("off")를 전송
-                        timerTask.cancel();
+                        Log.i(TAG, "sendToServer: off 받았음.");
                         command += "boot_off";
                         requestBody.put("vs_startup_information", "off");
                         break;
                 }
                 //서버에게 시동상태를 전송
+                /*
                 requestBody.put("member", mbId);
                 requestBody.put("vs_latitude", location[0].getLatitude());
                 requestBody.put("vs_longitude", location[0].getLongitude());
                 requestBody.put("cr_id", availData.getCrId());
                 ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
                 serverConnectionThread.start();
+
+                 */
 
             } catch (JSONException e) {
                 Log.e(TAG, e.toString());
@@ -151,11 +152,11 @@ public class CarTracingService extends Service {
             this.arduinoInterpreter = arduinoInterpreter;
             arduinoInterpreter.startListening();
             ArduinoData arduinoData = new ArduinoData.Builder()
-                    .setReqon(mbId)
+                    .setStart()
                     .build();
-            arduinoInterpreter.sendToArduino(arduinoData);
-            Log.i(TAG, "run: 시동 요청.");
+            arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
             arduinoInterpreter.listenNext();
+            Log.i(TAG, "run: 시동 요청.");
         }
 
         @Override
@@ -171,52 +172,25 @@ public class CarTracingService extends Service {
                     Toast.LENGTH_SHORT).show();
         }
         private ArduinoData.AvailData availData;
-        private String curStatus = "x";
+        boolean firstReceive = true;
         @Override
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
             super.onReceive(arduinoData, arduinoInterpreter);
-            if(arduinoData.getHeaderCode() == ArduinoData.S_REQON_AVAIL){ //
-                curStatus = GOT_AVAIL;
-                availData = arduinoData.getReqonAvail();
-                String param = "cr_id="+availData.getCrId()+"&mb_id="+availData.getMbId();
-                //서버에 시동요청이 올바른가 보냄
-                ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", param, null);
-                JSONObject serverJsonData=null;
-                String isRequestAvailable="";
-                try{
-                    serverJsonData = new JSONObject(serverData.get());
-                    isRequestAvailable = serverJsonData.getString("message");
-                }
-                catch(JSONException e){
-                    Log.e(TAG, e.toString());
-                }
-                if(isRequestAvailable.equals("success boot on")) {
-                    //>>>만약 서버로부터 올바르다고 받았다면
-                    arduinoData = new ArduinoData.Builder()
-                            .setStart()
-                            .build();
-                    arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
-                    arduinoInterpreter.listenNext();
-                }
-                else{
-                    onStateUpdate(FAILED_CAR_ON);
-                    end();
-                }
-            }
-            else if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_STATE){
-                if(curStatus.equals(GOT_AVAIL)){
+            if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_STATE){
+                if(firstReceive){
+                    firstReceive = false;
                     sendToServer(GOT_REQ);
                     //시동 걸린 상태로 진입
                     makePendingIntent();
                     onStateUpdate(SUCCESSFUL_CAR_ON);
                     makeTimer();
                     arduinoInterpreter.listenNext();
-                    curStatus = "x";
                 }
                 else {
                     timerTask.cancel();
                     sendToServer(GOT_REQ);
                     makeTimer();
+                    arduinoInterpreter.listenNext();
                 }
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_OFF){
