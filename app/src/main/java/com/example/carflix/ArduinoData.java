@@ -1,5 +1,8 @@
 package com.example.carflix;
 
+import android.util.Log;
+
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class ArduinoData {
@@ -21,6 +24,7 @@ public class ArduinoData {
     public static final byte S_REQCONT_AVAIL = 75;
     public static final byte R_OFF_OK = 81;
     public static final byte R_RESEND = 21;
+    public static final byte G_CRID = 50;
 
     public static final byte DOOR_OPEN = 1;
     public static final byte DOOR_CLOSE = 2;
@@ -30,6 +34,7 @@ public class ArduinoData {
     public static final byte EXIST_CR_ID = 12;
 
     private byte headerCode;
+    private static final String TAG = "ArduinoData";
 
     public byte[] getData() {
         return data;
@@ -56,66 +61,39 @@ public class ArduinoData {
         return headerCode;
     }
 
-    public class AvailData{
-        private String crId;
-        private String mbId;
-        private byte how;
 
-        public AvailData(String crId, String mbId) {
-            this.crId = crId.trim();
-            this.mbId = mbId.trim();
-            this.how = 0;
-        }
-
-        public AvailData(String crId, String mbId, byte how) {
-            this.crId = crId.trim();
-            this.mbId = mbId.trim();
-            this.how = how;
-        }
-        public String getCrId() {
-            return crId;
-        }
-        public String getMbId() {
-            return mbId;
-        }
-        public byte getHow() {
-            return how;
-        }
-    }
     //아두이노로부터 받은 데이터를 얻는 메서드들
-    AvailData getReqonAvail(){
-        AvailData availData = new AvailData(
-            new String(Arrays.copyOfRange(data,0,16)),
-            new String(Arrays.copyOfRange(data, 16, 32))
-        );
-        return availData;
+    long getReqonAvail(){
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(this.data);
+        buffer.flip();//need flip
+        long value = buffer.getLong();
+        Log.i(TAG, "getReqonAvail: crid : "+value);
+        return value;
     }
 
-    String getReqsendStateCrId(){
-        return new String(data);
-    }
-
-    String getReqsendOffCrId(){
-        return new String(data);
+    long getCrid(){
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(this.data);
+        buffer.flip();//need flip
+        long value = buffer.getLong();
+        Log.i(TAG, "getReqonAvail: crid : "+value);
+        return value;
     }
 
     byte getSucbc(){
         return data[0];
     }
 
-    AvailData getReqcontAvail(){
-        AvailData availData = new AvailData(
-            new String(Arrays.copyOfRange(data,0,16)),
-            new String(Arrays.copyOfRange(data, 16, 32)),
-            data[32]
-        );
-        return availData;
+    long getReqcontAvail(){
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(this.data);
+        buffer.flip();//need flip
+        long value = buffer.getLong();
+        Log.i(TAG, "getReqonAvail: crid : " + value);
+        return value;
     }
 
-    //임시용
-    byte getRsCarctl(){
-        return data[0];
-    }
 
     public static class Builder{
         private byte headerCode;
@@ -126,9 +104,8 @@ public class ArduinoData {
         }
 
         //아두이노로 보내기 위해 set 메서드 수행
-        Builder setReqon(String mbId){
+        Builder setReqon(){
             this.headerCode = R_REQON;
-            this.data = Arrays.copyOf(mbId.getBytes(), 16);
             return this;
         }
 
@@ -139,26 +116,27 @@ public class ArduinoData {
 
         Builder setReqbc(){
             this.headerCode = R_REQBC;
-            this.data = null;
             return this;
         }
 
-        Builder setAssignId(String crId){
+        Builder setAssignId(long crId){
             this.headerCode = R_ASSIGN_ID;
-            this.data = Arrays.copyOf(crId.getBytes(), 16);
+            ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+            buffer.putLong(crId);
+            this.data = buffer.array();
             return this;
         }
 
-        Builder setDeleteId(String crId){
+        Builder setDeleteId(long crId){
             this.headerCode = R_DELETE_ID;
-            this.data = Arrays.copyOf(crId.getBytes(), 16);
+            ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+            buffer.putLong(crId);
+            this.data = buffer.array();
             return this;
         }
 
-        Builder setReqcont(String mbId, byte how){
+        Builder setReqcont(){
             this.headerCode = R_REQCONT;
-            this.data = Arrays.copyOf(mbId.getBytes(), 17);
-            this.data[16] = how;
             return this;
         }
 
@@ -166,14 +144,6 @@ public class ArduinoData {
             this.headerCode = R_CONT;
             this.data = new byte[1];
             this.data[0] = how;
-            return this;
-        }
-
-        //임시용
-        Builder setRsCarctl(byte b){
-            this.headerCode = RS_CARCTL;
-            this.data = new byte[1];
-            this.data[0] = b;
             return this;
         }
 

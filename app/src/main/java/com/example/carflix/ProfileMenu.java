@@ -86,18 +86,22 @@ public class ProfileMenu {
     public boolean isMenuOpen(){return menuOpen;}
 
     public void openRightMenu() {
-        setMenuOpen(true);
-        darkBackground.setVisibility(View.VISIBLE);
-        slideMenu.setVisibility(View.VISIBLE);
-        slideMenu.startAnimation(menuOpenAnim);
-        darkBackground.startAnimation(onDarkAnim);
+        if(!menuOpen) {
+            setMenuOpen(true);
+            darkBackground.setVisibility(View.VISIBLE);
+            slideMenu.setVisibility(View.VISIBLE);
+            slideMenu.startAnimation(menuOpenAnim);
+            darkBackground.startAnimation(onDarkAnim);
+        }
     }
     public void closeRightMenu() {
-        setMenuOpen(false);
-        slideMenu.startAnimation(menuCloseAnim);
-        darkBackground.startAnimation(offDarkAnim);
-        darkBackground.setVisibility(View.GONE);
-        slideMenu.setVisibility(View.GONE);
+        if(menuOpen) {
+            setMenuOpen(false);
+            slideMenu.startAnimation(menuCloseAnim);
+            darkBackground.startAnimation(offDarkAnim);
+            darkBackground.setVisibility(View.GONE);
+            slideMenu.setVisibility(View.GONE);
+        }
     }
     private void setTouchEventWhenSlide(){
         slideMenu.setOnTouchListener(new ConsumeTouchEvent());

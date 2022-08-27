@@ -16,6 +16,13 @@ class LoadingDialog extends Dialog
 
         setCancelable(false);
     }
+    public interface DialogBackPressed{
+        void onBackPressed();
+    }
+    private DialogBackPressed dialogBackPressed;
+    public void registerBackPressed(DialogBackPressed dialogBackPressed){
+        this.dialogBackPressed = dialogBackPressed;
+    }
     public void setText(String text){
      loadingText.setText(text);
     }
@@ -25,6 +32,8 @@ class LoadingDialog extends Dialog
     @Override
     public void onBackPressed(){
         super.onBackPressed();
+        if(dialogBackPressed != null)
+            dialogBackPressed.onBackPressed();
         if(this.isShowing())this.cancel();
     }
 }

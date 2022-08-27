@@ -175,6 +175,7 @@ public abstract class ArduinoBluetooth extends Thread {
     public void endConnection(){
         if(arduinoInterpreter != null){
             arduinoInterpreter.terminate();
+            arduinoInterpreter = null;
         }
         if(isAlive())
             interrupt();
@@ -191,14 +192,6 @@ public abstract class ArduinoBluetooth extends Thread {
 
         private boolean mIsReceived = true;
         private ArduinoData receivedData = null;
-
-        public boolean isReceived() {
-            return mIsReceived;
-        }
-
-        public ArduinoData getReceivedData() {
-            return receivedData;
-        }
 
         public void listenNext(){
             mIsReceived = false;
@@ -221,22 +214,16 @@ public abstract class ArduinoBluetooth extends Thread {
         private boolean makeReceivedData(byte preparedHeaderCode) throws IOException, InterruptedException {
             int toRead;
             switch(preparedHeaderCode){
-                case ArduinoData.RS_CARCTL:
                 case ArduinoData.S_SUCBC:
                     toRead = 1;
                     break;
                 case ArduinoData.S_REQON_AVAIL:
-                    toRead = 33;
-                    break;
                 case ArduinoData.S_REQCONT_AVAIL:
-                    toRead = 33;
+                case ArduinoData.G_CRID:
+                    toRead = 8;
                     break;
                 case ArduinoData.S_REQSEND_STATE:
-                    toRead = 16;
-                    break;
                 case ArduinoData.S_REQSEND_OFF:
-                    toRead = 16;
-                    break;
                 case ArduinoData.S_ASSIGN_ID_OK:
                 case ArduinoData.S_DELETE_OK:
                     receivedData = new ArduinoData(preparedHeaderCode);
@@ -255,22 +242,6 @@ public abstract class ArduinoBluetooth extends Thread {
             }
             receivedData = new ArduinoData(preparedHeaderCode, slicedData);
             return true;
-        }
-        private boolean isMyWait = false;
-        private synchronized void myWait(){
-            isMyWait = true;
-            while(isMyWait) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        private synchronized void myNotify(){
-            isMyWait = false;
-            notifyAll();
         }
         @Override
         public void run() {
@@ -299,14 +270,6 @@ public abstract class ArduinoBluetooth extends Thread {
                                             mIsReceived = true;
                                             onReceive(receivedData, this);
                                         }
-                                        else{
-                                            Log.i(TAG, "run: 오류");
-                                            Thread.sleep(300);
-                                            sendToArduino(new ArduinoData.Builder()
-                                                    .setResend()
-                                                    .build()
-                                            );
-                                        }
                                     }
                                 }
                             }
@@ -318,6 +281,8 @@ public abstract class ArduinoBluetooth extends Thread {
                     }
                 }
                 catch (InterruptedException e){
+                    if(stopped)
+                        break;
                 }
             }
         }
