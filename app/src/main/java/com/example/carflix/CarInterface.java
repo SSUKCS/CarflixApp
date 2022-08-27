@@ -89,11 +89,11 @@ public class CarInterface extends AppCompatActivity {
                             isAvailable.setTextColor(Color.parseColor("#5DC19B"));
                             break;
                         case ArduinoBluetooth.FOUND_DEVICE:
-                            dialog.setText("기기에 신호를 보내는중....");
+                            dialog.setText("기기에 신호를 보내는중...");
                             isAvailable.setTextColor(Color.parseColor("#5DC19B"));
                             break;
                         case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                            dialog.setText("연결 성공");
+                            dialog.setText("기기에 신호를 보내는중...");
                             dialog.setTextColor(Color.parseColor("#4488FF"));
                             break;
                         case ArduinoBluetooth.FAILED_CONNECTION:

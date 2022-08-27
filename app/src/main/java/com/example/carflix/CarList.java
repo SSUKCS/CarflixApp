@@ -4,6 +4,7 @@ package com.example.carflix;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -64,7 +65,6 @@ public class CarList extends AppCompatActivity {
     private ArrayList<CarData> carDataList;
     private CarListAdapter adapter;
 
-
     private JSONObject userData;
     private JSONObject groupData;
     private String memberID;
@@ -77,54 +77,68 @@ public class CarList extends AppCompatActivity {
     private int selectPosition;
     LoadingDialog dialog;
 
-    private CarIdService carIdService;
-    private final CarIdService.CarIdServiceCallback CarIdServiceCallback = this::CarIdStateUpdateCallback;
-    private final ServiceConnection carIdServiceConnection = new ServiceConnection() {
+
+    private CarIdManager carIdManager;
+    private class CarIdManagerCallback implements CarIdManager.CarIdManagerCallback {
         @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            Log.i("CarInterface_carControlServiceBindConnection", "onServiceConnected: connected");
-            CarIdService.CarServiceBinder carServiceBinder = (CarIdService.CarServiceBinder) iBinder;
-            carIdService = carServiceBinder.getService();
-            carIdService.registerCallback(CarIdServiceCallback);
-            CarIdStateUpdateCallback(carIdService.getState());
+        public void onStateUpdate(String state) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    switch(state){
+                        case ArduinoBluetooth.FOUND_DEVICE:
+                            Log.d("ArduinoBluetooth", ArduinoBluetooth.FOUND_DEVICE);
+                            dialog.setText("기기 연결중...");
+                            dialog.setTextColor(Color.parseColor("#5DC19B"));
+                            break;
+                        case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
+                            Log.d("ArduinoBluetooth", ArduinoBluetooth.SUCCESSFUL_CONNECTION);
+                            dialog.setText("아이디 제거중...");
+                            dialog.setTextColor(Color.parseColor("#9911BB"));
+                            break;
+                        case ArduinoBluetooth.FAILED_CONNECTION:
+                            Log.d("ArduinoBluetooth", ArduinoBluetooth.FAILED_CONNECTION);
+                            carIdManager.endConnection();
+                            dialog.setText("차량과 연결이 실패하였습니다.");
+                            dialog.setTextColor(Color.parseColor("#F23920"));
+                            dialog.dismiss();
+                            break;
+
+                        case CarIdManager.DELETE_OK:
+                            Log.d("ArduinoBluetooth", CarIdManager.DELETE_OK);
+                            carIdManager.endConnection();
+                            carIdManager = null;
+                            dialog.setText("아이디 제거 성공!");
+                            dialog.dismiss();
+                            updateListFromServer();
+                            adapter.notifyDataSetChanged();
+                            Toast.makeText(getApplicationContext(), "제거 성공", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CarIdManager.DELETE_FAILED:
+                            Log.d("ArduinoBluetooth", CarIdManager.DELETE_FAILED);
+                            carIdManager.endConnection();
+                            carIdManager = null;
+                            dialog.setText("아이디 제거 실패!");
+                            dialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "제거 실패", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            });
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.i("CarInterface_CarInterface_carControlServiceBindConnection", "onServiceDisconnected: disconnected");
-            carIdService = null;
+        public void onConnectFailed() { }
+
+        @Override
+        public void onBluetoothNotOn() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "블루투스가 꺼져있습니다.", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-    };
-    private void CarIdStateUpdateCallback(String state){
-        runOnUiThread(() -> {
-            switch(state){
-                case ArduinoBluetooth.SEARCHING:
-                    dialog.show();
-                    dialog.setText("기기 탐색중....");
-                    dialog.setTextColor(Color.parseColor("#5DC19B"));
-                    break;
-                case ArduinoBluetooth.FOUND_DEVICE:
-                    dialog.show();
-                    dialog.setText("기기 연결중...");
-                    dialog.setTextColor(Color.parseColor("#5DC19B"));
-                    break;
-                case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                    dialog.show();
-                    dialog.setText("연결 성공.");
-                    dialog.setTextColor(Color.parseColor("#9911BB"));
-                    break;
-                case ArduinoBluetooth.FAILED_CONNECTION:
-                    dialog.setText("차량과 연결이 실패하였습니다.");
-                    dialog.setTextColor(Color.parseColor("#F23920"));
-                    dialog.dismiss();
-                    break;
-                case CarIdService.ASSIGN_OK:
-                    dialog.setText("성공적으로 제거되었습니다.");
-                    unbindService(carIdServiceConnection);
-                    dialog.dismiss();
-                    break;
-            }
-        });
     }
 
     ActivityResultLauncher<Intent> launcher = registerForActivityResult(
@@ -147,6 +161,16 @@ public class CarList extends AppCompatActivity {
         context = getApplicationContext();
 
         dialog = new LoadingDialog(this);
+        dialog.registerBackPressed(new LoadingDialog.DialogBackPressed() {
+            @Override
+            public void onBackPressed() {
+                if(carIdManager != null){
+                    carIdManager.endConnection();
+                    carIdManager = null;
+                    Toast.makeText(getApplicationContext(), "취소됨.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         RecyclerView carListView = findViewById(R.id.carListView);
         //레이아웃메니저: 리사이클러뷰의 항목배치/스크롤 동작을 설정
@@ -405,20 +429,16 @@ public class CarList extends AppCompatActivity {
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.setPositiveButton("차량 삭제하기", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String numberClassification = carDataList.get(position).getClassification();
-                String registerationNum = carDataList.get(position).getRegisterationNumber();
-                String carName = carDataList.get(position).getCarName();
+            public void onClick(DialogInterface mdialog, int which) {
+                CarIdManager.Userdata userdata = new CarIdManager.Userdata(memberID);
+                carIdManager = new CarIdManager(getApplicationContext(),
+                        BluetoothAdapter.getDefaultAdapter(), new CarIdManagerCallback(),
+                        userdata, CarIdManager.DELETE_MODE);
 
-                Intent bindServiceIntent = new Intent(getApplicationContext(), CarIdService.class);
-                bindServiceIntent.putExtra("mb_id", memberID);
-                bindServiceIntent.putExtra("group_id", groupID);
-                bindServiceIntent.putExtra("status", status);
-                bindServiceIntent.putExtra("numberClassification", numberClassification);
-                bindServiceIntent.putExtra("registerationNum", registerationNum);
-                bindServiceIntent.putExtra("carName", carName);
-                bindServiceIntent.putExtra("mode", CarIdService.DELETE_MODE);
-                bindService(bindServiceIntent, carIdServiceConnection, BIND_AUTO_CREATE);
+                carIdManager.start();
+                dialog.show();
+                dialog.setText("기기 탐색중....");
+                dialog.setTextColor(Color.parseColor("#5DC19B"));
 
                 updateListFromServer();
                 adapter.notifyDataSetChanged();

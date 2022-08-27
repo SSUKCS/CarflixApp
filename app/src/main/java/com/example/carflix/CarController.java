@@ -17,6 +17,7 @@ public class CarController extends ArduinoBluetooth{
     public static final String SUCCESSFUL_CONTROL = "successful_control";
     public static final String FAILED_CONTROL = "failed_control";
     public static final String ACTIVITY_DISTROYED = "activity_destroyed";
+
     public interface CarControlCallback {
         void onStateUpdate(String state);
         void onConnectFailed();
@@ -24,7 +25,8 @@ public class CarController extends ArduinoBluetooth{
     }
 
     CarControlCallback carControlCallback;
-    public CarController(Context context, BluetoothAdapter bluetoothAdapter, CarControlCallback carControlCallback, byte mode){
+    public CarController(Context context, BluetoothAdapter bluetoothAdapter,
+                         CarControlCallback carControlCallback, byte mode){
         super(context, bluetoothAdapter);
         this.carControlCallback = carControlCallback;
         this.mode = mode;

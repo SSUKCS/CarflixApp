@@ -171,7 +171,6 @@ public class CarTracingService extends Service {
             Toast.makeText(getApplicationContext(), "블루투스가 켜져있지 않습니다.",
                     Toast.LENGTH_SHORT).show();
         }
-        private ArduinoData.AvailData availData;
         boolean firstReceive = true;
         @Override
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
