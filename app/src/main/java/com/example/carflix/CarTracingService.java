@@ -140,6 +140,7 @@ public class CarTracingService extends Service {
                 serverConnectionThread.start();
 
                  */
+                Log.i(TAG, "sendToServer: "+location[0].getLatitude()+", "+location[0].getLongitude());
 
             } catch (JSONException e) {
                 Log.e(TAG, e.toString());
