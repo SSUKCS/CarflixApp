@@ -100,13 +100,16 @@ public class CarInterface extends AppCompatActivity {
                             dialog.setText("연결 실패");
                             dialog.setTextColor(Color.parseColor("#F23920"));
                             carController.endConnection();
+                            carController = null;
                             dialog.dismiss();
                             break;
                         case CarController.SUCCESSFUL_CONTROL:
                             dialog.setText("제어 성공");
                             dialog.setTextColor(Color.parseColor("#4488FF"));
                             carController.endConnection();
+                            carController = null;
                             dialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "성공", Toast.LENGTH_SHORT).show();
                             break;
                     }
                 }
@@ -137,6 +140,16 @@ public class CarInterface extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.car_interface);
         dialog = new LoadingDialog(this);
+        dialog.registerBackPressed(new LoadingDialog.DialogBackPressed() {
+            @Override
+            public void onBackPressed() {
+                if(carController != null){
+                    carController.endConnection();
+                    carController = null;
+                    Toast.makeText(getApplicationContext(), "취소됨.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         //W/Activity: Can request only one set of permissions at a time
         getPermission();
         connectUI();
@@ -165,7 +178,8 @@ public class CarInterface extends AppCompatActivity {
                 carController = new CarController(
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
-                        CarController.DOOR_OPEN
+                        CarController.DOOR_OPEN,
+                        memberID
                 );
                 carController.start();
             }
@@ -179,7 +193,8 @@ public class CarInterface extends AppCompatActivity {
                 carController = new CarController(
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
-                        CarController.DOOR_CLOSE
+                        CarController.DOOR_CLOSE,
+                        memberID
                 );
                 carController.start();
             }
@@ -193,7 +208,8 @@ public class CarInterface extends AppCompatActivity {
                 carController = new CarController(
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
-                        CarController.TRUNK_OPEN
+                        CarController.TRUNK_OPEN,
+                        memberID
                 );
                 carController.start();
             }
@@ -206,7 +222,8 @@ public class CarInterface extends AppCompatActivity {
                 carController = new CarController(
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
-                        CarController.TRUNK_CLOSE
+                        CarController.TRUNK_CLOSE,
+                        memberID
                 );
                 carController.start();
             }

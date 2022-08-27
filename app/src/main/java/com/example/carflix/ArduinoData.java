@@ -24,6 +24,7 @@ public class ArduinoData {
     public static final byte S_REQCONT_AVAIL = 75;
     public static final byte R_OFF_OK = 81;
     public static final byte R_RESEND = 21;
+    public static final byte G_CRID = 50;
 
     public static final byte DOOR_OPEN = 1;
     public static final byte DOOR_CLOSE = 2;
@@ -66,8 +67,18 @@ public class ArduinoData {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.put(this.data);
         buffer.flip();//need flip
-        Log.i(TAG, "getReqonAvail: crid : "+buffer.getLong());
-        return buffer.getLong();
+        long value = buffer.getLong();
+        Log.i(TAG, "getReqonAvail: crid : "+value);
+        return value;
+    }
+
+    long getCrid(){
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(this.data);
+        buffer.flip();//need flip
+        long value = buffer.getLong();
+        Log.i(TAG, "getReqonAvail: crid : "+value);
+        return value;
     }
 
     byte getSucbc(){
@@ -78,8 +89,9 @@ public class ArduinoData {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.put(this.data);
         buffer.flip();//need flip
-        Log.i(TAG, "getReqonAvail: crid : "+buffer.getLong());
-        return buffer.getLong();
+        long value = buffer.getLong();
+        Log.i(TAG, "getReqonAvail: crid : " + value);
+        return value;
     }
 
 

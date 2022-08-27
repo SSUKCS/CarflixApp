@@ -191,9 +191,7 @@ public class AddCar extends AppCompatActivity {
     public void onBackPressed(){
         super.onBackPressed();
         Log.d("AddCar", "dialog.isShowing()"+dialog.isShowing());
-        if(carIdManager != null){
-            //carIdManager.endConnection();
-        }
+
         if(dialog.isShowing())dialog.cancel();
     }
 }

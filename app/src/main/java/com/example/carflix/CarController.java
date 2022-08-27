@@ -14,6 +14,19 @@ public class CarController extends ArduinoBluetooth{
     public static final byte DOOR_CLOSE = 2;
     public static final byte TRUNK_OPEN = 3;
     public static final byte TRUNK_CLOSE = 4;
+    private String modeToString(byte mode){
+        switch (mode){
+            case DOOR_OPEN:
+                return "unlock";
+            case DOOR_CLOSE:
+                return "lock";
+            case TRUNK_OPEN:
+                return "trunk_unlock";
+            case TRUNK_CLOSE:
+                return "trunk_lock";
+        }
+        return "none";
+    }
     public static final String SUCCESSFUL_CONTROL = "successful_control";
     public static final String FAILED_CONTROL = "failed_control";
     public static final String ACTIVITY_DISTROYED = "activity_destroyed";
@@ -24,12 +37,14 @@ public class CarController extends ArduinoBluetooth{
         void onBluetoothNotOn();
     }
 
-    CarControlCallback carControlCallback;
+    private final CarControlCallback carControlCallback;
+    private String mbId;
     public CarController(Context context, BluetoothAdapter bluetoothAdapter,
-                         CarControlCallback carControlCallback, byte mode){
+                         CarControlCallback carControlCallback, byte mode, String mbId){
         super(context, bluetoothAdapter);
         this.carControlCallback = carControlCallback;
         this.mode = mode;
+        this.mbId = mbId;
     }
 
     @Override
@@ -43,17 +58,8 @@ public class CarController extends ArduinoBluetooth{
                 .setCont(mode)
                 .build();
         arduinoInterpreter.sendToArduino(arduinoData); //컨트롤 전송
-        //String message=null;
-        /*
-        try{
-            ServerData sendData = new ServerData("GET", "vehicle_status/lockunlock", command, null);
-            JSONObject serverData = new JSONObject(sendData.get());
-            message = serverData.getString("message");
-        }
-        catch(JSONException e){
-            Log.e(TAG, e.toString());
-        }
-         */
+        arduinoInterpreter.startListening();
+        arduinoInterpreter.listenNext();
         onStateUpdate(SUCCESSFUL_CONTROL);
     }
 

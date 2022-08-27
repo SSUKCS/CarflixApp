@@ -218,9 +218,8 @@ public abstract class ArduinoBluetooth extends Thread {
                     toRead = 1;
                     break;
                 case ArduinoData.S_REQON_AVAIL:
-                    toRead = 8;
-                    break;
                 case ArduinoData.S_REQCONT_AVAIL:
+                case ArduinoData.G_CRID:
                     toRead = 8;
                     break;
                 case ArduinoData.S_REQSEND_STATE:
