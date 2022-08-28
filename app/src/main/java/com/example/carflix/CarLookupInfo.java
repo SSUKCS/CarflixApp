@@ -77,18 +77,24 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                             //가장 최근 위치를 지도에 표시
                             JSONObject latestVehicleStatus = jsonArray.getJSONObject(0);
                             latestMember = latestVehicleStatus.getString("member");
-
+                            Log.d("CarLookupInfo", "LATEST MEMBER :: "+latestMember);
                             latitude = Double.parseDouble(latestVehicleStatus.getString("vs_latitude"));
                             longitude = Double.parseDouble(latestVehicleStatus.getString("vs_longitude"));
-
+                            Log.d("CarLookupInfo", "LATITUDE :: "+latitude+", LONGITUDE :: "+longitude);
                             date = latestVehicleStatus.getString("vs_regdate");
-                            hourAndMinute = date.split(" ")[1].substring(0, date.lastIndexOf(":"));
+                            Log.d("CarLookupInfo", "DATE :: "+date.split(" ")[1]);
+                            String hhmmtt = date.split(" ")[1];
+                            hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
 
-                            if(latestDriverLocation==null)
-                                latestDriverLocation = movementRecordMap.addMarker(new MarkerOptions().title(latestMember));
-
-                            latestDriverLocation.setPosition(new LatLng(latitude, longitude));
-                            latestDriverLocation.setSnippet(hourAndMinute);
+                            if(latestDriverLocation==null){
+                                MarkerOptions markOptions = new MarkerOptions();
+                                markOptions.position(new LatLng(latitude, longitude)).title(latestMember).snippet(hourAndMinute);
+                                latestDriverLocation = movementRecordMap.addMarker(markOptions);
+                            }
+                            else{
+                                latestDriverLocation.setPosition(new LatLng(latitude, longitude));
+                                latestDriverLocation.setSnippet(hourAndMinute);
+                            }
 
                             for(i=1;i<len;i++){
                                 JSONObject vehicleStatus = jsonArray.getJSONObject(i);
