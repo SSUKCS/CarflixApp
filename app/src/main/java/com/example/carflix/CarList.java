@@ -191,7 +191,6 @@ public class CarList extends AppCompatActivity {
         }
 
         carDataList = new ArrayList<>();
-        updateListFromServer();
 
         adapter = new CarListAdapter(context, carDataList);
         carListView.setAdapter(adapter);
@@ -292,7 +291,6 @@ public class CarList extends AppCompatActivity {
                     case "사용 불가능":break;
                     case "운전중":Toast.makeText(context, "다른 이용자가 운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
                 }
-                authenticate();
             }
             public void onDeleteCarButtonClick(View v, int position){
                 showDeleteMessage(position);
@@ -459,7 +457,7 @@ public class CarList extends AppCompatActivity {
     }
     private void updateListFromServer(){
         carDataList.clear();
-        String params = "mb_id="+creatorID+"&group_id="+groupID+"&status="+status;;
+        String params = "mb_id="+creatorID+"&group_id="+groupID+"&status="+status;
         String carDataListJSONString = new ServerData("GET", "car/group_show", params, null).get();
         addItem(carDataListJSONString);
     }

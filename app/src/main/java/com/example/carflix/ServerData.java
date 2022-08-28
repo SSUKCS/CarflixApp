@@ -77,6 +77,16 @@ public class ServerData {
                     {//json 객체 1개를 return
                         result = data.toString();
                     }break;
+                case "single_show":
+                    //{"message":" .... "} : 실패
+                    if(Pattern.matches("^\\{\\\"message\\\"\\:\\\".*\\\"\\}$", data.toString())){
+                        Log.d("serverData_message", data.getString("message"));
+                        result = data.getString("message");
+                    }
+                    else{//{cc_id, group_id, status, cc_manager}
+                        result = data.getString("cc_manager");
+                    }
+                    break;
                 case "show_single_name":
                     Log.d("serverData_"+category+"userid", data.getString(category+"_userid"));
                     result = data.getString(category+"_userid");break;

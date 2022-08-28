@@ -3,7 +3,6 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/miki7/AndroidStudioProjects/Carflix/app/src/main/res/layout/car_lookupinfo.xml" value="0.10303548525010689" />
         <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/car_lookupinfo.xml" value="0.3619791666666667" />
         <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/generate_code.xml" value="0.3619791666666667" />
         <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/generate_group.xml" value="0.3619791666666667" />
@@ -17,11 +16,13 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/bluetooth_button.xml" value="0.3315" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/buttonimg_xml.xml" value="0.195" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/enable_car_connected.xml" value="0.1705" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_baseline_car_crash_24.xml" value="0.22" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_baseline_delete_24.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_group_off.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1975" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_round_car_rental.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_round_person_24.xml" value="0.1" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/ic_track_mark.xml" value="0.153" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_connect_resize.xml" value="0.195" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_disconnect_resize.xml" value="0.352" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable/image_lock_resize.xml" value="0.195" />
@@ -67,7 +68,7 @@
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
