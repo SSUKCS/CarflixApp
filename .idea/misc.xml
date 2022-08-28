@@ -9,6 +9,7 @@
         <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/group_list.xml" value="0.3619791666666667" />
         <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/loading_dialog.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/ms43vr7re/StudioProjects/Application-Code/app/src/main/res/layout/profile_menu.xml" value="0.3619791666666667" />
+        <entry key="..\:/Users/simje/StudioProjects/Application-Code/app/src/main/res/layout/car_lookupinfo.xml" value="0.303125" />
         <entry key="..\:/Users/user/.gradle/caches/transforms-3/eaddbf8150176006ad66bd9632b8bbc8/transformed/appcompat-1.5.0/res/drawable/abc_ic_ab_back_material.xml" value="0.1795" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable-anydpi/ic_action_name.xml" value="0.152" />
         <entry key="..\:/Users/user/AndroidStudioProjects/Carflix/app/src/main/res/drawable-anydpi/ic_add_car.xml" value="0.2665" />
@@ -66,7 +67,7 @@
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

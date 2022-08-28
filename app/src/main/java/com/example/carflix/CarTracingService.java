@@ -14,7 +14,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -42,16 +41,16 @@ public class CarTracingService extends Service {
 
     private String carName;
     private String mbId;
-    private long sendingTerm = 5000;
+    private String crId;
+    private long expireTerm = 5000;
 
     private ArduinoBluetooth tracingThread;
 
     private String mState = ArduinoBluetooth.SEARCHING;
 
-    public static final String GOT_AVAIL = "got_avail";
-    private static final String TIME_OVER = "time_over";
-    private static final String GOT_REQ = "got_req";
-    private static final String GOT_OFF = "got_off";
+    private static final int TIME_OVER = 1;
+    private static final int GOT_REQ = 2;
+    private static final int GOT_OFF = 3;
 
     public static final String SUCCESSFUL_CAR_ON = "successful_car_on";
     public static final String FAILED_CAR_ON = "failed_car_on";
@@ -107,9 +106,9 @@ public class CarTracingService extends Service {
                 }
             };
             expiringTimer = new Timer();
-            expiringTimer.schedule(timerTask, sendingTerm, sendingTerm);
+            expiringTimer.schedule(timerTask, expireTerm, expireTerm);
         }
-        private void sendToServer(String eachStatus) {
+        private void sendToServer(int eachStatus) {
             String command = "vehicle_status/";
             JSONObject requestBody = new JSONObject();
             try {
@@ -130,16 +129,14 @@ public class CarTracingService extends Service {
                         requestBody.put("vs_startup_information", "off");
                         break;
                 }
-                //서버에게 시동상태를 전송
-                /*
+
                 requestBody.put("member", mbId);
                 requestBody.put("vs_latitude", location[0].getLatitude());
                 requestBody.put("vs_longitude", location[0].getLongitude());
-                requestBody.put("cr_id", availData.getCrId());
+                requestBody.put("cr_id", crId);
                 ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
                 serverConnectionThread.start();
 
-                 */
                 Log.i(TAG, "sendToServer: "+location[0].getLatitude()+", "+location[0].getLongitude());
 
             } catch (JSONException e) {
@@ -151,13 +148,33 @@ public class CarTracingService extends Service {
         @Override
         public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
             this.arduinoInterpreter = arduinoInterpreter;
-            arduinoInterpreter.startListening();
-            ArduinoData arduinoData = new ArduinoData.Builder()
-                    .setStart()
-                    .build();
-            arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
-            arduinoInterpreter.listenNext();
-            Log.i(TAG, "run: 시동 요청.");
+            String param = "cr_id="+crId+"&mb_id="+mbId;
+            //서버에 시동요청이 올바른가 보냄
+            ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", param, null);
+            JSONObject serverJsonData=null;
+            String isRequestAvailable="";
+            try{
+                serverJsonData = new JSONObject(serverData.get());
+                isRequestAvailable = serverJsonData.getString("message");
+            }
+            catch(JSONException e){
+                Log.e(TAG, e.toString());
+            }
+            if(isRequestAvailable.equals("success boot on")) {
+                //>>>만약 서버로부터 올바르다고 받았다면
+                arduinoInterpreter.startListening();
+                ArduinoData arduinoData = new ArduinoData.Builder()
+                        .setStart()
+                        .build();
+                arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
+                arduinoInterpreter.listenNext();
+            }
+            else{
+                onStateUpdate(FAILED_CAR_ON);
+                end();
+                return;
+            }
+            Log.i(TAG, "run: 시동 성공.");
         }
 
         @Override
@@ -177,7 +194,7 @@ public class CarTracingService extends Service {
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
             super.onReceive(arduinoData, arduinoInterpreter);
             if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_STATE){
-                if(firstReceive){
+                if (firstReceive){
                     firstReceive = false;
                     sendToServer(GOT_REQ);
                     //시동 걸린 상태로 진입
@@ -236,6 +253,7 @@ public class CarTracingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         carName = intent.getStringExtra("car_name");
         mbId = intent.getStringExtra("mb_id");
+        crId = intent.getStringExtra("cr_id");
         String bluetoothMacAddress = intent.getStringExtra("mac_address");
         if(bluetoothMacAddress != null)
             tracingThread.setTargetMacAddress(bluetoothMacAddress);
@@ -262,7 +280,7 @@ public class CarTracingService extends Service {
         //R.mipmap.ic_launcher
         builder.setSmallIcon(R.drawable.image_carflix_logo);
         NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
-        style.bigText("현재 " + carName + "를 이용하고 있습니다.");
+        style.bigText(carName + " 운전중.");
         style.setBigContentTitle(null);
         style.setSummaryText("차량 운행중");
         builder.setContentText(null);
@@ -291,30 +309,36 @@ public class CarTracingService extends Service {
     private void requestLocationUpdates() {
         Log.e(TAG, "locationUpdateStart :: ");
         LocationRequest request = LocationRequest.create();
-        request.setInterval(10000)//sendingTerm*2
-                .setFastestInterval(5000)//sendingTerm
+        request.setInterval(2000)//sendingTerm*2
+                .setFastestInterval(1000)//sendingTerm
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
-        final int[] permission = {ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)};
+        final int[] permission = {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        };
         if (permission[0] == PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "permission granted, requestLocationUpdates :: ");
             fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper());
         }
     }
 
-    private void end(){
+    private boolean isEnd = false;
+    public void end(){
         //블루투스
-        if(tracingThread != null){
-            tracingThread.endConnection();
+        if(!isEnd) {
+            isEnd = true;
+            if (tracingThread != null) {
+                tracingThread.endConnection();
+            }
+            //gps
+            stopForeground(STOP_FOREGROUND_REMOVE);
+            Log.e(TAG, "onDestroy :: ");
+            if (fusedLocationClient != null) {
+                fusedLocationClient.removeLocationUpdates(locationCallback);
+                Log.e(TAG, "Location Update Callback Removed");
+            }
+            stopSelf();
         }
-        //gps
-        stopForeground(STOP_FOREGROUND_REMOVE);
-        Log.e(TAG, "onDestroy :: ");
-        if (fusedLocationClient != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-            Log.e(TAG, "Location Update Callback Removed");
-        }
-        stopSelf();
     }
 
     /**
