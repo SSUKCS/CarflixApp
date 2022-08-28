@@ -22,8 +22,6 @@ import androidx.core.content.ContextCompat;
 
 
 public class CarInterface extends AppCompatActivity {
-    int position;
-
     ImageView carImg;
     TextView carName;
     TextView isAvailable;
@@ -56,12 +54,6 @@ public class CarInterface extends AppCompatActivity {
                 isAvailable.setText("운전중");
                 isAvailable.setTextColor(Color.parseColor("#9911BB"));
                 btnStartCar.setVisibility(View.INVISIBLE);
-            }
-            else if(carTracingService.getState().equals(CarTracingService.FINISHED)){
-                btnStartCar.setVisibility(View.VISIBLE);
-            }
-            else{
-                btnStartCar.setVisibility(View.VISIBLE);
             }
             carTracingService.registerCallback(carTracingStateUpdateCallBack);
             carTracingStateUpdateCallBack(carTracingService.getState());
@@ -169,7 +161,6 @@ public class CarInterface extends AppCompatActivity {
         connectUI();
 
         memberID = getIntent().getStringExtra("memberID");
-        position = getIntent().getIntExtra("position", -1);
         carData = (CarData)getIntent().getSerializableExtra("carData");
         switch(carData.getStatus())
         {
@@ -258,8 +249,7 @@ public class CarInterface extends AppCompatActivity {
 
                 startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
                 startServiceIntent.putExtra("mb_id", memberID);
-                startServiceIntent.putExtra("cr_id", carData.getCarID());
-                startServiceIntent.putExtra("car_name", carData.getCarName());
+                startServiceIntent.putExtra("car_data", carData);
                 startServiceIntent.putExtra("mac_address", carData.getMac_address());
                 startService(startServiceIntent);
 
@@ -315,6 +305,7 @@ public class CarInterface extends AppCompatActivity {
                         break;
                     case CarTracingService.SUCCESSFUL_CAR_ON:
                         isAvailable.setText("운전중");
+                        btnStartCar.setVisibility(View.INVISIBLE);
                         isAvailable.setTextColor(Color.parseColor("#9911BB"));
                         Toast.makeText(getApplicationContext(), "시동 성공", Toast.LENGTH_SHORT).show();
                         turnOnDialog.dismiss();
@@ -384,5 +375,10 @@ public class CarInterface extends AppCompatActivity {
         else{
             finish();
         }
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
     }
 }

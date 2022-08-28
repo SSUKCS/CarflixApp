@@ -39,9 +39,8 @@ public class CarTracingService extends Service {
     //블루투스 연결 관련 변수들
     private static final String TAG = "CarTracingService";
 
-    private String carName;
     private String mbId;
-    private String crId;
+    private CarData carData;
     private long expireTerm = 5000;
 
     private ArduinoBluetooth tracingThread;
@@ -133,7 +132,7 @@ public class CarTracingService extends Service {
                 requestBody.put("member", mbId);
                 requestBody.put("vs_latitude", location[0].getLatitude());
                 requestBody.put("vs_longitude", location[0].getLongitude());
-                requestBody.put("cr_id", crId);
+                requestBody.put("cr_id", carData.getCarID());
                 ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
                 serverConnectionThread.start();
 
@@ -148,7 +147,7 @@ public class CarTracingService extends Service {
         @Override
         public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
             this.arduinoInterpreter = arduinoInterpreter;
-            String param = "cr_id="+crId+"&mb_id="+mbId;
+            String param = "cr_id="+carData.getCarID()+"&mb_id="+mbId;
             //서버에 시동요청이 올바른가 보냄
             ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", param, null);
             JSONObject serverJsonData=null;
@@ -251,9 +250,8 @@ public class CarTracingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        carName = intent.getStringExtra("car_name");
         mbId = intent.getStringExtra("mb_id");
-        crId = intent.getStringExtra("cr_id");
+        carData = (CarData) intent.getSerializableExtra("car_data");
         String bluetoothMacAddress = intent.getStringExtra("mac_address");
         if(bluetoothMacAddress != null)
             tracingThread.setTargetMacAddress(bluetoothMacAddress);
@@ -280,9 +278,10 @@ public class CarTracingService extends Service {
         //R.mipmap.ic_launcher
         builder.setSmallIcon(R.drawable.image_carflix_logo);
         NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
-        style.bigText(carName + " 운전중.");
-        style.setBigContentTitle(null);
-        style.setSummaryText("차량 운행중");
+        style.bigText(null);
+        
+        style.setBigContentTitle("회원님께서 " + carData.getCarName() + "을 운전하고 있습니다.");
+        style.setSummaryText("차량 운전중");
         builder.setContentText(null);
         builder.setContentTitle(null);
         builder.setOngoing(true);
@@ -290,9 +289,14 @@ public class CarTracingService extends Service {
         builder.setWhen(0);
         builder.setShowWhen(false);
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+        Intent notificationIntent = new Intent(this, CarInterface.class);
+        notificationIntent.putExtra("memberID", mbId);
+        carData.setStatus("운전중");
+        notificationIntent.putExtra("carData", carData);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                notificationIntent, PendingIntent.FLAG_MUTABLE);
+
         builder.setContentIntent(pendingIntent);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
