@@ -53,6 +53,11 @@ public class LogList {
     public LatLng getLocation(int position){
         return locationList.get(position);
     }
+    public String getLocationToString(int position){
+        double latitude = locationList.get(position).latitude;
+        double longitude = locationList.get(position).longitude;
+        return latitude+", "+longitude;
+    }
     public String[] getUserInfo(int position){
         return userInfoList.get(position).get();
     }
@@ -65,6 +70,7 @@ public class LogList {
         return size;
     }
     public void showByLog(){
+        Log.d("LogList_showByLog", "SIZE :: "+size);
         for(int i=0;i<size;i++){
             Log.i("LogList_showByLog()", "ITEM["+i+"] :: "+ locationList.get(i)+"|"+userInfoList.get(i));
         }

@@ -357,26 +357,41 @@ public class ProfileMenu {
     public void settingProfile(JSONObject userData, JSONObject groupData){
         settingProfile(userData);
         this.groupData = groupData;
+
         try{
             String memberID = userData.getString("mb_id");
             String creatorID = groupData.getString("creatorID");
             Log.d("ProfileMenu_settingProfile", "memberID :: "+memberID+", creatorID :: "+ creatorID);
             isGroupCreator =memberID.equals(creatorID);
-            if(isGroupCreator){
-                //사용자 == 생성자 => 그룹 삭제 가능
-                ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 삭제");
-                baseActivity.findViewById(R.id.usageView).setVisibility(View.VISIBLE);
-                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.VISIBLE);
+            String params = "mb_id="+memberID+"&group_id="+groupData.getString("groupID")+"&status="+groupData.getString("status");
+            String memberPositionData = new ServerData("GET", "code_car/single_show", params, null).get();
+            if(!memberPositionData.equals("존재하는 값이 없습니다.")){
+                if(memberPositionData.equals("y")){
+                    userName.setText(userData.getString("mb_nickname")+"(부매니저)");
+                }
+                else if(memberPositionData.equals("n")){
+                    userName.setText(userData.getString("mb_nickname")+"(일반 사용자)");
+                }
             }
             else{
-                baseActivity.findViewById(R.id.usageView).setVisibility(View.GONE);
-                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-                param.topMargin = 15;
-                baseActivity.findViewById(R.id.outView).setLayoutParams(param);;
-                baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
+                if(isGroupCreator){
+                    //사용자 == 생성자 => 그룹 삭제 가능
+                    userName.setText(userData.getString("mb_nickname")+"(대표자)");
+                    ((TextView)baseActivity.findViewById(R.id.outText)).setText("그룹 삭제");
+                    baseActivity.findViewById(R.id.usageView).setVisibility(View.VISIBLE);
+                    baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.VISIBLE);
+                }
+                else{
+                    baseActivity.findViewById(R.id.usageView).setVisibility(View.GONE);
+                    LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                    param.topMargin = 15;
+                    baseActivity.findViewById(R.id.outView).setLayoutParams(param);;
+                    baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
+                }
             }
+
         }
         catch(JSONException e){
             Log.e("ProfileMenu_settingProfile", e.toString());
