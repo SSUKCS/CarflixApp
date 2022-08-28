@@ -48,10 +48,9 @@ public class CarTracingService extends Service {
 
     private String mState = ArduinoBluetooth.SEARCHING;
 
-    public static final String GOT_AVAIL = "got_avail";
-    private static final String TIME_OVER = "time_over";
-    private static final String GOT_REQ = "got_req";
-    private static final String GOT_OFF = "got_off";
+    private static final int TIME_OVER = 1;
+    private static final int GOT_REQ = 2;
+    private static final int GOT_OFF = 3;
 
     public static final String SUCCESSFUL_CAR_ON = "successful_car_on";
     public static final String FAILED_CAR_ON = "failed_car_on";
@@ -109,7 +108,7 @@ public class CarTracingService extends Service {
             expiringTimer = new Timer();
             expiringTimer.schedule(timerTask, expireTerm, expireTerm);
         }
-        private void sendToServer(String eachStatus) {
+        private void sendToServer(int eachStatus) {
             String command = "vehicle_status/";
             JSONObject requestBody = new JSONObject();
             try {
@@ -323,19 +322,23 @@ public class CarTracingService extends Service {
         }
     }
 
-    private void end(){
+    private boolean isEnd = false;
+    public void end(){
         //블루투스
-        if(tracingThread != null){
-            tracingThread.endConnection();
+        if(!isEnd) {
+            isEnd = true;
+            if (tracingThread != null) {
+                tracingThread.endConnection();
+            }
+            //gps
+            stopForeground(STOP_FOREGROUND_REMOVE);
+            Log.e(TAG, "onDestroy :: ");
+            if (fusedLocationClient != null) {
+                fusedLocationClient.removeLocationUpdates(locationCallback);
+                Log.e(TAG, "Location Update Callback Removed");
+            }
+            stopSelf();
         }
-        //gps
-        stopForeground(STOP_FOREGROUND_REMOVE);
-        Log.e(TAG, "onDestroy :: ");
-        if (fusedLocationClient != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-            Log.e(TAG, "Location Update Callback Removed");
-        }
-        stopSelf();
     }
 
     /**
