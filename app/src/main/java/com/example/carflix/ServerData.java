@@ -97,11 +97,10 @@ public class ServerData {
                         Log.d("serverData_message", data.getString("message"));
                         result = data.getString("message");
                     }
-                    //{"data":[{" .... "}]}
-                    //message, vs_startup_infomation, cr_id, member
-                    else if(Pattern.matches("^\\{\\\"data\\\"\\:\\[\\{\\\".*\\\"\\}\\]\\}", data.toString())){
-                        Log.d("serverData_data", "get data......");
-                        result = data.getJSONArray("data").toString();
+                    //{message, vs_startup_infomation, cr_id, member}
+                    //
+                    else{
+                        result = data.toString();
                     }
                     break;
                 default: result = data.toString();break;
