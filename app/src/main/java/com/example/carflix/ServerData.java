@@ -93,13 +93,9 @@ public class ServerData {
                 case "vehicle_condition":
                     //{"message":" 시동중 "}
                     //{"message":" 차량시동상태를 걸어주세요."} : cr_id가 존재하지 않는 number일 경우
-                    if(Pattern.matches("^\\{\\\"message\\\"\\:\\\".*\\\"\\}$", data.toString())){
-                        Log.d("serverData_message", data.getString("message"));
-                        result = data.getString("message");
-                    }
-                    //{message, vs_startup_infomation, cr_id, member}
-                    //
-                    else{
+                    result = data.getString("message");
+                    if(!result.equals("시동중")&&!result.equals("차량시동상태를 걸어주세요")){
+                        //{message, vs_startup_infomation, cr_id, member}
                         result = data.toString();
                     }
                     break;
