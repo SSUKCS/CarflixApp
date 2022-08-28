@@ -57,28 +57,32 @@ public class CarController extends ArduinoBluetooth{
 
     @Override
     public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
-        ArduinoData arduinoData = new ArduinoData.Builder()
-                .setCont(mode)
-                .build();
-        arduinoInterpreter.sendToArduino(arduinoData); //컨트롤 전송
-        arduinoInterpreter.startListening();
-        arduinoInterpreter.listenNext();
-
+        String message = null;
+        String param = "cr_id=" + crId + "&mb_id=" + mbId + "&how=" + modeToString(mode);
         //컨트롤 전송후 서버로 데이터 전송
         try{
-            JSONObject carInfo = new JSONObject();
-
-            ServerData serverData = new ServerData("POST", "vehicle_status/lockunlock", carInfo);
-            String sCrId = serverData.get();
-            crId = Long.parseLong(sCrId);
-            Log.i(TAG, "onReceive: crid : "+crId);
+            ServerData sendData = new ServerData("GET", "vehicle_status/lockunlock", param, null);
+            JSONObject serverData = new JSONObject(sendData.get());
+            message = serverData.getString("message");
         }
         catch(JSONException e){
             Log.e(TAG, e.toString());
         }
 
-
-
+        if(message != null && message.startsWith("success")) {
+            //>>>만약 서버로부터 올바르다고 받았다면...
+            ArduinoData arduinoData = new ArduinoData.Builder()
+                    .setCont(mode)
+                    .build();
+            arduinoInterpreter.sendToArduino(arduinoData); //컨트롤 전송
+            arduinoInterpreter.startListening();
+            arduinoInterpreter.listenNext();
+        }
+        else {
+            //>>>만약 올바르지 않다고 받았다면
+            onStateUpdate(FAILED_CONTROL);
+            return;
+        }
         onStateUpdate(SUCCESSFUL_CONTROL);
     }
 

@@ -179,7 +179,7 @@ public class CarInterface extends AppCompatActivity {
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
                         CarController.DOOR_OPEN,
-                        memberID
+                        memberID, carData.getCarID()
                 );
                 carController.start();
             }
@@ -194,7 +194,7 @@ public class CarInterface extends AppCompatActivity {
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
                         CarController.DOOR_CLOSE,
-                        memberID
+                        memberID, carData.getCarID()
                 );
                 carController.start();
             }
@@ -209,7 +209,7 @@ public class CarInterface extends AppCompatActivity {
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
                         CarController.TRUNK_OPEN,
-                        memberID
+                        memberID, carData.getCarID()
                 );
                 carController.start();
             }
@@ -223,7 +223,7 @@ public class CarInterface extends AppCompatActivity {
                         getApplicationContext(), BluetoothAdapter.getDefaultAdapter(),
                         new CarControllerCallback(),
                         CarController.TRUNK_CLOSE,
-                        memberID
+                        memberID, carData.getCarID()
                 );
                 carController.start();
             }
@@ -241,6 +241,7 @@ public class CarInterface extends AppCompatActivity {
 
                 startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
                 startServiceIntent.putExtra("mb_id", memberID);
+                startServiceIntent.putExtra("cr_id", carData.getCarID());
                 startServiceIntent.putExtra("car_name",carData.getCarName());
                 startServiceIntent.putExtra("mac_address", carData.getMac_address());
                 startService(startServiceIntent);

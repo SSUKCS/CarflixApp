@@ -14,7 +14,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -42,7 +41,8 @@ public class CarTracingService extends Service {
 
     private String carName;
     private String mbId;
-    private long sendingTerm = 5000;
+    private String crId;
+    private long expireTerm = 5000;
 
     private ArduinoBluetooth tracingThread;
 
@@ -107,7 +107,7 @@ public class CarTracingService extends Service {
                 }
             };
             expiringTimer = new Timer();
-            expiringTimer.schedule(timerTask, sendingTerm, sendingTerm);
+            expiringTimer.schedule(timerTask, expireTerm, expireTerm);
         }
         private void sendToServer(String eachStatus) {
             String command = "vehicle_status/";
@@ -130,16 +130,14 @@ public class CarTracingService extends Service {
                         requestBody.put("vs_startup_information", "off");
                         break;
                 }
-                //서버에게 시동상태를 전송
-                /*
+
                 requestBody.put("member", mbId);
                 requestBody.put("vs_latitude", location[0].getLatitude());
                 requestBody.put("vs_longitude", location[0].getLongitude());
-                requestBody.put("cr_id", availData.getCrId());
+                requestBody.put("cr_id", crId);
                 ServerConnectionThread serverConnectionThread = new ServerConnectionThread("POST", command, requestBody);
                 serverConnectionThread.start();
 
-                 */
                 Log.i(TAG, "sendToServer: "+location[0].getLatitude()+", "+location[0].getLongitude());
 
             } catch (JSONException e) {
@@ -151,13 +149,33 @@ public class CarTracingService extends Service {
         @Override
         public void onConnected(ArduinoInterpreter arduinoInterpreter, String macAddress) {
             this.arduinoInterpreter = arduinoInterpreter;
-            arduinoInterpreter.startListening();
-            ArduinoData arduinoData = new ArduinoData.Builder()
-                    .setStart()
-                    .build();
-            arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
-            arduinoInterpreter.listenNext();
-            Log.i(TAG, "run: 시동 요청.");
+            String param = "cr_id="+crId+"&mb_id="+mbId;
+            //서버에 시동요청이 올바른가 보냄
+            ServerData serverData = new ServerData("GET", "vehicle_status/boot_on", param, null);
+            JSONObject serverJsonData=null;
+            String isRequestAvailable="";
+            try{
+                serverJsonData = new JSONObject(serverData.get());
+                isRequestAvailable = serverJsonData.getString("message");
+            }
+            catch(JSONException e){
+                Log.e(TAG, e.toString());
+            }
+            if(isRequestAvailable.equals("success boot on")) {
+                //>>>만약 서버로부터 올바르다고 받았다면
+                arduinoInterpreter.startListening();
+                ArduinoData arduinoData = new ArduinoData.Builder()
+                        .setStart()
+                        .build();
+                arduinoInterpreter.sendToArduino(arduinoData); //시동 허가 전송
+                arduinoInterpreter.listenNext();
+            }
+            else{
+                onStateUpdate(FAILED_CAR_ON);
+                end();
+                return;
+            }
+            Log.i(TAG, "run: 시동 성공.");
         }
 
         @Override
@@ -177,7 +195,7 @@ public class CarTracingService extends Service {
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
             super.onReceive(arduinoData, arduinoInterpreter);
             if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_STATE){
-                if(firstReceive){
+                if (firstReceive){
                     firstReceive = false;
                     sendToServer(GOT_REQ);
                     //시동 걸린 상태로 진입
@@ -236,6 +254,7 @@ public class CarTracingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         carName = intent.getStringExtra("car_name");
         mbId = intent.getStringExtra("mb_id");
+        crId = intent.getStringExtra("cr_id");
         String bluetoothMacAddress = intent.getStringExtra("mac_address");
         if(bluetoothMacAddress != null)
             tracingThread.setTargetMacAddress(bluetoothMacAddress);
@@ -291,8 +310,8 @@ public class CarTracingService extends Service {
     private void requestLocationUpdates() {
         Log.e(TAG, "locationUpdateStart :: ");
         LocationRequest request = LocationRequest.create();
-        request.setInterval(10000)//sendingTerm*2
-                .setFastestInterval(5000)//sendingTerm
+        request.setInterval(2000)//sendingTerm*2
+                .setFastestInterval(1000)//sendingTerm
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
         final int[] permission = {
