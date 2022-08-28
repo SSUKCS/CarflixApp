@@ -189,10 +189,12 @@ public class CarTracingService extends Service {
                     Toast.LENGTH_SHORT).show();
         }
         boolean firstReceive = true;
+        boolean nowRun = false;
         @Override
         public void onReceive(ArduinoData arduinoData, ArduinoInterpreter arduinoInterpreter) {
             super.onReceive(arduinoData, arduinoInterpreter);
             if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_STATE){
+                nowRun = true;
                 if (firstReceive){
                     firstReceive = false;
                     sendToServer(GOT_REQ);
@@ -210,17 +212,26 @@ public class CarTracingService extends Service {
                 }
             }
             else if(arduinoData.getHeaderCode() == ArduinoData.S_REQSEND_OFF){
-                timerTask.cancel();
-                sendToServer(GOT_OFF);
-                arduinoData = new ArduinoData.Builder()
-                        .setSendOffOk()
-                        .build();
-                arduinoInterpreter.sendToArduino(arduinoData); //아두이노에게 완료 전달
-                arduinoInterpreter.listenNext();
-                fusedLocationClient.removeLocationUpdates(locationCallback);
-                //종료.
-                onStateUpdate(FINISHED);
-                end();
+                if(nowRun) {
+                    timerTask.cancel();
+                    sendToServer(GOT_OFF);
+                    arduinoData = new ArduinoData.Builder()
+                            .setSendOffOk()
+                            .build();
+                    arduinoInterpreter.sendToArduino(arduinoData); //아두이노에게 완료 전달
+                    arduinoInterpreter.listenNext();
+                    fusedLocationClient.removeLocationUpdates(locationCallback);
+                    //종료.
+                    onStateUpdate(FINISHED);
+                    end();
+                }
+                else{ //시동걸기 전에 받은 off 신호는 종료시킨다
+                    arduinoData = new ArduinoData.Builder()
+                            .setSendOffOk()
+                            .build();
+                    arduinoInterpreter.sendToArduino(arduinoData); //아두이노에게 완료 전달
+                    arduinoInterpreter.listenNext();
+                }
             }
         }
     }
