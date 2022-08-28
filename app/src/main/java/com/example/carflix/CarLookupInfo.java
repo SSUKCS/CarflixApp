@@ -3,7 +3,12 @@ package com.example.carflix;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,7 +69,7 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
             handler = new Handler();
 
             final Runnable runnable = new Runnable(){
-                String userInfo="", member, latestMember, status, date, hourAndMinute;
+                String userInfo="", member, status, date, hhmmtt, hourAndMinute;
                 double latitude=0.0, longitude =0.0;
                 JSONArray jsonArray;
                 @Override
@@ -76,27 +81,8 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                             movementRecordMap.clear();
                             //가장 최근 위치를 지도에 표시
                             JSONObject latestVehicleStatus = jsonArray.getJSONObject(0);
-                            latestMember = latestVehicleStatus.getString("member");
-                            Log.d("CarLookupInfo", "LATEST MEMBER :: "+latestMember);
-                            latitude = Double.parseDouble(latestVehicleStatus.getString("vs_latitude"));
-                            longitude = Double.parseDouble(latestVehicleStatus.getString("vs_longitude"));
-                            Log.d("CarLookupInfo", "LATITUDE :: "+latitude+", LONGITUDE :: "+longitude);
-                            date = latestVehicleStatus.getString("vs_regdate");
-                            Log.d("CarLookupInfo", "DATE :: "+date.split(" ")[1]);
-                            String hhmmtt = date.split(" ")[1];
-                            hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
 
-                            if(latestDriverLocation==null){
-                                MarkerOptions markOptions = new MarkerOptions();
-                                markOptions.position(new LatLng(latitude, longitude)).title(latestMember).snippet(hourAndMinute);
-                                latestDriverLocation = movementRecordMap.addMarker(markOptions);
-                            }
-                            else{
-                                latestDriverLocation.setPosition(new LatLng(latitude, longitude));
-                                latestDriverLocation.setSnippet(hourAndMinute);
-                            }
-
-                            for(i=1;i<len;i++){
+                            for(i=0;i<len;i++){
                                 JSONObject vehicleStatus = jsonArray.getJSONObject(i);
                                 member = vehicleStatus.getString("member");
 
@@ -105,12 +91,13 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                     break;
 
                                 status = vehicleStatus.getString("vs_startup_information");
-                                date = vehicleStatus.getString("vs_longitude");
-
-                                latitude = Double.parseDouble(vehicleStatus.getString("vs_latitude"));
-                                longitude = Double.parseDouble(vehicleStatus.getString("vs_longitude"));;
-
-                                logList.add(new LatLng(latitude, longitude), member, status, date);
+                                date = vehicleStatus.getString("vs_regdate");
+                                if(!vehicleStatus.getString("vs_latitude").equals("") &&
+                                !vehicleStatus.getString("vs_longitude").equals("")){
+                                    latitude = Double.parseDouble(vehicleStatus.getString("vs_latitude"));
+                                    longitude = Double.parseDouble(vehicleStatus.getString("vs_longitude"));;
+                                    logList.add(new LatLng(latitude, longitude), member, status, date);
+                                }
 
 
                             }
@@ -120,7 +107,8 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                             status = logList.getUserInfo(logList.getSize()-1)[1];
                             //"vs_regdate" : "yyyy-MM-dd tt:mm:ss"
                             date = logList.getUserInfo(logList.getSize()-1)[2];
-                            hourAndMinute = date.split(" ")[1].substring(0, date.lastIndexOf(":"));
+                            hhmmtt = date.split(" ")[1];
+                            hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
                             switch(status){
                                 case "on"://(member)님이 이용중\n(hour:minute)부터 운행 시작
                                     userInfo = member+"님이 운전중\n"+hourAndMinute+"부터 운행 시작";
@@ -142,14 +130,30 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                     break;
                             }
                             userInfoTextView.setText(userInfo);
+                            Log.d("CarLookupInfo", userInfo);
+                            movementRecordMap.moveCamera(CameraUpdateFactory.newLatLngZoom(logList.getLocation(0), 100));
+                            if(latestDriverLocation==null){
+                                MarkerOptions markOptions = new MarkerOptions();
+                                markOptions.position(new LatLng(latitude, longitude)).title(member).snippet(hourAndMinute);
+                                latestDriverLocation = movementRecordMap.addMarker(markOptions);
+                                movementRecordMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 10));
+                            }
+                            else{
+                                latestDriverLocation.setPosition(new LatLng(latitude, longitude));
+                                latestDriverLocation.setSnippet(hourAndMinute);
+                            }
                             //위치 기록 표시
                             for(i=0;i<logList.getSize();i++){
                                 MarkerOptions markerOptions = new MarkerOptions();
                                 member = logList.getUserInfo(i)[0];
                                 date = logList.getUserInfo(i)[2];
-                                hourAndMinute = date.split(" ")[1].substring(0, date.lastIndexOf(":"));
+                                hhmmtt = date.split(" ")[1];
+                                hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
                                 markerOptions.position(logList.getLocation(i)).title(member).snippet(hourAndMinute);
-                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_track_mark));
+
+                                Drawable markerImage = getDrawable(R.drawable.ic_track_mark);
+                                Bitmap markerBitmap  = ((BitmapDrawable)markerImage).getBitmap();
+                                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerBitmap));
                                 movementRecordMap.addMarker(markerOptions);
                             }
                         }
