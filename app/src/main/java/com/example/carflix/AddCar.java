@@ -67,7 +67,7 @@ public class AddCar extends AppCompatActivity {
 
         connectUI();
     }
-    
+
     private class CarIdManagerCallback implements CarIdManager.CarIdManagerCallback {
         @Override
         public void onStateUpdate(String state) {
@@ -122,19 +122,19 @@ public class AddCar extends AppCompatActivity {
         }
     }
     private CarIdManager carIdManager;
-    
+
     private void connectUI(){
         getSupportActionBar().setTitle("차량 추가");
-        
+
         carNameEdit = (EditText) findViewById(R.id.carNameEdit);
         carNumberEdit = (EditText)findViewById(R.id.carNumberEdit);
         carIdServiceState = (TextView)findViewById(R.id.carIdServiceState);
         addCarButton = (Button)findViewById(R.id.addCarButton);
-        
+
         addCarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
                 //차량의 데이터를 서버에 등록한다.
                 String carName = carNameEdit.getText().toString();
                 String carNumber = carNumberEdit.getText().toString().replaceAll("\\s", "");
@@ -148,15 +148,15 @@ public class AddCar extends AppCompatActivity {
                     CarIdManager.Userdata userdata = new CarIdManager.Userdata(
                             memberID, groupID, status, carNumber.substring(0, len-4), carNumber.substring(len-4), carName
                     );
-                    
-                    carIdManager = new CarIdManager(getApplicationContext(), 
-                            BluetoothAdapter.getDefaultAdapter(), new CarIdManagerCallback(), 
+
+                    carIdManager = new CarIdManager(getApplicationContext(),
+                            BluetoothAdapter.getDefaultAdapter(), new CarIdManagerCallback(),
                             userdata, CarIdManager.ASSIGN_MODE);
                     carIdManager.start();
                     dialog.show();
                     dialog.setText("기기 탐색중....");
                     dialog.setTextColor(Color.parseColor("#5DC19B"));
-                    
+
                 }
                 else{
                     Log.d("AddCar", "editTextIsEmpty :: "+editTextIsEmpty());

@@ -58,14 +58,18 @@ public class LogList {
     }
     public boolean isEmpty(){
         if(size==0) return true;
-        else return false;
+        else if(size > 0) return false;
+        else throw new ArrayIndexOutOfBoundsException(": Index: -1"+", Size: "+size);
     }
     public int getSize(){
         return size;
     }
     public void showByLog(){
         for(int i=0;i<size;i++){
-            Log.i("LogList", "ITEM["+i+"] :: "+ locationList.get(i)+"|"+userInfoList.get(i));
+            Log.i("LogList_showByLog()", "ITEM["+i+"] :: "+ locationList.get(i)+"|"+userInfoList.get(i));
+        }
+        if(size==0){
+            Log.i("LogList_showByLog()", "There's No Record");
         }
     }
 }

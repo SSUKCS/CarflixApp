@@ -2,6 +2,7 @@ package com.example.carflix;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Handler;
 import android.view.Window;
 import android.widget.TextView;
 

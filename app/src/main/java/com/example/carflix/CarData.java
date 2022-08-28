@@ -19,7 +19,6 @@ public class CarData implements Serializable {
     String classification;
     String registerationNumber;
     String mac_address;
-    boolean available;//vs_authentication_value - ok/
     String status;//vs_startup_infomation
 
     public CarData(JSONObject carData){
@@ -38,7 +37,6 @@ public class CarData implements Serializable {
             this.registerationNumber = carData.getString("cr_registeration_number");
             this.carName = carData.getString("cr_carname");
             this.mac_address = carData.getString("cr_mac_address");
-            available = true;
             status = "운전 가능";
         }
         catch(JSONException e){
@@ -53,8 +51,6 @@ public class CarData implements Serializable {
         return carImg;
     }
     public void setCarImg(int carImg){ this.carImg = carImg;}
-    public boolean isAvailable(){return available;}
-    public void setAvailable(boolean isAvailable){this.available = isAvailable;}
     public String getStatus(){return status;}
     public void setStatus(String status){this.status = status;}
     public String getCarID() {return carID;}

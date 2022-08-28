@@ -223,53 +223,48 @@ public class CarList extends AppCompatActivity {
                         super.onAuthenticationError(errorCode, errString);
                         Log.d("BiometricPrompt.AuthenticationCallback()", "onAuthenticationError");
                         //Toast.makeText(getApplicationContext(),R.string.auth_error_message, Toast.LENGTH_SHORT).show();
-                        switch(errorCode){
-                            case 11:
-                                AlertDialog.Builder builder = new AlertDialog.Builder(CarList.this);
-                                AlertDialog alertDialog = builder.setTitle("지문 등록이 필요합니다.")
-                                        .setMessage("지문등록 설정 화면으로 이동하시겠습니까?")
-                                        .setIcon(android.R.drawable.ic_dialog_alert)
-                                        .setPositiveButton("네", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                                final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
-                                                enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                                                        BIOMETRIC_STRONG);
-                                                launcher.launch(enrollIntent);
-                                            }
-                                        })
-                                        .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.cancel();
-                                            }
-                                        })
-                                        .setNeutralButton("다른 방식으로 인증하기", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                                promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                                                        .setTitle("본인 인증")
-                                                        .setAllowedAuthenticators(DEVICE_CREDENTIAL)
-                                                        .build();
-                                                if (keyguardManager.isDeviceSecure()){
-                                                    //저장되어있는 지문정보나 PIN, 패턴, 비밀번호가 존재하는지 확인
-                                                    biometricPrompt.authenticate(promptInfo);
-                                                }
-                                            }
-                                        })
-                                        .create();
-                                alertDialog.show();
-                                break;
-                        }
+                        AlertDialog.Builder builder = new AlertDialog.Builder(CarList.this);
+                        AlertDialog alertDialog = builder.setTitle("지문 등록이 필요합니다.")
+                                .setMessage("지문등록 설정 화면으로 이동하시겠습니까?")
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+                                        enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                                                BIOMETRIC_STRONG);
+                                        launcher.launch(enrollIntent);
+                                    }
+                                })
+                                .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                })
+                                .setNeutralButton("다른 방식으로 인증하기", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                                                .setTitle("본인 인증")
+                                                .setAllowedAuthenticators(DEVICE_CREDENTIAL)
+                                                .build();
+                                        if (keyguardManager.isDeviceSecure()){
+                                            //저장되어있는 지문정보나 PIN, 패턴, 비밀번호가 존재하는지 확인
+                                            biometricPrompt.authenticate(promptInfo);
+                                        }
+                                    }
+                                })
+                                .create();
+                        alertDialog.show();
                     }
                     @Override
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
                         Log.d("BiometricPrompt.AuthenticationCallback()", "onAuthenticationSucceeded");
                         //Toast.makeText(getApplicationContext(), R.string.auth_success_message, Toast.LENGTH_SHORT).show();
-                        if(nowDriving == DEFAULT || nowDriving==selectPosition){
                             Log.d("CarList_serItemClickListener_onItemClick: ", "nowDriving"+nowDriving);
                             Intent intent = new Intent(getApplicationContext(), CarInterface.class);
                             CarData carData = carDataList.get(selectPosition);
@@ -277,10 +272,7 @@ public class CarList extends AppCompatActivity {
                             intent.putExtra("carData", carData);
                             intent.putExtra("position", selectPosition);
                             startActivity(intent);
-                        }
-                        else{
-                            Toast.makeText(context, "차량 운전중입니다.", Toast.LENGTH_LONG).show();
-                        }
+
                     }
                     @Override
                     public void onAuthenticationFailed() {
@@ -294,6 +286,12 @@ public class CarList extends AppCompatActivity {
             @Override
             public void onItemClick(View v, int position) {
                 selectPosition = position;
+                switch(carDataList.get(position).getStatus()){
+                    //남이 운전중이면 건들면 작동 x, 내가 운전중이여도 자신이 운전중인 차량 외에는 건들지 못함.
+                    case "사용 가능":authenticate();break;
+                    case "사용 불가능":break;
+                    case "운전중":Toast.makeText(context, "다른 이용자가 운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
+                }
                 authenticate();
             }
             public void onDeleteCarButtonClick(View v, int position){
@@ -308,7 +306,7 @@ public class CarList extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        
+
     }
     @Override
     protected void onResume() {
@@ -484,11 +482,14 @@ public class CarList extends AppCompatActivity {
                     String serverData = new ServerData("GET", "vehicle_status/show", param, null).get();
                     if(!serverData.equals("No vehicle_status Found")){
                         String recentVehicleStatus = new JSONArray(serverData).getJSONObject(0).getString("vs_startup_information");
-                        if(recentVehicleStatus.equals("on")){
-                            carData.setAvailable(false);
+                        if(recentVehicleStatus.equals("off")){
+                            carData.setStatus("사용 가능");
+                        }
+                        else if(recentVehicleStatus.equals("connection_fault")){
+                            carData.setStatus("사용 불가능");
                         }
                         else{
-                            carData.setAvailable(true);
+                            carData.setStatus("운전중");
                         }
                     }
                     carDataList.add(carData);
