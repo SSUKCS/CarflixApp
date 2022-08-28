@@ -128,8 +128,14 @@ public class CarIdManager extends ArduinoBluetooth{
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }
-                    ServerData serverData = new ServerData("DELETE", "car/registration_delete_request", requestBody);
-                    if (!serverData.get().equals("car delete request fail")) {
+                    ServerData serverData = null;
+                    try {
+                        serverData = new ServerData("DELETE", "car/registration_delete_request", requestBody);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    if (serverData != null && !serverData.get().equals("car delete request fail")) {
                         try {
                             String sCrId = new JSONObject(serverData.get()).getString("cr_id");
                             crId = Long.parseLong(sCrId);

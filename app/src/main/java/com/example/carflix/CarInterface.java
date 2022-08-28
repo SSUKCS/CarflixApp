@@ -350,6 +350,7 @@ public class CarInterface extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         controlDialog.dismiss();
+        turnOnDialog.dismiss();
         finish();
     }
 

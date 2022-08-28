@@ -119,13 +119,5 @@ public class ServerData {
         catch(Exception e){
             e.printStackTrace();
         }
-        try{
-            String a = thread.getResult();
-            Log.i("serverdata", "start: "+ a);
-            data = new JSONObject(a);
-        }
-        catch(JSONException e){
-            Log.e("serverData", e.toString());
-        }
     }
 }

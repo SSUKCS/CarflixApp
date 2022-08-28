@@ -65,7 +65,7 @@ public class CarController extends ArduinoBluetooth{
             JSONObject serverData = new JSONObject(sendData.get());
             message = serverData.getString("message");
         }
-        catch(JSONException e){
+        catch(Exception e){
             Log.e(TAG, e.toString());
         }
 
