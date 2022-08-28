@@ -155,6 +155,7 @@ public class CarTracingService extends Service {
             try{
                 serverJsonData = new JSONObject(serverData.get());
                 isRequestAvailable = serverJsonData.getString("message");
+                Log.i(TAG, "onConnected: " + isRequestAvailable);
             }
             catch(JSONException e){
                 Log.e(TAG, e.toString());
@@ -302,7 +303,7 @@ public class CarTracingService extends Service {
 
         Intent notificationIntent = new Intent(this, CarInterface.class);
         notificationIntent.putExtra("memberID", mbId);
-        carData.setStatus("운전중");
+        carData.setCarStatus("운전중");
         notificationIntent.putExtra("carData", carData);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
