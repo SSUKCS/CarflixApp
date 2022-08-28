@@ -20,11 +20,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class CarInterface extends AppCompatActivity {
+    public static final String TAG = "CarInterface";
     ImageView carImg;
     TextView carName;
-    TextView isAvailable;
+    TextView textViewCarStatus;
 
     Button btnDoorOpen;
     Button btnDoorClose;
@@ -44,6 +48,52 @@ public class CarInterface extends AppCompatActivity {
     private boolean isCarTracingOn;
     private final CarTracingService.StateUpdateCallBack carTracingStateUpdateCallBack = this::carTracingStateUpdateCallBack;
 
+    public String getCarStatusFromServer(){
+        //서버로부터 자동차 상태를 받아오는 코드
+        return CarData.AVAILABLE;
+    }
+
+    TimerTask timerTask;
+    Timer updateFromServerTimer;
+    long updateTerm = 3000;
+    private void startRepeatUpdate(){
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Log.i(TAG, "run: 차량 상태 업데이트");
+                // String carStatus = getCarStatusFromServer();
+                // setCarState(carStatus);
+            }
+        };
+        updateFromServerTimer = new Timer();
+        updateFromServerTimer.schedule(timerTask, 1000, updateTerm);
+    }
+
+    private void cancelRepeatUpdate(){
+        timerTask.cancel();
+    }
+
+    private void setCarState(String carStatus){
+        textViewCarStatus.setText(carStatus);
+        switch(carStatus){
+            case CarData.AVAILABLE:
+                textViewCarStatus.setTextColor(Color.parseColor("#4488FF"));
+                btnStartCar.setVisibility(View.VISIBLE);
+                break;
+            case CarData.OCCUPIED:
+                textViewCarStatus.setTextColor(Color.parseColor("#FF5544"));
+                btnStartCar.setVisibility(View.INVISIBLE);
+                break;
+            case CarData.DRIVING:
+                textViewCarStatus.setTextColor(Color.parseColor("#9911BB"));
+                btnStartCar.setVisibility(View.INVISIBLE);
+                break;
+            default:
+                textViewCarStatus.setTextColor(Color.parseColor("#000"));
+                break;
+        }
+    }
+
     private final ServiceConnection carTracingStateBindConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -51,9 +101,7 @@ public class CarInterface extends AppCompatActivity {
             CarTracingService.CarServiceBinder carServiceBinder = (CarTracingService.CarServiceBinder) iBinder;
             carTracingService = carServiceBinder.getService();
             if(carTracingService.getState().equals(CarTracingService.SUCCESSFUL_CAR_ON)){
-                isAvailable.setText("운전중");
-                isAvailable.setTextColor(Color.parseColor("#9911BB"));
-                btnStartCar.setVisibility(View.INVISIBLE);
+                setCarState(CarData.DRIVING);
             }
             carTracingService.registerCallback(carTracingStateUpdateCallBack);
             carTracingStateUpdateCallBack(carTracingService.getState());
@@ -76,11 +124,9 @@ public class CarInterface extends AppCompatActivity {
                     switch (state) {
                         case ArduinoBluetooth.SEARCHING:
                             controlDialog.setText("기기 탐색중...");
-                            isAvailable.setTextColor(Color.parseColor("#5DC19B"));
                             break;
                         case ArduinoBluetooth.FOUND_DEVICE:
                             controlDialog.setText("기기에 신호를 보내는중...");
-                            isAvailable.setTextColor(Color.parseColor("#5DC19B"));
                             break;
                         case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
                             controlDialog.setText("기기에 신호를 보내는중...");
@@ -134,6 +180,8 @@ public class CarInterface extends AppCompatActivity {
         setContentView(R.layout.car_interface);
         controlDialog = new LoadingDialog(this);
         turnOnDialog = new LoadingDialog(this);
+
+
         controlDialog.registerBackPressed(new LoadingDialog.DialogBackPressed() {
             @Override
             public void onBackPressed() {
@@ -162,23 +210,21 @@ public class CarInterface extends AppCompatActivity {
 
         memberID = getIntent().getStringExtra("memberID");
         carData = (CarData)getIntent().getSerializableExtra("carData");
-        switch(carData.getStatus())
+        switch(carData.getCarStatus())
         {
-            case"운전 가능":
-                isAvailable.setTextColor(Color.parseColor("#4488FF"));
+            case CarData.AVAILABLE:
+                textViewCarStatus.setTextColor(Color.parseColor("#4488FF"));
                 break;
-            case"운전 불가능":
-                isAvailable.setTextColor(Color.parseColor("#FF5544"));
+            case CarData.OCCUPIED:
+                textViewCarStatus.setTextColor(Color.parseColor("#FF5544"));
                 break;
-            case"운전중":
-                isAvailable.setTextColor(Color.parseColor("#9911BB"));
+            case CarData.DRIVING:
+                textViewCarStatus.setTextColor(Color.parseColor("#9911BB"));
                 break;
         }
 
         carImg.setImageResource(carData.getcarImg());
         carName.setText(carData.getCarName());
-        isAvailable.setText(carData.getStatus());
-
 
         //차량 문을 연다
         btnDoorOpen.setOnClickListener(new View.OnClickListener() {
@@ -267,6 +313,7 @@ public class CarInterface extends AppCompatActivity {
             unbindService(carTracingStateBindConnection);
             carTracingService = null;
         }
+        cancelRepeatUpdate();
         super.onPause();
     }
 
@@ -274,10 +321,14 @@ public class CarInterface extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        setCarState(getCarStatusFromServer());
+        super.onResume();
         if(isCarTracingOn){
             bindService(tracingServiceIntent, carTracingStateBindConnection, BIND_AUTO_CREATE);
         }
-        super.onResume();
+        else {
+            startRepeatUpdate();
+        }
     }
 
     private void carTracingStateUpdateCallBack(String state){
@@ -286,39 +337,35 @@ public class CarInterface extends AppCompatActivity {
             public void run() {
                 switch(state){
                     case ArduinoBluetooth.SEARCHING:
-                        controlDialog.setText("기기 탐색중...");
-                        isAvailable.setTextColor(Color.parseColor("#5DC19B"));
+                        turnOnDialog.setText("기기 탐색중...");
                         break;
                     case ArduinoBluetooth.FOUND_DEVICE:
-                        controlDialog.setText("기기 연결중....");
-                        isAvailable.setTextColor(Color.parseColor("#5DC19B"));
+                        turnOnDialog.setText("기기 연결중....");
                         break;
                     case ArduinoBluetooth.SUCCESSFUL_CONNECTION:
-                        controlDialog.setText("연결 성공");
-                        controlDialog.setTextColor(Color.parseColor("#4488FF"));
+                        turnOnDialog.setText("연결 성공");
+                        turnOnDialog.setTextColor(Color.parseColor("#4488FF"));
                         controlDialog.dismiss();
                         break;
                     case ArduinoBluetooth.FAILED_CONNECTION:
-                        controlDialog.setText("연결 실패");
-                        controlDialog.setTextColor(Color.parseColor("#F23920"));
+                        turnOnDialog.setText("연결 실패");
+                        turnOnDialog.setTextColor(Color.parseColor("#F23920"));
                         controlDialog.dismiss();
                         break;
                     case CarTracingService.SUCCESSFUL_CAR_ON:
-                        isAvailable.setText("운전중");
-                        btnStartCar.setVisibility(View.INVISIBLE);
-                        isAvailable.setTextColor(Color.parseColor("#9911BB"));
+                        setCarState(CarData.DRIVING);
                         Toast.makeText(getApplicationContext(), "시동 성공", Toast.LENGTH_SHORT).show();
                         turnOnDialog.dismiss();
+                        startRepeatUpdate();
                         break;
                     case CarTracingService.FAILED_CAR_ON:
-                        isAvailable.setText("운전 실패");
-                        isAvailable.setTextColor(Color.parseColor("#FF5544"));
                         Toast.makeText(getApplicationContext(), "시동 실패", Toast.LENGTH_SHORT).show();
                         turnOnDialog.dismiss();
                         break;
                     case CarTracingService.FINISHED:
-                        isAvailable.setText("운전 가능");
+                        setCarState(CarData.AVAILABLE);
                         unbindService(carTracingStateBindConnection);
+                        startRepeatUpdate();
                         carTracingService = null;
                         isCarTracingOn = false;
                         break;
@@ -346,7 +393,7 @@ public class CarInterface extends AppCompatActivity {
     private void connectUI(){
         carImg = (ImageView)findViewById(R.id.carImg);
         carName = (TextView)findViewById(R.id.carName);
-        isAvailable = (TextView)findViewById(R.id.isAvailable);
+        textViewCarStatus = (TextView)findViewById(R.id.isAvailable);
 
         btnDoorOpen = (Button)findViewById(R.id.doorOpen);
         btnDoorClose = (Button)findViewById(R.id.doorClose);
@@ -356,7 +403,7 @@ public class CarInterface extends AppCompatActivity {
     }
 
     private void getPermission(){
-        if(!(ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if(!(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED

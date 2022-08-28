@@ -1,21 +1,16 @@
 package com.example.carflix;
 
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.bluetooth.BluetoothAdapter;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 
 import android.os.Bundle;
-import android.os.IBinder;
 
 import android.provider.Settings;
 import android.util.Log;
@@ -32,15 +27,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -286,7 +278,7 @@ public class CarList extends AppCompatActivity {
             @Override
             public void onItemClick(View v, int position) {
                 selectPosition = position;
-                switch(carDataList.get(position).getStatus()){
+                switch(carDataList.get(position).getCarStatus()){
                     //남이 운전중이면 건들면 작동 x, 내가 운전중이여도 자신이 운전중인 차량 외에는 건들지 못함.
                     case "사용 가능":authenticate();break;
                     case "사용 불가능":break;
@@ -483,13 +475,13 @@ public class CarList extends AppCompatActivity {
                     if(!serverData.equals("No vehicle_status Found")){
                         String recentVehicleStatus = new JSONArray(serverData).getJSONObject(0).getString("vs_startup_information");
                         if(recentVehicleStatus.equals("off")){
-                            carData.setStatus("사용 가능");
+                            carData.setCarStatus("사용 가능");
                         }
                         else if(recentVehicleStatus.equals("connection_fault")){
-                            carData.setStatus("사용 불가능");
+                            carData.setCarStatus("사용 불가능");
                         }
                         else{
-                            carData.setStatus("운전중");
+                            carData.setCarStatus("운전중");
                         }
                     }
                     carDataList.add(carData);

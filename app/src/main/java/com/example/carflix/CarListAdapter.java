@@ -52,14 +52,14 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
         CarData carData = dataList.get(position);
         holder.carImg.setImageResource(carData.getcarImg());
         holder.carName.setText(carData.getCarName());
-        holder.isAvailable.setText(carData.getStatus());
+        holder.isAvailable.setText(carData.getCarStatus());
         if(isDeleteMode){
             holder.deleteCarButton.setVisibility(View.VISIBLE);
         }
         else{
             holder.deleteCarButton.setVisibility(View.INVISIBLE);
         }
-        switch(carData.getStatus())
+        switch(carData.getCarStatus())
         {
             case"운전 가능":holder.isAvailable.setTextColor(Color.parseColor("#4488FF"));break;
             case"운전 불가능":holder.isAvailable.setTextColor(Color.parseColor("#FF5544"));break;
