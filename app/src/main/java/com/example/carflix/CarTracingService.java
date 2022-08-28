@@ -262,7 +262,7 @@ public class CarTracingService extends Service {
         //R.mipmap.ic_launcher
         builder.setSmallIcon(R.drawable.image_carflix_logo);
         NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
-        style.bigText("현재 " + carName + "를 이용하고 있습니다.");
+        style.bigText(carName + " 운전중.");
         style.setBigContentTitle(null);
         style.setSummaryText("차량 운행중");
         builder.setContentText(null);
@@ -295,7 +295,9 @@ public class CarTracingService extends Service {
                 .setFastestInterval(5000)//sendingTerm
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
-        final int[] permission = {ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)};
+        final int[] permission = {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        };
         if (permission[0] == PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "permission granted, requestLocationUpdates :: ");
             fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper());
