@@ -61,7 +61,8 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
         setContentView(R.layout.car_lookupinfo);
 
         latestDriverLocation = null;
-        carID = getIntent().getStringExtra("carID");
+        //carID = getIntent().getStringExtra("carID");
+        carID = "3";
         carName = getIntent().getStringExtra("carName");
 
         getSupportActionBar().setTitle(carName);
@@ -142,6 +143,7 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
 
                             //2-1.현재 위치(가장 최근 위치)를 표시
                             //userName(String), status(String), date(String)
+                            logList.getClass();
                             userID = logList.getUserInfo(logList.getSize()-1)[0];
                             status = logList.getUserInfo(logList.getSize()-1)[1];
                             //"vs_regdate" : "yyyy-MM-dd tt:mm:ss"

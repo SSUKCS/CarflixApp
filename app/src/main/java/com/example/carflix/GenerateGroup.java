@@ -101,23 +101,23 @@ public class GenerateGroup extends AppCompatActivity {
             }
     );
     private void connectUI(){
-        smallGroupButton = (Button) findViewById(R.id.smallGroupButton);
-        ceoGroupButton = (Button) findViewById(R.id.ceoGroupButton);
-        rentGroupButton = (Button) findViewById(R.id.rentGroupButton);
+        smallGroupButton = findViewById(R.id.smallGroupButton);
+        ceoGroupButton = findViewById(R.id.ceoGroupButton);
+        rentGroupButton = findViewById(R.id.rentGroupButton);
 
-        smallGroupLayout = (LinearLayout) findViewById(R.id.smallGroupLayout);
-        smallGroupNameEdit = (EditText) findViewById(R.id.smallGroupNameEdit);
-        smallGroupInfoEdit = (EditText) findViewById(R.id.smallGroupInfoEdit);
+        smallGroupLayout = findViewById(R.id.smallGroupLayout);
+        smallGroupNameEdit = findViewById(R.id.smallGroupNameEdit);
+        smallGroupInfoEdit = findViewById(R.id.smallGroupInfoEdit);
 
-        bigGroupLayout = (LinearLayout) findViewById(R.id.bigGroupLayout);
-        bigGroupNameEdit = (EditText) findViewById(R.id.bigGroupNameEdit);
-        bigGroupCompRegNum = (EditText) findViewById(R.id.bigGroupCompRegNum);
-        bigGroupCareerEdit = (EditText) findViewById(R.id.bigGroupCareerEdit);
-        bigGroupInfoEdit = (EditText) findViewById(R.id.bigGroupInfoEdit);
-        bigGroupCertificateURI = (TextView)findViewById(R.id.bigGroupCertificateURI);
+        bigGroupLayout = findViewById(R.id.bigGroupLayout);
+        bigGroupNameEdit = findViewById(R.id.bigGroupNameEdit);
+        bigGroupCompRegNum = findViewById(R.id.bigGroupCompRegNum);
+        bigGroupCareerEdit = findViewById(R.id.bigGroupCareerEdit);
+        bigGroupInfoEdit = findViewById(R.id.bigGroupInfoEdit);
+        bigGroupCertificateURI = findViewById(R.id.bigGroupCertificateURI);
 
-        findGroupCertificate = (Button) findViewById(R.id.findGroupCertificate);
-        generateGroupButton = (Button) findViewById(R.id.generateGroupButton);
+        findGroupCertificate = findViewById(R.id.findGroupCertificate);
+        generateGroupButton = findViewById(R.id.generateGroupButton);
 
 
         smallGroupButton.setOnClickListener(new View.OnClickListener() {

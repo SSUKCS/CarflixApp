@@ -277,11 +277,12 @@ public class CarList extends AppCompatActivity {
             @Override
             public void onItemClick(View v, int position) {
                 selectPosition = position;
-                switch(carDataList.get(position).getCarStatus()){
+                String status = carDataList.get(position).getCarStatus();
+                switch(status){
                     //남이 운전중이면 건들면 작동 x, 내가 운전중이여도 자신이 운전중인 차량 외에는 건들지 못함.
-                    case "사용 가능":authenticate();break;
-                    case "사용 불가능":break;
-                    case "운전중":Toast.makeText(context, "다른 이용자가 운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
+                    case "운전 가능":authenticate();break;
+                    case "직접 운전중":break;
+                    case "다른 사람이 운전 중":Toast.makeText(context, "다른 이용자가 운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
                 }
             }
             public void onDeleteCarButtonClick(View v, int position){
@@ -357,6 +358,7 @@ public class CarList extends AppCompatActivity {
     }
 
     private void authenticate(){
+        Log.d("authenticate", "start");
         switch (biometricManager.canAuthenticate(BIOMETRIC_STRONG | DEVICE_CREDENTIAL)) {
             case BiometricManager.BIOMETRIC_SUCCESS://"생체 인증 가능."
                 Log.d("CarList_authenticate", "BIOMETRIC_SUCCESS");

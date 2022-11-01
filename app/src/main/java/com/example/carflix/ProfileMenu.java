@@ -124,12 +124,12 @@ public class ProfileMenu {
         menuCloseAnim = AnimationUtils.loadAnimation(baseActivity, R.anim.menu_close_to_left);
     }
     private void setMenuOption(){
+        String baseActivityClass = baseActivity.getClass().toString();
         usageView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 Context context = baseActivity.getApplicationContext();
                 Intent intent;
-                String baseActivityClass = baseActivity.getClass().toString();
                 switch(baseActivityClass){
                     case "class com.example.carflix.GroupList"://프로필 변경
                         intent = new Intent(context, ChangeProfile.class);
@@ -154,6 +154,9 @@ public class ProfileMenu {
                 }
             }
         });
+        if(baseActivity.getClass().toString().equals("class com.example.carflix.CarList") && !isGroupCreator){
+
+        }
         outView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -371,6 +374,15 @@ public class ProfileMenu {
                 }
                 else if(memberPositionData.equals("n")){
                     userName.setText(userData.getString("mb_nickname")+"(일반 사용자)");
+                    if(baseActivity.getClass().toString().equals("class com.example.carflix.CarList")){
+                        baseActivity.findViewById(R.id.usageView).setVisibility(View.GONE);
+                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                        param.topMargin = 15;
+                        baseActivity.findViewById(R.id.outView).setLayoutParams(param);
+                        baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
+                    }
                 }
             }
             else{
@@ -387,7 +399,7 @@ public class ProfileMenu {
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT);
                     param.topMargin = 15;
-                    baseActivity.findViewById(R.id.outView).setLayoutParams(param);;
+                    baseActivity.findViewById(R.id.outView).setLayoutParams(param);
                     baseActivity.findViewById(R.id.deleteCarView).setVisibility(View.GONE);
                 }
             }

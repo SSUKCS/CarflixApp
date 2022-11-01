@@ -209,6 +209,9 @@ public class GroupList extends AppCompatActivity {
                 int len = inviteCodeJSONArray.length();
                 // {"mb_id":"29","group_id":"34","status":"ceo_group"}
                 for(int i = 0; i< len; i++){
+                    String groupInvitee = inviteCodeJSONArray.getJSONObject(i).getString("invitee");
+                    if(!memberID.equals(groupInvitee))continue;
+
                     String group_id= inviteCodeJSONArray.getJSONObject(i).getString("group_id");
                     String inviteCode = inviteCodeJSONArray.getJSONObject(i).getString("ic_number");
                     Log.d("GroupList_addItemFromSavedData", inviteCode);
@@ -224,9 +227,9 @@ public class GroupList extends AppCompatActivity {
                     if(!groupJSONData.get("mb_id").equals("")){
                         //그룹 데이터 사용 가능
                         switch(groupType){
-                            case"small_group": groupDataList.add(new SmallGroupData(groupJSONData));;break;
-                            case"ceo_group":groupDataList.add(new CEOGroupData(groupJSONData));;break;
-                            case"rent_group":groupDataList.add(new RentGroupData(groupJSONData));;break;
+                            case"small_group": groupDataList.add(new SmallGroupData(groupJSONData));break;
+                            case"ceo_group":groupDataList.add(new CEOGroupData(groupJSONData));break;
+                            case"rent_group":groupDataList.add(new RentGroupData(groupJSONData));break;
                         }
                         Integer index = groupDataList.size()-1;
                         inviteCodeMap.put(index, inviteCode);

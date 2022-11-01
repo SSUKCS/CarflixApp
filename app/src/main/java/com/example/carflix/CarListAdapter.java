@@ -2,6 +2,7 @@ package com.example.carflix;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,6 +94,7 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Log.d("itemview", "itemview"+getAdapterPosition());
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         if (listener != null) {

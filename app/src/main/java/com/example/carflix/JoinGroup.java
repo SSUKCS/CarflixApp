@@ -110,6 +110,7 @@ public class JoinGroup extends AppCompatActivity {
                     savedGroupJSONArray = new JSONArray(savedGroupJSONArrayString);
 
                 JSONObject saveJSONObject = new JSONObject(saveData);
+                saveJSONObject.put("invitee", memberID);
                 savedGroupJSONArray.put(saveJSONObject);
                 Log.d("JoinGroup_saveGroupData", "AFTER :: "+savedGroupJSONArray);
                 //SharedPreferences에 저장
