@@ -280,8 +280,7 @@ public class CarList extends AppCompatActivity {
                 switch(carDataList.get(position).getCarStatus()){
                     //남이 운전중이면 건들면 작동 x, 내가 운전중이여도 자신이 운전중인 차량 외에는 건들지 못함.
                     case "운전 가능":authenticate();break;
-                    case "직접 운전중":break;
-                    case "다른 사람이 운전중":Toast.makeText(context, "다른 이용자가 운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
+                    case "운전중":Toast.makeText(context, "운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
                 }
             }
             public void onDeleteCarButtonClick(View v, int position){
@@ -473,16 +472,11 @@ public class CarList extends AppCompatActivity {
                     String param = "cr_id="+jsonObject.getString("cr_id");
                     String serverData = new ServerData("GET", "vehicle_status/vehicle_condition", param, null).get();
                     if(!serverData.equals("차량시동상태를 걸어주세요.")){
-                        JSONObject recentVehicleStatus = new JSONArray(serverData).getJSONObject(0);
-                        String message = recentVehicleStatus.getString("message");
-                        if(message.equals("시동가능")){
+                        if(serverData.equals("시동가능")){
                             carData.setCarStatus("운전 가능");
                         }
-                        else if(message.equals("시동중")){
-                            if(memberID.equals(recentVehicleStatus.getString("member")))
-                                carData.setCarStatus("직접 운전중");
-                            else
-                                carData.setCarStatus("다른사람이 운전중");
+                        else if(serverData.equals("시동중")){
+                            carData.setCarStatus("운전중");
                         }
                     }
                     carDataList.add(carData);
