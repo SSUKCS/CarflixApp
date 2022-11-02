@@ -61,8 +61,7 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
         setContentView(R.layout.car_lookupinfo);
 
         latestDriverLocation = null;
-        //carID = getIntent().getStringExtra("carID");
-        carID = "3";
+        carID = getIntent().getStringExtra("carID");
         carName = getIntent().getStringExtra("carName");
 
         getSupportActionBar().setTitle(carName);
@@ -114,6 +113,7 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                                 ByteArrayInputStream inStream = new ByteArrayInputStream(image);
                                                 Bitmap bitmap = BitmapFactory.decodeStream(inStream) ;
                                                 userImage.setImageBitmap(bitmap);
+                                                userImage.setImageResource(R.drawable.userimage1_default);
                                             }
                                             else{
                                                 userImage.setImageResource(R.drawable.userimage1_default);
@@ -199,7 +199,9 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                 hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
                                 markerOptions.position(logList.getLocation(i)).title(userName).snippet(hourAndMinute);
 
-                                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.ic_track_mark)));
+                                //markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.ic_track_mark)));
+                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_track_mark));
+
                                 movementRecordMap.addMarker(markerOptions);
                             }
                         }
