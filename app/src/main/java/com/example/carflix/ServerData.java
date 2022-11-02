@@ -94,7 +94,7 @@ public class ServerData {
                     //{"message":" 시동중 "}
                     //{"message":" 차량시동상태를 걸어주세요."} : cr_id가 존재하지 않는 number일 경우
                     result = data.getString("message");
-                    if(!result.equals("시동중")&&!result.equals("차량시동상태를 걸어주세요")){
+                    if(result.equals("시동가능")){
                         //{message, vs_startup_infomation, cr_id, member}
                         result = data.toString();
                     }

@@ -63,8 +63,8 @@ public class CarListAdapter extends RecyclerView.Adapter<CarListAdapter.ViewHold
         switch(carData.getCarStatus())
         {
             case"운전 가능":holder.isAvailable.setTextColor(Color.parseColor("#4488FF"));break;
-            case"운전 불가능":holder.isAvailable.setTextColor(Color.parseColor("#FF5544"));break;
-            case"운전중":holder.isAvailable.setTextColor(Color.parseColor("#9911BB"));break;
+            case"다른 사람이 운전중":holder.isAvailable.setTextColor(Color.parseColor("#FF5544"));break;
+            case"직접 운전중":holder.isAvailable.setTextColor(Color.parseColor("#9911BB"));break;
         }
     }
     public void setDeleteMode(boolean mode){
