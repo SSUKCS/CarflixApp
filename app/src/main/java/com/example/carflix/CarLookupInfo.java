@@ -113,7 +113,6 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                                 ByteArrayInputStream inStream = new ByteArrayInputStream(image);
                                                 Bitmap bitmap = BitmapFactory.decodeStream(inStream) ;
                                                 userImage.setImageBitmap(bitmap);
-                                                userImage.setImageResource(R.drawable.userimage1_default);
                                             }
                                             else{
                                                 userImage.setImageResource(R.drawable.userimage1_default);
@@ -132,7 +131,9 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                 status = vehicleStatus.getString("vs_startup_information");
                                 date = vehicleStatus.getString("vs_regdate");
                                 if(!vehicleStatus.getString("vs_latitude").equals("") &&
-                                        !vehicleStatus.getString("vs_longitude").equals("")){
+                                        !vehicleStatus.getString("vs_longitude").equals("")&&
+                                        !vehicleStatus.getString("vs_latitude").equals("0") &&
+                                        !vehicleStatus.getString("vs_longitude").equals("0")){
                                     latitude = Double.parseDouble(vehicleStatus.getString("vs_latitude"));
                                     longitude = Double.parseDouble(vehicleStatus.getString("vs_longitude"));;
                                     logList.add(new LatLng(latitude, longitude), userID, status, date);
@@ -198,10 +199,10 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                 hhmmtt = date.split(" ")[1];
                                 hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
                                 markerOptions.position(logList.getLocation(i)).title(userName).snippet(hourAndMinute);
-
-                                //markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.ic_track_mark)));
+                                if(i==0){
+                                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.ic_start_mark)));
+                                }
                                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_track_mark));
-
                                 movementRecordMap.addMarker(markerOptions);
                             }
                         }
@@ -262,7 +263,7 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
         userInfoTextView = findViewById(R.id.userInfoText);
     }
     private Bitmap getBitmap(int drawableRes) {
-        Drawable drawable = ContextCompat.getDrawable(this, drawableRes);
+        Drawable drawable = getResources().getDrawable(drawableRes, null);
         Canvas canvas = new Canvas();
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         canvas.setBitmap(bitmap);

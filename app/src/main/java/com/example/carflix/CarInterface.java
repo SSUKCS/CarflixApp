@@ -61,31 +61,6 @@ public class CarInterface extends AppCompatActivity {
     private boolean isCarTracingOn;
     private final CarTracingService.StateUpdateCallBack carTracingStateUpdateCallBack = this::carTracingStateUpdateCallBack;
 
-    public String getCarStatusFromServer(){
-        //서버로부터 자동차 상태를 받아오는 코드
-        return CarData.AVAILABLE;
-    }
-
-    TimerTask timerTask;
-    Timer updateFromServerTimer;
-    long updateTerm = 3000;
-    private void startRepeatUpdate(){
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                Log.i(TAG, "run: 차량 상태 업데이트");
-                // String carStatus = getCarStatusFromServer();
-                // setCarState(carStatus);
-            }
-        };
-        updateFromServerTimer = new Timer();
-        updateFromServerTimer.schedule(timerTask, 1000, updateTerm);
-    }
-
-    private void cancelRepeatUpdate(){
-        timerTask.cancel();
-    }
-
     private void setCarState(String carStatus){
         textViewCarStatus.setText(carStatus);
         switch(carStatus){
@@ -182,7 +157,7 @@ public class CarInterface extends AppCompatActivity {
     }
 
     private Intent startServiceIntent;
-    private Intent bindServiceIntent;
+    private Intent tracingServiceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,6 +189,7 @@ public class CarInterface extends AppCompatActivity {
                     unbindService(carTracingStateBindConnection);
                     isCarTracingOn = false;
                     Toast.makeText(getApplicationContext(), "취소", Toast.LENGTH_SHORT).show();
+                    setCarState(CarData.AVAILABLE);
                 }
             }
         });
@@ -235,7 +211,7 @@ public class CarInterface extends AppCompatActivity {
                 textViewCarStatus.setTextColor(Color.parseColor("#9911BB"));
                 break;
         }
-
+        textViewCarStatus.setText(carData.getCarStatus());
         carImg.setImageResource(carData.getcarImg());
         carName.setText(carData.getCarName());
 
@@ -253,7 +229,6 @@ public class CarInterface extends AppCompatActivity {
                 carController.start();
             }
         });
-
         //차량 문을 닫는다
         btnDoorClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,7 +243,6 @@ public class CarInterface extends AppCompatActivity {
                 carController.start();
             }
         });
-
         //차량 트렁크 문을 연다
         btnTrunkOpen.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -297,22 +271,20 @@ public class CarInterface extends AppCompatActivity {
                 carController.start();
             }
         });
-
-        //차량에 시동을 건다/시동이 걸려있으면 끈다
+        //차량에 시동을 건다
         btnStartCar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 turnOnDialog.show();
-                /*
-                biometricPrompt.authenticate(promptInfo);*/
 
                 startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
                 startServiceIntent.putExtra("mb_id", memberID);
                 startServiceIntent.putExtra("car_data", carData);
                 startServiceIntent.putExtra("mac_address", carData.getMac_address());
-                startService(startServiceIntent);
 
+                startService(startServiceIntent);
                 bindService(tracingServiceIntent, carTracingStateBindConnection, BIND_AUTO_CREATE);
+
                 isCarTracingOn = true;
                 //버튼을 보이지 않게 한다.
                 view.setVisibility(View.INVISIBLE);
@@ -322,25 +294,22 @@ public class CarInterface extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        super.onPause();
         if(carTracingService != null) {
             unbindService(carTracingStateBindConnection);
             carTracingService = null;
         }
-        cancelRepeatUpdate();
-        super.onPause();
     }
-
-    private Intent tracingServiceIntent;
 
     @Override
     protected void onResume() {
-        setCarState(getCarStatusFromServer());
         super.onResume();
+        setCarState(carData.getCarStatus());
         if(isCarTracingOn){
             bindService(tracingServiceIntent, carTracingStateBindConnection, BIND_AUTO_CREATE);
         }
         else {
-            startRepeatUpdate();
+            Log.d("CarInterface", "onResume(): isCarTracingOn is false");
         }
     }
 
@@ -369,7 +338,7 @@ public class CarInterface extends AppCompatActivity {
                         setCarState(CarData.DRIVING);
                         Toast.makeText(getApplicationContext(), "시동 성공", Toast.LENGTH_SHORT).show();
                         turnOnDialog.dismiss();
-                        startRepeatUpdate();
+                        Log.d("CarInterface", "carTracingStateUpdateCallBack(): "+CarTracingService.SUCCESSFUL_CAR_ON);
                         break;
                     case CarTracingService.FAILED_CAR_ON:
                         Toast.makeText(getApplicationContext(), "시동 실패", Toast.LENGTH_SHORT).show();
@@ -377,10 +346,10 @@ public class CarInterface extends AppCompatActivity {
                         break;
                     case CarTracingService.FINISHED:
                         setCarState(CarData.AVAILABLE);
-                        unbindService(carTracingStateBindConnection);
-                        startRepeatUpdate();
-                        carTracingService = null;
+                        Log.d("CarInterface", "carTracingStateUpdateCallBack(): "+CarTracingService.FINISHED);
                         isCarTracingOn = false;
+                        carTracingService.end();
+                        unbindService(carTracingStateBindConnection);
                         break;
                 }
             }
@@ -402,7 +371,11 @@ public class CarInterface extends AppCompatActivity {
         turnOnDialog.dismiss();
         finish();
     }
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
     private void connectUI(){
         carImg = (ImageView)findViewById(R.id.carImg);
         carName = (TextView)findViewById(R.id.carName);
@@ -436,9 +409,5 @@ public class CarInterface extends AppCompatActivity {
             finish();
         }
     }
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-    }
+
 }

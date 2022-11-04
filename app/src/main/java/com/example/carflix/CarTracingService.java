@@ -262,13 +262,15 @@ public class CarTracingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mState = ArduinoBluetooth.SEARCHING;
+
         mbId = intent.getStringExtra("mb_id");
         carData = (CarData) intent.getSerializableExtra("car_data");
         String bluetoothMacAddress = intent.getStringExtra("mac_address");
         if(bluetoothMacAddress != null)
             tracingThread.setTargetMacAddress(bluetoothMacAddress);
-        tracingThread.start();
-
+        if(tracingThread.getState()==Thread.State.NEW)
+            tracingThread.start();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         locationCallback = new LocationCallback() {
             @Override
@@ -300,10 +302,13 @@ public class CarTracingService extends Service {
         builder.setStyle(style);
         builder.setWhen(0);
         builder.setShowWhen(false);
-
-        Intent notificationIntent = new Intent(this, CarInterface.class);
+        Intent notificationIntent = new Intent(getBaseContext(), CarInterface.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setAction(Intent.ACTION_MAIN);
+        notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         notificationIntent.putExtra("memberID", mbId);
-        carData.setCarStatus("운전중");
+
+        carData.setCarStatus(CarData.DRIVING);
         notificationIntent.putExtra("carData", carData);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,

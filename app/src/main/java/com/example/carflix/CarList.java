@@ -257,6 +257,7 @@ public class CarList extends AppCompatActivity {
                         //Toast.makeText(getApplicationContext(), R.string.auth_success_message, Toast.LENGTH_SHORT).show();
                             Log.d("CarList_serItemClickListener_onItemClick: ", "nowDriving"+nowDriving);
                             Intent intent = new Intent(getApplicationContext(), CarInterface.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             CarData carData = carDataList.get(selectPosition);
                             intent.putExtra("memberID", memberID);
                             intent.putExtra("carData", carData);
@@ -277,10 +278,11 @@ public class CarList extends AppCompatActivity {
             public void onItemClick(View v, int position) {
                 selectPosition = position;
                 Log.d("carList", carDataList.get(position).getCarStatus());
+                updateListFromServer();
                 switch(carDataList.get(position).getCarStatus()){
                     //남이 운전중이면 건들면 작동 x, 내가 운전중이여도 자신이 운전중인 차량 외에는 건들지 못함.
                     case "운전 가능":authenticate();break;
-                    case "운전중":Toast.makeText(context, "운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
+                    case "운전중": Toast.makeText(context, "운전중인 차량입니다.", Toast.LENGTH_LONG).show();break;
                 }
             }
             public void onDeleteCarButtonClick(View v, int position){
