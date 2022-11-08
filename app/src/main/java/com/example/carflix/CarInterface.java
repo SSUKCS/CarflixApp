@@ -62,6 +62,7 @@ public class CarInterface extends AppCompatActivity {
     private final CarTracingService.StateUpdateCallBack carTracingStateUpdateCallBack = this::carTracingStateUpdateCallBack;
 
     private void setCarState(String carStatus){
+        carData.setCarStatus(carStatus);
         textViewCarStatus.setText(carStatus);
         switch(carStatus){
             case CarData.AVAILABLE:
@@ -197,23 +198,8 @@ public class CarInterface extends AppCompatActivity {
         getPermission();
         connectUI();
 
-        memberID = getIntent().getStringExtra("memberID");
         carData = (CarData)getIntent().getSerializableExtra("carData");
-        switch(carData.getCarStatus())
-        {
-            case CarData.AVAILABLE:
-                textViewCarStatus.setTextColor(Color.parseColor("#4488FF"));
-                break;
-            case CarData.OCCUPIED:
-                textViewCarStatus.setTextColor(Color.parseColor("#FF5544"));
-                break;
-            case CarData.DRIVING:
-                textViewCarStatus.setTextColor(Color.parseColor("#9911BB"));
-                break;
-        }
-        textViewCarStatus.setText(carData.getCarStatus());
-        carImg.setImageResource(carData.getcarImg());
-        carName.setText(carData.getCarName());
+        memberID = getIntent().getStringExtra("memberID");
 
         //차량 문을 연다
         btnDoorOpen.setOnClickListener(new View.OnClickListener() {
@@ -275,6 +261,7 @@ public class CarInterface extends AppCompatActivity {
         btnStartCar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                setCarState(CarData.DRIVING);
                 turnOnDialog.show();
 
                 startServiceIntent = new Intent(getApplicationContext(), CarTracingService.class);
@@ -295,16 +282,26 @@ public class CarInterface extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(carTracingService != null) {
-            unbindService(carTracingStateBindConnection);
-            carTracingService = null;
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        switch(carData.getCarStatus())
+        {
+            case CarData.AVAILABLE:
+                textViewCarStatus.setTextColor(Color.parseColor("#4488FF"));
+                break;
+            case CarData.OCCUPIED:
+                textViewCarStatus.setTextColor(Color.parseColor("#FF5544"));
+                break;
+            case CarData.DRIVING:
+                textViewCarStatus.setTextColor(Color.parseColor("#9911BB"));
+                break;
+        }
         setCarState(carData.getCarStatus());
+        carImg.setImageResource(carData.getcarImg());
+        carName.setText(carData.getCarName());
         if(isCarTracingOn){
             bindService(tracingServiceIntent, carTracingStateBindConnection, BIND_AUTO_CREATE);
         }
@@ -343,6 +340,7 @@ public class CarInterface extends AppCompatActivity {
                     case CarTracingService.FAILED_CAR_ON:
                         Toast.makeText(getApplicationContext(), "시동 실패", Toast.LENGTH_SHORT).show();
                         turnOnDialog.dismiss();
+                        setCarState(CarData.AVAILABLE);
                         break;
                     case CarTracingService.FINISHED:
                         setCarState(CarData.AVAILABLE);
@@ -360,21 +358,29 @@ public class CarInterface extends AppCompatActivity {
 
     @Override
     protected void onDestroy(){
-        super.onDestroy();
         if(controlDialog.isShowing())
             controlDialog.dismiss();
+        super.onDestroy();
     }
 
     @Override
     public void onBackPressed(){
-        controlDialog.dismiss();
-        turnOnDialog.dismiss();
-        finish();
+        if(carData.getCarStatus().equals(CarData.DRIVING)){
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(homeIntent);
+        }
+        if(carData.getCarStatus().equals(CarData.AVAILABLE)){
+            super.onBackPressed();
+            finish();
+        }
     }
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        carData = (CarData)getIntent().getSerializableExtra("carData");
     }
     private void connectUI(){
         carImg = (ImageView)findViewById(R.id.carImg);

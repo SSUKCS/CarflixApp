@@ -144,11 +144,10 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
 
                             //2-1.현재 위치(가장 최근 위치)를 표시
                             //userName(String), status(String), date(String)
-                            logList.getClass();
-                            userID = logList.getUserInfo(logList.getSize()-1)[0];
-                            status = logList.getUserInfo(logList.getSize()-1)[1];
+                            userID = logList.getUserInfo(0)[0];
+                            status = logList.getUserInfo(0)[1];
                             //"vs_regdate" : "yyyy-MM-dd tt:mm:ss"
-                            date = logList.getUserInfo(logList.getSize()-1)[2];
+                            date = logList.getUserInfo(0)[2];
                             hhmmtt = date.split(" ")[1];
                             hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
                             if(!userName.equals("이미 탈퇴한 회원입니다.")){
@@ -182,9 +181,10 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                             //2-2.현재 위치(가장 최근 위치)를 지도 상에 표시
                             movementRecordMap.moveCamera(CameraUpdateFactory.newLatLngZoom(logList.getLocation(logList.getSize()-1), 20));
                             if(latestDriverLocation==null){
-                                MarkerOptions markOptions = new MarkerOptions();
-                                markOptions.position(new LatLng(latitude, longitude)).title(userName).snippet(hourAndMinute);
-                                latestDriverLocation = movementRecordMap.addMarker(markOptions);
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position(new LatLng(latitude, longitude)).title(userName).snippet(hourAndMinute);
+                                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.ic_track_mark)));
+                                latestDriverLocation = movementRecordMap.addMarker(markerOptions);
                                 movementRecordMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 50));
                             }
                             else{
@@ -199,10 +199,10 @@ public class CarLookupInfo extends AppCompatActivity implements OnMapReadyCallba
                                 hhmmtt = date.split(" ")[1];
                                 hourAndMinute = hhmmtt.substring(0, hhmmtt.lastIndexOf(":"));
                                 markerOptions.position(logList.getLocation(i)).title(userName).snippet(hourAndMinute);
+                                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.ic_track_mark)));
                                 if(i==0){
                                     markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.ic_start_mark)));
                                 }
-                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_track_mark));
                                 movementRecordMap.addMarker(markerOptions);
                             }
                         }

@@ -1,13 +1,14 @@
 package com.example.carflix;
 
-import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import org.json.JSONObject;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class LogList {
@@ -15,10 +16,21 @@ public class LogList {
         String userName;
         String status;
         String date;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        private String timeSynchronize(String date){
+            Calendar cal = Calendar.getInstance();
+            try {
+                cal.setTime(dateFormat.parse(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            cal.add(Calendar.HOUR, 9);
+            return dateFormat.format(cal.getTime());
+        }
         UserInfo(String userName, String status, String date){
             this.userName = userName;
             this.status = status;
-            this.date = date;
+            this.date = timeSynchronize(date);
         }
         public void set(String userName, String status, String date){
             this.userName = userName;

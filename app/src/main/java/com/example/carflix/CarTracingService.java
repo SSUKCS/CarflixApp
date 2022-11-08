@@ -302,13 +302,13 @@ public class CarTracingService extends Service {
         builder.setStyle(style);
         builder.setWhen(0);
         builder.setShowWhen(false);
+
         Intent notificationIntent = new Intent(getBaseContext(), CarInterface.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.setAction(Intent.ACTION_MAIN);
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         notificationIntent.putExtra("memberID", mbId);
 
-        carData.setCarStatus(CarData.DRIVING);
         notificationIntent.putExtra("carData", carData);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
