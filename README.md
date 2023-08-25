@@ -19,7 +19,7 @@ Carflix 서비스의 목표는 다음과 같다.
 ## 기능 설계
 ### 1. 회원가입 및 로그인
 
-<img src="https://github.com/SSUKCS/CarflixApp/blob/master/readmeimg/login.png?raw=true" title="로그인" alt="login img"></img><br/>
+<img src="https://github.com/simjeehoon/src_repository/blob/master/CarflixApp/master/login.png?raw=true" title="로그인" alt="login img"></img><br/>
 
 > + 처음 안드로이드 앱을 실행하면 [그림 8]과 같이 회원가입 혹은 로그인을 선택하는 화면이 나온다. 
 > + 회원가입 화면에 진입한 뒤, 올바르게 정보를 입력하고 회원가입 버튼을 누르면 [그림 7]과 같이 데이터베이스에 정보가 갱신된다. 
@@ -27,7 +27,7 @@ Carflix 서비스의 목표는 다음과 같다.
 
 ### 2. 그룹 생성
 
-<img src="https://github.com/SSUKCS/CarflixApp/blob/master/readmeimg/group.png?raw=true" title="그룹생성" alt="group img"></img><br/>
+<img src="https://github.com/simjeehoon/src_repository/blob/master/CarflixApp/master/group.png?raw=true" title="그룹생성" alt="group img"></img><br/>
 
 > - 로그인에 성공하였다면 [그림 9]와 같이 API 서버로부터 전달받은 그룹 목록을 출력한다. 
 > - 그룹 생성은 액션 바의 메뉴를 통해 진행할 수 있다. 
@@ -38,7 +38,7 @@ Carflix 서비스의 목표는 다음과 같다.
 
 ### 3. 차량 등록 및 삭제
 
-<img src="https://github.com/SSUKCS/CarflixApp/blob/master/readmeimg/addcar.png?raw=true" title="차량등록" alt="add car"></img><br/>
+<img src="https://github.com/simjeehoon/src_repository/blob/master/CarflixApp/master/addcar.png?raw=true" title="차량등록" alt="add car"></img><br/>
 
 > + 그룹 리스트에서 그룹을 선택하면 차량 목록이 나온다. 그룹 대표자는 [그림 11]과 같이 그룹에 차량을 추가하거나 삭제할 수 있다. 
 > + 차량을 추가할 경우 안드로이드는 서버로부터 받은 자동차 ID를 차량 모듈에 할당한다. 성공적으로 할당하면 [그림 14]와 같이 차량 정보가 데이터베이스에 갱신된다.
@@ -47,7 +47,7 @@ Carflix 서비스의 목표는 다음과 같다.
 
 ### 4. 차량 제어
 
-<img src="https://github.com/SSUKCS/CarflixApp/blob/master/readmeimg/controlcar.png?raw=true" title="차량제어" alt="control car"></img><br/>
+<img src="https://github.com/simjeehoon/src_repository/blob/master/CarflixApp/master/controlcar.png?raw=true" title="차량제어" alt="control car"></img><br/>
 
 > + 안드로이드 앱에서 차량을 선택하게 되면 [그림 15], [그림 16]과 같이 스마트폰에 저장된 본인 인증 수단으로 본인 인증을 진행한다. 
 > + 인증 후 [그림 17]처럼 자동차 키에 있는 기능들을 버튼을 눌러서 실행할 수 있다. 트렁크의 경우 모형 구현의 편의성을 위해 열기와 닫기를 구분하였다. [그림 17]의 문 및 트렁크 제어 버튼을 누르면 [그림 3]의 과정을 거친 뒤 [그림 18]처럼 차량을 제어한다.
@@ -58,7 +58,7 @@ Carflix 서비스의 목표는 다음과 같다.
 > * 차량 목록에서 특정 차량의 이용 정보 조회 버튼을 누르면 [그림 20]과 같이 차량 정보가 표시된다. 
 > * 이 화면에는 누가 운전하고 있는지, 차량이 어디에 위치하는지에 대한 정보가 담겨있다.
 
-<img src="https://github.com/SSUKCS/CarflixApp/blob/master/readmeimg/invitecode.png?raw=true" title="초대코드" alt="invite code"></img><br/>
+<img src="https://github.com/simjeehoon/src_repository/blob/master/CarflixApp/master/invitecode.png?raw=true" title="초대코드" alt="invite code"></img><br/>
 
 ### 6. 그룹 초대 및 그룹 가입
  > * [그림 21]과 같이 대표자 혹은 부매니저가 초대 코드를 생성할 수 있다. 
